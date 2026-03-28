@@ -1,3 +1,8 @@
+package ui;
+
+import utils.AppIcons;
+import utils.AppTheme;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;

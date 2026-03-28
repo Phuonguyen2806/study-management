@@ -1,3 +1,5 @@
+package utils;
+
 import javax.swing.Icon;
 import java.awt.*;
 import java.util.HashMap;
