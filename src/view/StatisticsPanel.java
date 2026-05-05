@@ -11,8 +11,9 @@ public class StatisticsPanel extends JPanel {
     private final Color COLOR_BG = new Color(245, 247, 251);
 
     // Thành phần Thống kê Ngày
-    private JLabel lblDailyStudyTime, lblPomodoroCount, lblPendingTasks, lblInProgressTasks, lblDoneTasks, lblOverdueTasks;
-
+    private JLabel lblDailyStudyTime, lblPomodoroCount, lblPendingTasks, lblInProgressTasks, lblDoneTasks, lblOverdueTasks, lblTotalTasks;
+    private JTable overdueTable, upcomingTable;
+    private DefaultTableModel overdueModel, upcomingModel;
     // Thành phần Thống kê Tuần
     private JLabel lblWeeklyAvgTime, lblWeeklyCompletionRate;
     private JPanel pnlBarChart, pnlPieChart;
@@ -93,21 +94,77 @@ public class StatisticsPanel extends JPanel {
     // --- GIAO DIỆN CHI TIẾT ---
 
     private JPanel createDailyView() {
-        JPanel gridPanel = new JPanel(new GridLayout(2, 3, 20, 20));
-        gridPanel.setBackground(COLOR_BG);
-        gridPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+        // 1. Tạo Panel chính với BorderLayout
+        JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
+        mainPanel.setBackground(COLOR_BG);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // Hàng 1: Các màu xanh dương, cam, xanh teal
-        gridPanel.add(createStatCard("Tổng giờ học", lblDailyStudyTime = new JLabel("0.0"), "📅", new Color(0, 102, 204)));
-        gridPanel.add(createStatCard("Số Pomodoro", lblPomodoroCount = new JLabel("0"), "🍅", new Color(255, 87, 34)));
-        gridPanel.add(createStatCard("Đang làm", lblInProgressTasks = new JLabel("0"), "⏳", new Color(0, 150, 136)));
+        // --- PHẦN TRÊN: 4 Ô THỐNG KÊ (Nằm ở NORTH) ---
+        JPanel statsPanel = new JPanel(new GridLayout(1, 4, 15, 15));
+        statsPanel.setOpaque(false);
 
-        // Hàng 2: Các màu xám, xanh lá, đỏ
-        gridPanel.add(createStatCard("Chưa làm", lblPendingTasks = new JLabel("0"), "📋", new Color(108, 117, 125)));
-        gridPanel.add(createStatCard("Hoàn thành", lblDoneTasks = new JLabel("0"), "✅", new Color(40, 167, 69)));
-        gridPanel.add(createStatCard("Trễ hạn", lblOverdueTasks = new JLabel("0"), "⚠️", new Color(220, 53, 69)));
+        // Khởi tạo các Label và gán vào Card
+        statsPanel.add(createStatCard("Tổng tập trung", lblDailyStudyTime = new JLabel("0.0"), "⏱️", new Color(0, 102, 204)));
+        statsPanel.add(createStatCard("Số Pomodoro", lblPomodoroCount = new JLabel("0"), "🍅", new Color(255, 87, 34)));
+        statsPanel.add(createStatCard("Chưa hoàn thành", lblTotalTasks = new JLabel("0"), "📋", new Color(0, 150, 136)));
+        statsPanel.add(createStatCard("Đã hoàn thành", lblDoneTasks = new JLabel("0"), "✅", new Color(40, 167, 69)));
 
-        return gridPanel;
+        // --- PHẦN DƯỚI: 2 DANH SÁCH BẢNG (Nằm ở CENTER) ---
+        // Sử dụng GridLayout(2, 1) để hai bảng xếp chồng lên nhau và chiếm hết diện tích còn lại
+        JPanel listsContainer = new JPanel(new GridLayout(2, 1, 0, 20));
+        listsContainer.setOpaque(false);
+
+        // Bảng 1: Trễ hạn
+        overdueModel = new DefaultTableModel(new String[]{"Tên công việc", "Hạn chót", "Mức độ"}, 0);
+        overdueTable = new JTable(overdueModel);
+        listsContainer.add(createListSection("Công việc trễ hạn", overdueTable, new Color(220, 53, 69)));
+
+        // Bảng 2: Sắp đến hạn
+        upcomingModel = new DefaultTableModel(new String[]{"Tên công việc", "Hạn chót", "Mức độ"}, 0);
+        upcomingTable = new JTable(upcomingModel);
+        listsContainer.add(createListSection("Công việc sắp đến hạn", upcomingTable, new Color(0, 102, 204)));
+
+        // --- GẮP CẢ 2 PHẦN VÀO MAIN PANEL ---
+        mainPanel.add(statsPanel, BorderLayout.NORTH); // Đẩy 4 ô lên trên cùng
+        mainPanel.add(listsContainer, BorderLayout.CENTER); // Bảng chiếm phần diện tích ở giữa/dưới
+
+        return mainPanel;
+    }
+
+    /**
+     * Hàm hỗ trợ tạo một phần danh sách có tiêu đề và bảng
+     */
+    private JPanel createListSection(String title, JTable table, Color titleColor) {
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.setOpaque(false);
+
+        JLabel lblTitle = new JLabel(title);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lblTitle.setForeground(titleColor);
+
+        // Cấu hình bảng
+        table.setRowHeight(25);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        table.getTableHeader().setBackground(Color.WHITE);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+
+        panel.add(lblTitle, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        return panel;
+    }
+    // Thêm hàm này để Test hoặc gọi từ Controller
+    public void updateDailyTables(List<Object[]> overdueData, List<Object[]> upcomingData) {
+        overdueModel.setRowCount(0);
+        for (Object[] row : overdueData) overdueModel.addRow(row);
+
+        upcomingModel.setRowCount(0);
+        for (Object[] row : upcomingData) upcomingModel.addRow(row);
     }
     private JPanel createWeeklyView() {
         JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
@@ -185,26 +242,82 @@ public class StatisticsPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                int size = Math.min(getWidth(), getHeight()) - 60; // Chỉnh size
+                // 1. Cấu hình thông số
+                this.setBackground(Color.WHITE);
+                int paddingBottom = 60;
+                int size = Math.min(getWidth(), getHeight() - paddingBottom) - 60;
                 int x = (getWidth() - size) / 2;
-                int y = (getHeight() - size) / 2 + 10;
+                int y = 30;
 
-                // Vẽ mẫu các phần của hình tròn (Ví dụ: Xong 70%, Đang làm 20%, Trễ 10%)
-                g2.setColor(new Color(40, 167, 69)); // Xanh lá - Done
-                g2.fillArc(x, y, size, size, 0, 250);
+                // Giả sử dữ liệu phần trăm
+                int donePercent = 70;
+                int progressPercent = 20;
+                int overduePercent = 10;
 
-                g2.setColor(new Color(255, 193, 7)); // Vàng - In Progress
-                g2.fillArc(x, y, size, size, 250, 70);
+                // Chuyển sang độ (tổng 360)
+                int angleDone = (int) (donePercent * 3.6);
+                int angleProgress = (int) (progressPercent * 3.6);
+                int angleOverdue = 360 - angleDone - angleProgress;
 
-                g2.setColor(new Color(220, 53, 69)); // Đỏ - Overdue
-                g2.fillArc(x, y, size, size, 320, 40);
+                // 2. Vẽ biểu đồ Pie
+                g2.setColor(new Color(40, 167, 69)); // Xanh lá
+                g2.fillArc(x, y, size, size, 0, angleDone);
 
-                // Vẽ một hình tròn trắng nhỏ ở giữa để tạo thành biểu đồ Donut
+                g2.setColor(new Color(255, 193, 7)); // Vàng
+                g2.fillArc(x, y, size, size, angleDone, angleProgress);
+
+                g2.setColor(new Color(220, 53, 69)); // Đỏ
+                g2.fillArc(x, y, size, size, angleDone + angleProgress, angleOverdue);
+
+                // 3. Vẽ chữ % lên từng phần bánh
+                g2.setColor(Color.WHITE);
+                g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+                drawPercentText(g2, x, y, size, 0, angleDone, donePercent + "%");
+                drawPercentText(g2, x, y, size, angleDone, angleProgress, progressPercent + "%");
+                drawPercentText(g2, x, y, size, angleDone + angleProgress, angleOverdue, overduePercent + "%");
+
+                // 4. Vẽ lỗ trắng ở giữa (Donut)
                 g2.setColor(Color.WHITE);
                 int innerSize = size / 2;
-                int innerX = (getWidth() - innerSize) / 2;
-                int innerY = (getHeight() - innerSize) / 2 + 10;
+                int innerX = x + (size - innerSize) / 2;
+                int innerY = y + (size - innerSize) / 2;
                 g2.fillOval(innerX, innerY, innerSize, innerSize);
+
+                // 5. Chú thích bên dưới (Legend) - Giống image_e64875.png
+                drawLegend(g2, x + size / 2, y + size + 40);
+            }
+
+            // Hàm phụ để tính toán vị trí và vẽ text %
+            private void drawPercentText(Graphics2D g2, int x, int y, int size, int startAngle, int arcAngle, String text) {
+                if (arcAngle < 15) return; // Nếu phần bánh quá nhỏ thì không vẽ chữ để tránh lem
+
+                double midAngle = Math.toRadians(startAngle + arcAngle / 2.0);
+                double radius = size / 2.8; // Vị trí chữ (nằm giữa tâm và viền ngoài)
+
+                int centerX = x + size / 2;
+                int centerY = y + size / 2;
+
+                int drawX = (int) (centerX + radius * Math.cos(midAngle));
+                int drawY = (int) (centerY - radius * Math.sin(midAngle)); // Trục Y trong Java ngược với toán học
+
+                FontMetrics fm = g2.getFontMetrics();
+                g2.drawString(text, drawX - fm.stringWidth(text) / 2, drawY + fm.getAscent() / 2);
+            }
+
+            private void drawLegend(Graphics2D g2, int centerX, int y) {
+                String[] labels = {"Hoàn thành", "Đang làm", "Trễ hạn"};
+                Color[] colors = {new Color(40, 167, 69), new Color(255, 193, 7), new Color(220, 53, 69)};
+                int xOffset = -120;
+
+                g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                for (int i = 0; i < 3; i++) {
+                    g2.setColor(colors[i]);
+                    g2.fillRoundRect(centerX + xOffset, y, 12, 12, 4, 4);
+                    g2.setColor(Color.DARK_GRAY);
+                    g2.drawString(labels[i], centerX + xOffset + 18, y + 10);
+                    xOffset += 90;
+                }
             }
         };
         setupChartStyle(pnlPieChart, "Tỉ lệ hoàn thành công việc");
@@ -213,15 +326,6 @@ public class StatisticsPanel extends JPanel {
         chartPanel.add(pnlPieChart);
         mainPanel.add(chartPanel, BorderLayout.CENTER);
 
-        // 3. Bottom: Bảng danh sách
-        tableModel = new DefaultTableModel(new String[]{"Tên bài tập", "Hạn chót", "Mức độ"}, 0);
-        tblUpcomingTasks = new JTable(tableModel);
-        tblUpcomingTasks.setRowHeight(25);
-        JScrollPane scrollPane = new JScrollPane(tblUpcomingTasks);
-        scrollPane.setPreferredSize(new Dimension(0, 150)); // Giảm nhẹ chiều cao bảng để nhường chỗ cho biểu đồ
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Bài tập sắp đến hạn"));
-
-        mainPanel.add(scrollPane, BorderLayout.SOUTH);
         return mainPanel;
     }
 
