@@ -38,12 +38,12 @@ public class TaskPanel extends JPanel {
         cbGlobalPriority.setFont(FONT_REGULAR);
         cbGlobalPriority.setPreferredSize(new Dimension(150, 35));
 
-        btnAdd = new JButton("+ Thêm công việc");
+        btnAdd = new JButton("+Thêm công việc");
         btnAdd.setBackground(COLOR_PRIMARY);
         btnAdd.setForeground(Color.WHITE);
         btnAdd.setFont(FONT_BOLD);
         btnAdd.setFocusPainted(false);
-        btnAdd.setPreferredSize(new Dimension(140, 35));
+        btnAdd.setPreferredSize(new Dimension(180, 35));
 
         pnlControls.add(cbGlobalPriority);
         pnlControls.add(btnAdd);
@@ -172,7 +172,5 @@ public class TaskPanel extends JPanel {
     public JButton getBtnAdd() {
         return btnAdd;
     }
-
-
 
 }

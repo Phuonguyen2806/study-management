@@ -18,10 +18,8 @@ public class TaskForm extends JDialog {
     private JButton btnAdd, btnCancel;
 
 
-
-
     public TaskForm(Frame owner) {
-        super(owner, "Thêm bài tập mới", true);
+        super(owner, "Thêm công việc mới", true);
         this.setModal(true);
         setSize(500, 650);
         setLocationRelativeTo(owner);
@@ -34,13 +32,13 @@ public class TaskForm extends JDialog {
         pnlContent.setBorder(new EmptyBorder(25, 40, 25, 40));
 
         // Tiêu đề form
-        JLabel lblHeader = new JLabel("Thêm bài tập mới");
+        JLabel lblHeader = new JLabel("Thêm công việc mới");
         lblHeader.setFont(FONT_TITLE);
         pnlContent.add(lblHeader);
 
         pnlContent.add(Box.createVerticalStrut(5)); // Khoảng cách nhỏ
 
-        JLabel lblSubHeader = new JLabel("Điền thông tin bài tập và nhấn lưu");
+        JLabel lblSubHeader = new JLabel("Điền thông tin công việc và nhấn lưu");
         lblSubHeader.setFont(FONT_STATUS);
         lblSubHeader.setForeground(Color.GRAY);
         pnlContent.add(lblSubHeader);
@@ -171,8 +169,6 @@ public class TaskForm extends JDialog {
             return false;
         }
     }
-
-
     public JButton getBtnAdd(){
         return btnAdd;
     }

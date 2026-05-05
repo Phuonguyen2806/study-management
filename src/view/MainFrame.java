@@ -106,6 +106,7 @@ public class MainFrame extends JFrame {
     public void switchCard(String cardName) {
         cardLayout.show(contentPanel, cardName);
     }
+
     public TaskPanel getTaskPanel() {
         return taskView;
     }

@@ -28,7 +28,6 @@ public class TaskController {
         view.setOnStartTask(listener);
     }
 
-
     private void showTaskForm() {
         TaskForm form = new TaskForm(owner);
         form.setVisible(true);
