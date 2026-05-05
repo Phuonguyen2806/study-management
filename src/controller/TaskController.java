@@ -5,11 +5,12 @@ import view.TaskPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class TaskController {
     private TaskPanel view;
 //    private ITaskRepository repository;
-private Frame owner;
+    private Frame owner;
 
     public TaskController(TaskPanel view, Frame owner) {
         this.view = view;
@@ -20,6 +21,11 @@ private Frame owner;
     }
     private void initEvents() {
         view.getBtnAdd().addActionListener(e -> showTaskForm());
+    }
+
+    public void addStartListener(ActionListener listener) {
+        // Gọi hàm set listener chung trong view
+        view.setOnStartTask(listener);
     }
 
 

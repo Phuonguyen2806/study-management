@@ -44,7 +44,7 @@ public class LoginForm extends JFrame {
         panel.add(tEmail);
 
         // dòng password
-        lPass = new JLabel("Password:");
+        lPass = new JLabel("Mật khẩu:");
         panel.add(lPass);
         pass = new JPasswordField(15);
         panel.add(pass);

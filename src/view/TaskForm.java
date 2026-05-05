@@ -5,7 +5,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class TaskForm extends JDialog {
-    private final Color COLOR_PRIMARY = new Color(0, 102, 204);
     private final Color COLOR_BG = new Color(245, 245, 245);
     private final Font FONT_REGULAR = new Font("Segoe UI", Font.PLAIN, 13);
     private final Font FONT_BOLD = new Font("Segoe UI", Font.BOLD, 14);
@@ -13,9 +12,11 @@ public class TaskForm extends JDialog {
     private final Font FONT_STATUS = new Font("Segoe UI", Font.PLAIN, 11);
 
     private JTextField txtTitle;
-    private JComboBox<String> cbSubject, cbPriority, cbStatus;
+    private JTextField txtDeadline;
+    private JComboBox<String>  cbPriority, cbStatus;
     private JTextArea txtDescription;
     private JButton btnAdd, btnCancel;
+
 
 
 
@@ -46,24 +47,37 @@ public class TaskForm extends JDialog {
 
         pnlContent.add(Box.createVerticalStrut(25)); // Khoảng cách lớn trước khi nhập liệu
 
-        // 1. Tiêu đề bài tập
+        // 1. Tiêu đề công việc
         addLabelSimple("Tiêu đề *", pnlContent);
         txtTitle = new JTextField();
         addInputSimple(txtTitle, pnlContent);
 
-        // 2. Môn học
-        addLabelSimple("Môn học *", pnlContent);
-        cbSubject = new JComboBox<>(new String[]{"Lập trình Web", "Cấu trúc dữ liệu", "Tiếng Anh"});
-        addInputSimple(cbSubject, pnlContent);
+        // 2. Deadline
+        addLabelSimple("Hạn chót (dd/mm/yyyy) *", pnlContent);
+        txtDeadline = new JTextField();
+        txtDeadline.setText("31/12/2026"); // Đặt mặc định hoặc để trống
+        txtDeadline.setForeground(Color.GRAY); // Màu chữ mờ cho giống gợi ý
 
-        // 3. Ưu tiên & Trạng thái (Dùng GridLayout cho nhanh)
-        pnlContent.add(createFieldGroup("Mức độ ưu tiên", cbPriority = new JComboBox<>(new String[]{"High", "Medium", "Low"})));
-        pnlContent.add(createFieldGroup("Trạng thái", cbStatus = new JComboBox<>(new String[]{"Pending", "In-progress", "Done"})));
+// Thêm sự kiện để khi click vào thì tự xóa gợi ý (Optional)
+        txtDeadline.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                if (txtDeadline.getText().equals("31/12/2026")) {
+                    txtDeadline.setText("");
+                    txtDeadline.setForeground(Color.BLACK);
+                }
+            }
+        });
+
+        addInputSimple(txtDeadline, pnlContent);
+
+        // 3. Ưu tiên & Trạng thái
+        pnlContent.add(createFieldGroup("Mức độ ưu tiên", cbPriority = new JComboBox<>(new String[]{"Cao", "Trung bình", "Thấp"})));
+        pnlContent.add(createFieldGroup("Trạng thái", cbStatus = new JComboBox<>(new String[]{"Đang chờ", "Đang thực hiện", "Hoàn thành"})));
         //khoảng cách giữa các thành phần
         pnlContent.add(Box.createVerticalStrut(15));
 
         // 4. Mô tả
-        addLabelSimple("Mô tả (Markdown)", pnlContent);
+        addLabelSimple("Mô tả ", pnlContent);
         txtDescription = new JTextArea(8, 10);
         txtDescription.setFont(FONT_REGULAR);
         txtDescription.setLineWrap(true);
@@ -85,6 +99,12 @@ public class TaskForm extends JDialog {
         btnAdd.setFont(FONT_BOLD);
         btnAdd.setBackground(new Color(13, 15, 28));
         btnAdd.setForeground(Color.WHITE);
+//        btnAdd.addActionListener(e -> {
+//            if (validateDate()) {
+//                // Thực hiện lưu dữ liệu...
+//                System.out.println("Ngày hợp lệ, đang lưu...");
+//            }
+//        });
 
         pnlButtons.add(btnCancel);
         pnlButtons.add(btnAdd);
@@ -94,7 +114,7 @@ public class TaskForm extends JDialog {
         add(pnlButtons, BorderLayout.SOUTH);
     }
 
-    // Hàm phụ để code sạch hơn (không dùng GridBag nữa)
+    // Hàm phụ
     private void addLabelSimple(String text, JPanel container) {
         JLabel l = new JLabel(text);
         l.setFont(FONT_BOLD);
@@ -129,6 +149,27 @@ public class TaskForm extends JDialog {
         p.add(Box.createVerticalStrut(5)); // Khoảng cách giữa nhãn và combo
         p.add(cb);
         return p;
+    }
+
+    //kiểm tra format deadline
+    public boolean validateDate() {
+        String dateStr = txtDeadline.getText().trim();
+        // Kiểm tra định dạng bằng Regex (dd/mm/yyyy)
+        if (!dateStr.matches("\\d{2}/\\d{2}/\\d{4}")) {
+            JOptionPane.showMessageDialog(this, "Ngày tháng phải đúng định dạng dd/mm/yyyy (Ví dụ: 25/12/2026)");
+            return false;
+        }
+
+        // Thử ép kiểu sang Date để xem ngày đó có tồn tại không (Ví dụ tránh ngày 32/01)
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false); // Không cho phép ngày sai (như 31/02)
+        try {
+            sdf.parse(dateStr);
+            return true;
+        } catch (java.text.ParseException e) {
+            JOptionPane.showMessageDialog(this, "Ngày không hợp lệ! Vui lòng kiểm tra lại.");
+            return false;
+        }
     }
 
 

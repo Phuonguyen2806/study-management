@@ -34,7 +34,7 @@ public class RegisterForm extends JFrame{
     private AuthController authController;
     private final Font FONT_BOLD = new Font("Segoe UI", Font.BOLD, 14);
     public RegisterForm() {
-        setTitle("Đăng nhập");
+        setTitle("Đăng ký");
         setSize(500, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,7 +64,7 @@ public class RegisterForm extends JFrame{
         panel.add(pass);
 
         // xác nhận lại mật khẩu
-        lconfiPW = new JLabel("Xác nhận:");
+        lconfiPW = new JLabel("Xác nhận lại mật khẩu:");
         panel.add(lconfiPW);
         confiPW = new JPasswordField();
         panel.add(confiPW);

@@ -3,7 +3,6 @@ package controller;
 import view.LoginForm;
 import view.MainFrame;
 import view.RegisterForm;
-import view.TaskForm;
 
 import javax.swing.*;
 
@@ -62,10 +61,10 @@ public class MainController {
 
     private void startMainApp() {
         this.mainFrame = new MainFrame();
-        initEventListeners();
-        openFocusView();
         mainFrame.setVisible(true);
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
+        openFocusView();
+        initEventListeners();
     }
 
     private void initEventListeners() {
@@ -74,6 +73,7 @@ public class MainController {
         mainFrame.getBtnMucTieu().addActionListener(e -> openGoalTrackingView());
         mainFrame.getBtnThongKe().addActionListener(e -> openStatisticTrackingView());
         mainFrame.getBtnHoSo().addActionListener(e -> openProfileTrackingView());
+        taskController.addStartListener(e ->openFocusView());
     }
 
     public void openFocusView() {
