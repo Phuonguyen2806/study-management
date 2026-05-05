@@ -22,21 +22,29 @@ public class MainController {
 
     public void openFocusView() {
         mainFrame.switchCard("TapTrung");
+        mainFrame.setActiveButton(mainFrame.getBtnTapTrung());
+
     }
 
     public void openTaskManagementView() {
         mainFrame.switchCard("QuanLyBaiTap");
+        mainFrame.setActiveButton(mainFrame.getBtnQuanLyBaiTap());
     }
 
     public void openGoalTrackingView() {
         mainFrame.switchCard("MucTieu");
+        mainFrame.setActiveButton(mainFrame.getBtnMucTieu());
     }
 
     public void openStatisticTrackingView() {
         mainFrame.switchCard("ThongKe");
+        mainFrame.setActiveButton(mainFrame.getBtnThongKe());
+
     }
 
     public void openProfileTrackingView() {
         mainFrame.switchCard("HoSo");
+        mainFrame.setActiveButton(mainFrame.getBtnHoSo());
+
     }
 }
