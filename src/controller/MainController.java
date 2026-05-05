@@ -95,5 +95,4 @@ public class MainController {
     public void openProfileTrackingView() {
         mainFrame.switchCard("HoSo");
     }
-
 }

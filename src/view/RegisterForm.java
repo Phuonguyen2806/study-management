@@ -105,6 +105,4 @@ public class RegisterForm extends JFrame{
     }
 
 
-
-
 }
