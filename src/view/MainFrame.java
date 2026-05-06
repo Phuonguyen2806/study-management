@@ -6,6 +6,7 @@ import java.awt.*;
 public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel contentPanel;
+    private GoalPanel goalPanel;
 
     private JButton btnTapTrung;
     private JButton btnQuanLyBaiTap;
@@ -68,7 +69,8 @@ public class MainFrame extends JFrame {
 
         contentPanel.add(createPlaceholderPanel("Màn hình Tập trung Pomodoro"), "TapTrung");
         contentPanel.add(createPlaceholderPanel("Màn hình Quản lý bài tập"), "QuanLyBaiTap");
-        contentPanel.add(createPlaceholderPanel("Màn hình Mục tiêu"), "MucTieu");
+        goalPanel = new GoalPanel();
+        contentPanel.add(goalPanel, "MucTieu");
         contentPanel.add(createPlaceholderPanel("Màn hình Thống kê"), "ThongKe");
         contentPanel.add(createPlaceholderPanel("Màn hình Hồ sơ"), "HoSo");
 
