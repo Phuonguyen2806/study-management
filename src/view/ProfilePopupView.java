@@ -141,7 +141,7 @@ public class ProfilePopupView extends JWindow {
     private JPanel buildLogoutRow() {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         row.setOpaque(false);
-        row.setBorder(new EmptyBorder(2, 8, 2, 8));
+        row.setBorder(new EmptyBorder(10, 25, 23, 10));
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
         row.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
