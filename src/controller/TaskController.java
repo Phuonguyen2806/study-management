@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class TaskController {
+
     private TaskPanel view;
 //    private ITaskRepository repository;
     private Frame owner;
@@ -15,7 +16,6 @@ public class TaskController {
     public TaskController(TaskPanel view, Frame owner) {
         this.view = view;
         this.owner = owner;
-
         // Gán sự kiện ngay khi khởi tạo
         initEvents();
     }

@@ -57,9 +57,9 @@ public class TaskPanel extends JPanel {
         listContainer.setOpaque(false);
 
         // Giả lập dữ liệu mẫu
-        addTaskToContainer("Làm bài tập React Hooks", "cao", "in-progress", "15/05/2024");
+        addTaskToContainer("Làm bài tập React Hooks", "cao", "Đang thực hiện", "15/05/2024");
         listContainer.add(Box.createVerticalStrut(12));
-        addTaskToContainer("Học Unit 5", "trung bình", "pending",  "18/05/2024");
+        addTaskToContainer("Học Unit 5", "trung bình", "Đang chờ",  "18/05/2024");
 
         JScrollPane scrollPane = new JScrollPane(listContainer);
         scrollPane.setBorder(null); // Xóa viền ScrollPane cho sạch
@@ -87,10 +87,7 @@ public class TaskPanel extends JPanel {
         pnlLeft.setOpaque(false);
         JCheckBox chk = new JCheckBox();
         chk.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        JLabel dot = new JLabel("●");
-        dot.setForeground(COLOR_PRIMARY);
         pnlLeft.add(chk);
-        pnlLeft.add(dot);
 
         // 2. Giữa: Tiêu đề và Các Tag (Priority, Status, Subject, Deadline)
         JPanel pnlMid = new JPanel(new GridLayout(2, 1, 0, 8));
@@ -103,8 +100,8 @@ public class TaskPanel extends JPanel {
         pnlTag.setOpaque(false);
         pnlTag.add(createBadge(priority, new Color(255, 235, 235), Color.RED));
         pnlTag.add(createBadge(status, new Color(230, 245, 255), COLOR_PRIMARY));
-        // Tag Deadline với icon đồng hồ giả lập
-        pnlTag.add(createBadge("📅 " + deadline, new Color(255, 248, 225), new Color(184, 134, 11)));
+        // Tag Deadline
+        pnlTag.add(createBadge(deadline, new Color(255, 248, 225), new Color(184, 134, 11)));
 
         pnlMid.add(lblT);
         pnlMid.add(pnlTag);

@@ -40,7 +40,6 @@ public class RegisterForm extends JFrame{
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-
         JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
         panel.setPreferredSize(new Dimension(400, 250));
         panel.setBorder(BorderFactory.createTitledBorder("ĐĂNG KÝ"));

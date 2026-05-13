@@ -124,7 +124,7 @@ public class TaskForm extends JDialog {
     private void addInputSimple(JComponent comp, JPanel container) {
         comp.setFont(FONT_REGULAR);
         comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        comp.setPreferredSize(new Dimension(Integer.MAX_VALUE, 40));
+        comp.setPreferredSize(new Dimension(0, 40));
         comp.setAlignmentX(Component.LEFT_ALIGNMENT);
         container.add(comp);
         container.add(Box.createVerticalStrut(15));
@@ -141,11 +141,13 @@ public class TaskForm extends JDialog {
 
         cb.setFont(FONT_REGULAR);
         cb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        cb.setPreferredSize(new Dimension(0, 40));
         cb.setAlignmentX(Component.LEFT_ALIGNMENT); // Ép combo về trái
 
         p.add(l);
         p.add(Box.createVerticalStrut(5)); // Khoảng cách giữa nhãn và combo
         p.add(cb);
+        p.add(Box.createVerticalStrut(15));
         return p;
     }
 

@@ -58,6 +58,7 @@ public class LoginForm extends JFrame {
         JPanel mainWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 50));
         mainWrapper.add(panel);
         add(mainWrapper, BorderLayout.CENTER);
+
     }
 
     private JButton createMButton(String title) {

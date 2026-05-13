@@ -17,7 +17,6 @@ public class MainController {
 
     public MainController(MainFrame view) {
         this.mainFrame = view;
-
         registerForm = new RegisterForm();
         loginForm = new LoginForm();
         initAuthEvents();

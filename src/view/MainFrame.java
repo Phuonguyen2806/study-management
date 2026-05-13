@@ -73,11 +73,15 @@ public class MainFrame extends JFrame {
         contentPanel.setBackground(Color.WHITE);
 
         focusPanel = new FocusPanel();
+
         contentPanel.add(focusPanel, "TapTrung");
         taskView = new TaskPanel();
         contentPanel.add(taskView, "QuanLyBaiTap");
+
         contentPanel.add(createPlaceholderPanel("Màn hình Mục tiêu"), "MucTieu");
+
         contentPanel.add(new StatisticsPanel(), "ThongKe");
+
         contentPanel.add(createPlaceholderPanel("Màn hình Hồ sơ"), "HoSo");
 
         add(contentPanel, BorderLayout.CENTER);
