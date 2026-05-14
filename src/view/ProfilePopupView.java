@@ -15,8 +15,8 @@ import java.awt.geom.RoundRectangle2D;
  * Khớp chính xác với mockup:
  *
  *   ┌──────────────────────────────────┐
- *   │  Nguyễn Thị Khánh Huyền         │  ← tên đậm
- *   │  24130130@st.hcmuaf.edu.vn       │  ← email xám
+ *   │  Nguyễn Văn A      │  ← email xám
+ *      email
  *   ├──────────────────────────────────┤
  *   │  →  Đăng xuất                   │  ← hover xám nhạt
  *   └──────────────────────────────────┘
@@ -85,6 +85,8 @@ public class ProfilePopupView extends JWindow {
                 g2.dispose();
             }
         };
+        root.setPreferredSize(new Dimension(220,130));
+
         root.setOpaque(false);
         root.setBorder(new EmptyBorder(0, 0, 6, 6)); // padding cho bóng
 
@@ -96,18 +98,20 @@ public class ProfilePopupView extends JWindow {
         inner.add(buildInfoSection());
         inner.add(buildDivider());
         inner.add(buildLogoutRow());
-
+        
         root.add(inner, BorderLayout.CENTER);
         setContentPane(root);
         pack();
     }
 
     // ─── Tên + email ─────────────────────────────────────────────────────────
+
     private JPanel buildInfoSection() {
         JPanel p = new JPanel();
+
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setOpaque(false);
-        p.setBorder(new EmptyBorder(12, 16, 12, 24));
+        p.setBorder(new EmptyBorder(10, 15, 15, 25));
 
         lblName = new JLabel(" ");
         lblName.setFont(F_NAME);
