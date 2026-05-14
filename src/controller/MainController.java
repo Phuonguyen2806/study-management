@@ -5,9 +5,12 @@ import view.MainFrame;
 public class MainController {
 
     private MainFrame mainFrame;
+    private GoalController goalController;
 
     public MainController(MainFrame view) {
         this.mainFrame = view;
+        this.goalController = new GoalController();
+        this.goalController.initialize(mainFrame.getGoalPanel());
         initEventListeners();
         openFocusView();
     }

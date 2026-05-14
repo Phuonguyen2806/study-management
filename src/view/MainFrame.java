@@ -1,5 +1,7 @@
 package view;
 
+import model.User;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -7,6 +9,8 @@ public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel contentPanel;
     private GoalPanel goalPanel;
+
+    private ProfilePopupView profilePopupView;
 
     private JButton btnTapTrung;
     private JButton btnQuanLyBaiTap;
@@ -72,9 +76,16 @@ public class MainFrame extends JFrame {
         goalPanel = new GoalPanel();
         contentPanel.add(goalPanel, "MucTieu");
         contentPanel.add(createPlaceholderPanel("Màn hình Thống kê"), "ThongKe");
-        contentPanel.add(createPlaceholderPanel("Màn hình Hồ sơ"), "HoSo");
 
+        profilePopupView = new ProfilePopupView(this); // Truyền 'this' (MainFrame) làm owner Window
+        User mockUser = new User(1, "Nguyễn Văn A", "24130689@st.hcmuaf.edu.vn", "NguyenVanA", "123");
+        profilePopupView.fillUser(mockUser);
         add(contentPanel, BorderLayout.CENTER);
+        // Nút "Hồ sơ" bật popup nhỏ bên cạnh !
+        btnHoSo.addActionListener(e -> {
+            switchCard("HoSo");
+            profilePopupView.showNextTo(btnHoSo);
+        });
     }
 
     // Hàm tiện ích tạo JButton
@@ -104,5 +115,9 @@ public class MainFrame extends JFrame {
 
     public void switchCard(String cardName) {
         cardLayout.show(contentPanel, cardName);
+    }
+
+    public GoalPanel getGoalPanel() {
+        return this.goalPanel;
     }
 }
