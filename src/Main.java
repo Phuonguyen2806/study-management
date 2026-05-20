@@ -5,13 +5,13 @@ import model.repository.TaskRepository;
 import view.MainFrame;
 
 import java.util.List;
-
+import java.sql.*;
 public class Main {
     public static void main(String[] args) {
+        MainFrame view = new MainFrame();
+        MainController controller = new MainController(view);
         javax.swing.SwingUtilities.invokeLater(() -> {
             try {
-                MainFrame view = new MainFrame();
-                MainController controller = new MainController(view);
 
                 // Kiểm tra kết nối Database
                 if (DatabaseConnection.getConnection() != null) {
@@ -23,7 +23,6 @@ public class Main {
                     System.err.println(">>> Hệ thống: Lỗi kết nối Database!");
                 }
 
-                view.setVisible(true);
 
             } catch (Exception e) {
                 e.printStackTrace();
