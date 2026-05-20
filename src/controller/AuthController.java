@@ -2,10 +2,10 @@ package controller;
 
 import javax.swing.JOptionPane;
 
-import model.AuthManager;
+//import model.AuthManager;
 
 public class AuthController {
-    private AuthManager authManager;
+//    private AuthManager authManager;
     private MainController mainController;
 
 
@@ -16,7 +16,7 @@ public class AuthController {
     public void handleRegister(String fullName, String email, String password, String confirmPW) {
         try {
             // Gọi xuống Manager để xử lý đăng ký
-            authManager.register(fullName, email, password, confirmPW);
+//            authManager.register(fullName, email, password, confirmPW);
 
             // Thông báo và có thể điều hướng người dùng quay lại trang Login
             JOptionPane.showMessageDialog(null, "Đăng ký tài khoản thành công!");
@@ -30,7 +30,7 @@ public class AuthController {
     public void handleLogin(String email, String password) {
         try {
             // Gọi xuống Manager để kiểm tra logic
-            authManager.login(email, password);
+//            authManager.login(email, password);
 
             // Nếu không có lỗi, thông báo thành công và chuyển màn hình
             System.out.println("Đăng nhập thành công!");
