@@ -100,7 +100,6 @@ public class MainFrame extends JFrame {
         add(contentPanel, BorderLayout.CENTER);
         // Nút "Hồ sơ" bật popup nhỏ bên cạnh !
         btnHoSo.addActionListener(e -> {
-            switchCard("HoSo");
             profilePopupView.showNextTo(btnHoSo);
         });
     }

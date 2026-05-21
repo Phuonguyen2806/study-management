@@ -18,13 +18,11 @@ public class MainController {
 
     public MainController(MainFrame view) {
         this.mainFrame = view;
-        this.goalController = new GoalController();
-        this.goalController.initialize(mainFrame.getGoalPanel());
-        initEventListeners();
         registerForm = new RegisterForm();
         loginForm = new LoginForm();
         initAuthEvents();
         showLoginView();
+        initEventListeners();
     }
 
     private void initAuthEvents() {
@@ -66,6 +64,8 @@ public class MainController {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
+        this.goalController = new GoalController();
+        this.goalController.initialize(mainFrame.getGoalPanel());
         openFocusView();
         initEventListeners();
     }
@@ -102,7 +102,6 @@ public class MainController {
     }
 
     public void openProfileTrackingView() {
-        mainFrame.switchCard("HoSo");
         mainFrame.setActiveButton(mainFrame.getBtnHoSo());
 
     }
