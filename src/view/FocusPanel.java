@@ -1,7 +1,13 @@
 package view;
 
+import controller.FocusController;
+import model.entity.FocusState;
+import model.entity.SessionType;
+import model.entity.Task;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class FocusPanel extends JPanel {
     private JButton btnSelectTask;
@@ -13,16 +19,8 @@ public class FocusPanel extends JPanel {
     private JButton btnStop;
     private JButton btnCompleteTask;
 
-    // Biến logic đồng hồ & nghiệp vụ
-    private Timer timer;
-    private final int TIME_FOCUS = 25 * 60;
-    private final int TIME_SHORT_BREAK = 5 * 60;
-    private final int TIME_LONG_BREAK = 15 * 60;
-    private int timeLeft = TIME_FOCUS;
-
-    private boolean isFocusMode = true; // Cờ kiểm tra xem có đang ở chế độ tập trung không
-    private int estimatedSessions = 0;
-    private int completedSessions = 0;
+    // Bộ điều khiển MVC
+    private FocusController controller;
 
     // Màu sắc chủ đạo dùng chung
     private final Color primaryBlue = new Color(0, 102, 204);
@@ -31,10 +29,19 @@ public class FocusPanel extends JPanel {
     private final Color successGreen = new Color(40, 167, 69);
 
     public FocusPanel() {
+        initComponents();
+
+        // Khởi tạo Controller sau khi giao diện đã vẽ xong
+        controller = new FocusController(this);
+        controller.initFocusView();
+
+        setupEvents();
+    }
+
+    private void initComponents() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
 
-        // Nút Thêm/Chọn Công Việc
         btnSelectTask = new JButton("+ Nhấn để chọn công việc");
         btnSelectTask.setFont(new Font("Segoe UI", Font.BOLD, 18));
         btnSelectTask.setForeground(primaryBlue);
@@ -54,10 +61,8 @@ public class FocusPanel extends JPanel {
         lblTaskProgress.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblTaskProgress.setVisible(false);
 
-        // Chế độ thời gian
         JPanel modePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         modePanel.setBackground(Color.WHITE);
-
         Font modeFont = new Font("Segoe UI", Font.BOLD, 16);
 
         btnModeFocus = new JButton("Tập trung (25p)");
@@ -68,23 +73,16 @@ public class FocusPanel extends JPanel {
         for (JButton btn : modeBtns) {
             btn.setFont(modeFont);
             btn.setFocusPainted(false);
-            btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
             modePanel.add(btn);
         }
 
-        // Cài đặt nút mặc định ban đầu là nút Tập trung
-        setActiveModeStyle(btnModeFocus);
-
-        // Đồng hồ
         lblTime = new JLabel("25:00");
         lblTime.setFont(new Font("Arial", Font.BOLD, 120));
         lblTime.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Các nút điều khiển
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         controlPanel.setBackground(Color.WHITE);
 
-        // Nút Bắt đầu
         btnAction = new JButton("Bắt đầu");
         btnAction.setFont(new Font("Segoe UI", Font.BOLD, 18));
         btnAction.setBackground(primaryBlue);
@@ -93,7 +91,6 @@ public class FocusPanel extends JPanel {
         btnAction.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAction.setBorder(BorderFactory.createEmptyBorder(10, 40, 10, 40));
 
-        // Nút Dừng lại
         btnStop = new JButton("Dừng lại");
         btnStop.setFont(new Font("Segoe UI", Font.BOLD, 18));
         btnStop.setBackground(dangerRed);
@@ -106,7 +103,6 @@ public class FocusPanel extends JPanel {
         controlPanel.add(btnAction);
         controlPanel.add(btnStop);
 
-        // Nút Hoàn thành
         btnCompleteTask = new JButton("Hoàn thành công việc");
         btnCompleteTask.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnCompleteTask.setBackground(successGreen);
@@ -117,41 +113,131 @@ public class FocusPanel extends JPanel {
         btnCompleteTask.setBorder(BorderFactory.createEmptyBorder(14, 45, 14, 45));
         btnCompleteTask.setVisible(false);
 
-        // ---------------- CẤU TRÚC LAYOUT ----------------
-        add(Box.createVerticalGlue()); // Khoảng trống co giãn trên cùng
-
-        // CỤM 1: Thông tin công việc
+        add(Box.createVerticalGlue());
         add(btnSelectTask);
         add(Box.createVerticalStrut(10));
         add(lblTaskProgress);
-
-        add(Box.createVerticalGlue()); // Khoảng trống co giãn giữa cụm 1 và 2
-
-        // CỤM 2: Đồng hồ
+        add(Box.createVerticalGlue());
         add(modePanel);
-        add(Box.createVerticalStrut(30)); // Đã tăng từ 15 lên 30 cho thoáng phần trên
+        add(Box.createVerticalStrut(30));
         add(lblTime);
-        add(Box.createVerticalStrut(40)); // Đã tăng từ 15 lên 40 cho thoáng phần dưới
+        add(Box.createVerticalStrut(40));
         add(controlPanel);
-
-        add(Box.createVerticalGlue()); // Khoảng trống co giãn giữa cụm 2 và 3
-
-        // CỤM 3: Hoàn thành
+        add(Box.createVerticalGlue());
         add(btnCompleteTask);
-
-        add(Box.createVerticalGlue()); // Khoảng trống co giãn dưới cùng
-        // -----------------------------------------------------
-
-        initTimerLogic();
-        initTaskLogic();
+        add(Box.createVerticalGlue());
     }
 
-    // Hàm cập nhật màu sắc để làm nổi bật nút chế độ đang được chọn
+    private void setupEvents() {
+        // Mọi thao tác click đều bắn về Controller xử lý
+        btnSelectTask.addActionListener(e -> controller.handleSelectTaskClick());
+        btnAction.addActionListener(e -> controller.handleActionClick());
+        btnStop.addActionListener(e -> controller.handleStopClick());
+        btnCompleteTask.addActionListener(e -> controller.handleCompleteEarlyClick());
+    }
+
+    // =================================================================
+    // CÁC HÀM GIAO TIẾP (CONTROLLER GỌI XUỐNG ĐỂ YÊU CẦU VIEW HIỂN THỊ)
+    // =================================================================
+
+    public Task showTaskSelectionDialog(List<Task> tasks) {
+        if (tasks.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Không có công việc nào đang chờ!");
+            return null;
+        }
+        return (Task) JOptionPane.showInputDialog(
+                this, "Chọn công việc:", "Danh sách Task",
+                JOptionPane.QUESTION_MESSAGE, null, tasks.toArray(), tasks.get(0));
+    }
+
+    public int showEstimateDialog() {
+        String input = JOptionPane.showInputDialog(this, "Nhập số phiên dự kiến:");
+        try {
+            return Math.max(1, Integer.parseInt(input));
+        } catch (Exception e) {
+            return 1;
+        }
+    }
+
+    public boolean showConfirmStopDialog() {
+        int res = JOptionPane.showConfirmDialog(this, "Bạn muốn kết thúc hẳn phiên làm việc này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        return res == JOptionPane.YES_OPTION;
+    }
+
+    public boolean showConfirmSkipBreakDialog() {
+        int res = JOptionPane.showConfirmDialog(this, "Bạn muốn bỏ qua giờ nghỉ ngơi?", "Bỏ qua", JOptionPane.YES_NO_OPTION);
+        return res == JOptionPane.YES_OPTION;
+    }
+
+    public boolean showConfirmCompleteDialog() {
+        int res = JOptionPane.showConfirmDialog(this, "Xác nhận hoàn thành bài tập sớm?", "Hoàn thành", JOptionPane.YES_NO_OPTION);
+        return res == JOptionPane.YES_OPTION;
+    }
+
+    public void updateTimeLabel(String timeStr) {
+        lblTime.setText(timeStr);
+    }
+
+    public void resetViewToIdle() {
+        btnSelectTask.setText("+ Nhấn để chọn công việc");
+        btnSelectTask.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        btnSelectTask.setForeground(primaryBlue);
+        btnSelectTask.setBackground(new Color(230, 242, 255));
+
+        lblTaskProgress.setVisible(false);
+        btnCompleteTask.setVisible(false);
+        btnStop.setVisible(false);
+        btnAction.setText("Bắt đầu");
+        lblTime.setText("25:00");
+
+        setActiveModeStyle(btnModeFocus);
+    }
+
+    public void syncState(FocusState state, SessionType type, Task task) {
+        // Cập nhật thông tin Task
+        if (task != null) {
+            btnSelectTask.setText(task.getTitle());
+            btnSelectTask.setFont(new Font("Segoe UI", Font.BOLD, 26));
+            btnSelectTask.setForeground(Color.BLACK);
+            btnSelectTask.setBackground(Color.WHITE);
+            lblTaskProgress.setText(String.format("Dự kiến: %d | Đã làm: %d", task.getEstPomo(), task.getCompPomo()));
+            lblTaskProgress.setVisible(true);
+            btnCompleteTask.setVisible(true);
+        }
+
+        // Cập nhật nút bấm theo State
+        switch (state) {
+            case IDLE:
+                resetViewToIdle();
+                break;
+            case RUNNING:
+                btnAction.setText("Tạm dừng");
+                btnStop.setVisible(true);
+
+                // Đổi nút "Dừng lại" thành "Bỏ qua" nếu đang ở giờ nghỉ
+                if (type == SessionType.FOCUS) {
+                    setActiveModeStyle(btnModeFocus);
+                    btnStop.setText("Dừng lại");
+                } else if (type == SessionType.SHORT_BREAK) {
+                    setActiveModeStyle(btnModeShortBreak);
+                    btnStop.setText("Bỏ qua");
+                } else {
+                    setActiveModeStyle(btnModeLongBreak);
+                    btnStop.setText("Bỏ qua");
+                }
+                break;
+            case PAUSED:
+                btnAction.setText("Tiếp tục");
+                break;
+            default:
+                break;
+        }
+    }
+
     private void setActiveModeStyle(JButton activeBtn) {
         JButton[] modeBtns = {btnModeFocus, btnModeShortBreak, btnModeLongBreak};
         for (JButton btn : modeBtns) {
             if (btn == activeBtn) {
-                // Nút đang chọn: Nền xanh nhạt, chữ và viền xanh đậm
                 btn.setBackground(new Color(230, 242, 255));
                 btn.setForeground(primaryBlue);
                 btn.setBorder(BorderFactory.createCompoundBorder(
@@ -159,7 +245,6 @@ public class FocusPanel extends JPanel {
                         BorderFactory.createEmptyBorder(7, 14, 7, 14)
                 ));
             } else {
-                // Các nút khác: Nền trắng, chữ xám đen, viền xám nhạt
                 btn.setBackground(Color.WHITE);
                 btn.setForeground(Color.DARK_GRAY);
                 btn.setBorder(BorderFactory.createCompoundBorder(
@@ -168,183 +253,5 @@ public class FocusPanel extends JPanel {
                 ));
             }
         }
-    }
-
-    private void updateProgressLabel() {
-        lblTaskProgress.setText(String.format("Dự kiến: %d phiên | Đã làm: %d phiên", estimatedSessions, completedSessions));
-    }
-
-    private void initTaskLogic() {
-        btnSelectTask.addActionListener(e -> {
-            String[] dummyTasks = {
-                    "Làm bài tập Java Swing",
-                    "Thiết kế giao diện Figma",
-                    "Ôn thi cuối kỳ môn CSDL",
-                    "Đọc sách Clean Code"
-            };
-
-            String selectedTask = (String) JOptionPane.showInputDialog(
-                    this,
-                    "Vui lòng chọn một công việc chưa hoàn thành:",
-                    "Chọn công việc",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    dummyTasks,
-                    dummyTasks[0]
-            );
-
-            if (selectedTask != null && !selectedTask.trim().isEmpty()) {
-                String inputStr = JOptionPane.showInputDialog(
-                        this,
-                        "Nhập số phiên Pomodoro dự kiến (ví dụ: 2):",
-                        "Ước tính",
-                        JOptionPane.QUESTION_MESSAGE
-                );
-
-                try {
-                    estimatedSessions = Integer.parseInt(inputStr);
-                    if (estimatedSessions <= 0) estimatedSessions = 1;
-                } catch (NumberFormatException ex) {
-                    estimatedSessions = 1;
-                }
-
-                completedSessions = 0;
-
-                btnSelectTask.setText(selectedTask);
-                btnSelectTask.setFont(new Font("Segoe UI", Font.BOLD, 26));
-                btnSelectTask.setForeground(Color.BLACK);
-                btnSelectTask.setBackground(Color.WHITE);
-                btnSelectTask.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-                updateProgressLabel();
-                lblTaskProgress.setVisible(true);
-                btnCompleteTask.setVisible(true);
-            }
-        });
-
-        btnCompleteTask.addActionListener(e -> {
-            int choice = JOptionPane.showConfirmDialog(
-                    this,
-                    "Bạn có chắc chắn muốn đánh dấu hoàn thành công việc này?",
-                    "Xác nhận hoàn thành",
-                    JOptionPane.YES_NO_OPTION
-            );
-
-            if (choice == JOptionPane.YES_OPTION) {
-                btnSelectTask.setText("+ Nhấn để chọn công việc");
-                btnSelectTask.setFont(new Font("Segoe UI", Font.BOLD, 18));
-                btnSelectTask.setForeground(primaryBlue);
-                btnSelectTask.setBackground(new Color(230, 242, 255));
-                btnSelectTask.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(primaryBlue, 1, true),
-                        BorderFactory.createEmptyBorder(10, 30, 10, 30)
-                ));
-
-                lblTaskProgress.setVisible(false);
-                btnCompleteTask.setVisible(false);
-
-                estimatedSessions = 0;
-                completedSessions = 0;
-
-                resetToInitialState();
-                JOptionPane.showMessageDialog(this, "Công việc đã được chuyển sang danh sách Hoàn thành!");
-            }
-        });
-    }
-
-    private void initTimerLogic() {
-        timer = new Timer(1000, e -> {
-            if (timeLeft > 0) {
-                timeLeft--;
-                updateTimeLabel();
-            } else {
-                timer.stop();
-
-                if (isFocusMode && !btnSelectTask.getText().startsWith("+")) {
-                    completedSessions++;
-                    updateProgressLabel();
-                    JOptionPane.showMessageDialog(this, "Hết thời gian! Chúc mừng bạn đã hoàn thành 1 phiên tập trung.");
-                } else if (isFocusMode) {
-                    JOptionPane.showMessageDialog(this, "Hết thời gian tập trung!");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Hết thời gian nghỉ ngơi, quay lại làm việc thôi!");
-                }
-
-                resetToInitialState();
-            }
-        });
-
-        btnAction.addActionListener(e -> {
-            String text = btnAction.getText();
-            if (text.equals("Bắt đầu")) {
-                timer.start();
-                btnAction.setText("Tạm dừng");
-                btnStop.setVisible(true);
-            }
-            else if (text.equals("Tạm dừng")) {
-                timer.stop();
-                btnAction.setText("Tiếp tục");
-            }
-            else if (text.equals("Tiếp tục")) {
-                timer.start();
-                btnAction.setText("Tạm dừng");
-            }
-        });
-
-        btnStop.addActionListener(e -> {
-            timer.stop();
-            int choice = JOptionPane.showConfirmDialog(this,
-                    "Bạn có chắc chắn muốn thoát phiên này không? Thời gian của phiên này sẽ không được tính.",
-                    "Xác nhận dừng",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE);
-
-            if (choice == JOptionPane.YES_OPTION) {
-                resetToInitialState();
-            } else {
-                btnAction.setText("Tiếp tục");
-            }
-        });
-
-        btnModeFocus.addActionListener(e -> {
-            setTimerMode(TIME_FOCUS);
-            isFocusMode = true;
-            setActiveModeStyle(btnModeFocus);
-        });
-        btnModeShortBreak.addActionListener(e -> {
-            setTimerMode(TIME_SHORT_BREAK);
-            isFocusMode = false;
-            setActiveModeStyle(btnModeShortBreak);
-        });
-        btnModeLongBreak.addActionListener(e -> {
-            setTimerMode(TIME_LONG_BREAK);
-            isFocusMode = false;
-            setActiveModeStyle(btnModeLongBreak);
-        });
-    }
-
-    private void resetToInitialState() {
-        timer.stop();
-        if(isFocusMode) timeLeft = TIME_FOCUS;
-        else if(btnModeShortBreak.getForeground().equals(primaryBlue)) timeLeft = TIME_SHORT_BREAK;
-        else timeLeft = TIME_LONG_BREAK;
-
-        updateTimeLabel();
-        btnAction.setText("Bắt đầu");
-        btnStop.setVisible(false);
-    }
-
-    private void setTimerMode(int seconds) {
-        timer.stop();
-        timeLeft = seconds;
-        updateTimeLabel();
-        btnAction.setText("Bắt đầu");
-        btnStop.setVisible(false);
-    }
-
-    private void updateTimeLabel() {
-        int m = timeLeft / 60;
-        int s = timeLeft % 60;
-        lblTime.setText(String.format("%02d:%02d", m, s));
     }
 }
