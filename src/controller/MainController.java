@@ -9,6 +9,7 @@ import javax.swing.*;
 public class MainController {
 
     private MainFrame mainFrame;
+    private GoalController goalController;
     private TaskController taskController;
 
     private LoginForm loginForm;
@@ -21,6 +22,7 @@ public class MainController {
         loginForm = new LoginForm();
         initAuthEvents();
         showLoginView();
+        initEventListeners();
     }
 
     private void initAuthEvents() {
@@ -62,6 +64,8 @@ public class MainController {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
+        this.goalController = new GoalController();
+        this.goalController.initialize(mainFrame.getGoalPanel());
         openFocusView();
         initEventListeners();
     }
@@ -98,7 +102,6 @@ public class MainController {
     }
 
     public void openProfileTrackingView() {
-        mainFrame.switchCard("HoSo");
         mainFrame.setActiveButton(mainFrame.getBtnHoSo());
 
     }
