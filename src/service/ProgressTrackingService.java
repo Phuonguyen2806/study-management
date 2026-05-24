@@ -3,7 +3,7 @@ package service;
 import model.entity.SessionType;
 import model.entity.StudySession;
 import model.observer.FocusSessionEvent;
-import model.observer.Observer;
+import model.observer.ISessionHistoryObserver;
 import model.repository.ITaskRepository;
 
 import java.io.BufferedWriter;
@@ -11,9 +11,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-public class ProgressTrackingService implements Observer {
+public class ProgressTrackingService implements ISessionHistoryObserver {
     private ITaskRepository taskRepository;
-    private final String SESSION_FILE_PATH = "data/sessions.txt"; // Đường dẫn lưu lịch sử
+    private final String SESSION_FILE_PATH = "data/studysessions.txt"; // Đường dẫn lưu lịch sử
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // Truyền repository vào để có thể cập nhật Task
@@ -49,13 +49,13 @@ public class ProgressTrackingService implements Observer {
                     taskIdStr,
                     startTimeStr,
                     endTimeStr,
-                    session.getDurationSeconds(),
+                    session.getDuration(),
                     session.getSessionType().name(),
                     session.getStatus().name()
             );
 
-            bw.write(line);
             bw.newLine();
+            bw.write(line);
             System.out.println(">>> [Observer] Đã lưu lịch sử phiên học xuống file.");
 
         } catch (IOException e) {

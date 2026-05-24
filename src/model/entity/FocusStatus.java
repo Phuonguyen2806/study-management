@@ -1,6 +1,6 @@
 package model.entity;
 
-public enum FocusState {
+public enum FocusStatus {
     IDLE,
     RUNNING,
     PAUSED,

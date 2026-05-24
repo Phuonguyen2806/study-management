@@ -43,7 +43,7 @@ public class StudySession {
         return endTime;
     }
 
-    public int getDurationSeconds() {
+    public int getDuration() {
         return durationSeconds;
     }
 

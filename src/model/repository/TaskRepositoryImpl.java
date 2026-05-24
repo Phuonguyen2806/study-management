@@ -10,7 +10,7 @@ import java.util.List;
 
 public class TaskRepositoryImpl implements ITaskRepository {
     private String filePath;
-    private List<Task> taskList; // Bộ nhớ đệm (Cache) lưu danh sách Task
+    private List<Task> taskList;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public TaskRepositoryImpl() {
@@ -27,7 +27,6 @@ public class TaskRepositoryImpl implements ITaskRepository {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
-
                 // Format chuẩn của file data:
                 // taskId|title|description|deadline|priority|estPomo|compPomo|status|userId
                 String[] parts = line.split("\\|");

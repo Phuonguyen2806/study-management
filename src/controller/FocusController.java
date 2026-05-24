@@ -1,6 +1,7 @@
 package controller;
 
-import model.entity.FocusState;
+import model.FocusSessionManager;
+import model.entity.FocusStatus;
 import model.entity.SessionType;
 import model.entity.Task;
 import model.entity.TaskStatus;
@@ -12,38 +13,35 @@ import view.FocusPanel;
 import javax.swing.JOptionPane;
 import java.util.List;
 
-public class FocusController {
+public class FocusController implements IFocusController {
     private FocusPanel view;
     private FocusSessionManager sessionManager;
     private ITaskRepository taskRepository;
 
     public FocusController(FocusPanel view) {
         this.view = view;
-
-        // 1. Khởi tạo Repository và load dữ liệu
         this.taskRepository = new TaskRepositoryImpl();
-        this.taskRepository.init("data/tasks.txt"); // Đường dẫn tới file data của bạn
+        this.taskRepository.init("data/tasks.txt");
 
-        // 2. Khởi tạo Manager đếm giờ
         this.sessionManager = new FocusSessionManager();
 
-        // 3. Đăng ký Dịch vụ theo dõi ngầm (Observer)
+        // 1. Cắm ổ cắm History để ghi file khi kết thúc
         ProgressTrackingService progressService = new ProgressTrackingService(this.taskRepository);
-        this.sessionManager.addObserver(progressService);
+        this.sessionManager.addHistoryObserver(progressService);
 
-        // 4. Lắng nghe Manager thay đổi để yêu cầu View vẽ lại
-        this.sessionManager.setCallbacks(
-                this::updateViewTime,
-                this::updateViewState
-        );
+        // 2. Cắm ổ cắm View để giao diện tự động nhảy số theo thời gian thực
+        this.sessionManager.addViewObserver(this.view);
     }
 
+    @Override
     public void initFocusView() {
-        view.resetViewToIdle();
+        // Có thể để trống!
+        // Vì ngay khi gọi hàm addViewObserver ở trên, Model đã tự động
+        // gửi trạng thái đầu tiên sang cho View vẽ giao diện rồi.
     }
 
+    @Override
     public void handleSelectTaskClick() {
-        // Lấy danh sách Task chưa xong
         List<Task> pendingTasks = taskRepository.findTasksByStatus(TaskStatus.PENDING.name());
         List<Task> inProgressTasks = taskRepository.findTasksByStatus(TaskStatus.IN_PROGRESS.name());
         pendingTasks.addAll(inProgressTasks);
@@ -51,69 +49,68 @@ public class FocusController {
         Task selectedTask = view.showTaskSelectionDialog(pendingTasks);
         if (selectedTask != null) {
             int est = view.showEstimateDialog();
-            sessionManager.startSession(selectedTask, est); // Phát lệnh chạy
+            sessionManager.setTask(selectedTask, est);
         }
     }
 
+    @Override
+    public void handleModeChange(SessionType type) {
+        sessionManager.setSessionType(type);
+    }
+
+    @Override
     public void handleActionClick() {
-        FocusState state = sessionManager.getCurrentState();
-        if (state == FocusState.RUNNING) {
+        FocusStatus state = sessionManager.getCurrentState();
+
+        if (state == FocusStatus.IDLE) {
+            sessionManager.startSession();
+        } else if (state == FocusStatus.RUNNING) {
             sessionManager.pauseTimer();
-        } else if (state == FocusState.PAUSED) {
+        } else if (state == FocusStatus.PAUSED) {
             sessionManager.resumeTimer();
         }
     }
 
+    @Override
     public void handleStopClick() {
-        // Nếu đang là giờ nghỉ thì gọi hàm Bỏ qua nghỉ
-        if (sessionManager.getCurrentSessionType() != SessionType.FOCUS) {
-            handleSkipBreakClick();
-            return;
+        sessionManager.pauseTimer();
+
+        boolean confirm;
+        if (sessionManager.getCurrentSessionType() == SessionType.FOCUS) {
+            confirm = view.showConfirmStopDialog();
+        } else {
+            confirm = view.showConfirmSkipBreakDialog();
         }
 
-        // Nếu đang là giờ học thì xác nhận dừng
-        sessionManager.stopSessionConfirm();
-        boolean confirm = view.showConfirmStopDialog();
-        sessionManager.stopSession(confirm);
-    }
-
-    private void handleSkipBreakClick() {
-        sessionManager.pauseTimer(); // Tạm dừng để hỏi
-        boolean confirm = view.showConfirmSkipBreakDialog();
         if (confirm) {
-            sessionManager.skipBreak();
+            if (sessionManager.getCurrentSessionType() == SessionType.FOCUS) {
+                sessionManager.stopSession(true);
+            } else {
+                sessionManager.skipBreak();
+            }
+            sessionManager.clearTask();
         } else {
             sessionManager.resumeTimer();
         }
     }
 
+    @Override
     public void handleCompleteEarlyClick() {
         sessionManager.pauseTimer();
         boolean confirm = view.showConfirmCompleteDialog();
-        if(confirm) {
+
+        if (confirm) {
             Task currentTask = sessionManager.getCurrentTask();
-            if(currentTask != null) {
+            if (currentTask != null) {
                 currentTask.setStatus(TaskStatus.DONE);
             }
-            // Gọi dừng session ngay lập tức
+
             sessionManager.stopSession(true);
-            JOptionPane.showMessageDialog(view, "Chúc mừng bạn đã hoàn thành công việc!");
+            sessionManager.clearTask();
+
+            JOptionPane.showMessageDialog(null, "Chúc mừng bạn đã hoàn thành công việc!");
         } else {
             sessionManager.resumeTimer();
         }
-    }
-
-    // --- Các hàm cập nhật ngược lên View ---
-
-    private void updateViewTime() {
-        int timeLeft = sessionManager.getTimeLeft();
-        view.updateTimeLabel(String.format("%02d:%02d", timeLeft / 60, timeLeft % 60));
-    }
-
-    private void updateViewState() {
-        FocusState state = sessionManager.getCurrentState();
-        SessionType type = sessionManager.getCurrentSessionType();
-        Task task = sessionManager.getCurrentTask();
-        view.syncState(state, type, task);
     }
 }

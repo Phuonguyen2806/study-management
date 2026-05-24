@@ -1,5 +1,6 @@
 package controller;
 
+import view.FocusPanel;
 import view.LoginForm;
 import view.MainFrame;
 import view.RegisterForm;
@@ -7,9 +8,10 @@ import view.RegisterForm;
 import javax.swing.*;
 
 public class MainController {
-
     private MainFrame mainFrame;
     private TaskController taskController;
+
+    private IFocusController focusController;
 
     private LoginForm loginForm;
     private RegisterForm registerForm;
@@ -47,14 +49,14 @@ public class MainController {
     }
 
     public void handleLoginAction() {
-        //logic khac
+        // logic khac
 
         loginForm.dispose();
         startMainApp();
     }
 
     public void handleRegisterAction() {
-// logic khac
+        // logic khac
         showLoginView();
     }
 
@@ -62,6 +64,11 @@ public class MainController {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
+
+        FocusPanel focusPanel = this.mainFrame.getFocusPanel();
+        this.focusController = new FocusController(focusPanel);
+        focusPanel.setController(this.focusController);
+
         openFocusView();
         initEventListeners();
     }
@@ -100,6 +107,5 @@ public class MainController {
     public void openProfileTrackingView() {
         mainFrame.switchCard("HoSo");
         mainFrame.setActiveButton(mainFrame.getBtnHoSo());
-
     }
 }
