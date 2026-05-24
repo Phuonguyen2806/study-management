@@ -9,7 +9,10 @@ public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel contentPanel;
     private FocusPanel focusPanel;
-    private TaskPanel taskView;
+    private GoalPanel goalPanel;
+    private TaskPanel taskPanel;
+    private StatisticsPanel statisticsPanel;
+    private ProfilePopupView profilePopupView;
 
     private JButton btnTapTrung;
     private JButton btnQuanLyBaiTap;
@@ -33,6 +36,7 @@ public class MainFrame extends JFrame {
         // ÁP DỤNG COMPOSITE PATTERN: MainFrame chứa 2 Node lớn
         add(createSidebarPanel(), BorderLayout.WEST);   // Khối Menu Trái
         add(createContentPanel(), BorderLayout.CENTER); // Khối Nội dung Phải
+        this.profilePopupView = new ProfilePopupView(this);
     }
 
     // --- NODE 1: Tạo cây Sidebar ---
@@ -80,15 +84,15 @@ public class MainFrame extends JFrame {
         contentPanel.setBackground(Color.WHITE);
 
         focusPanel = new FocusPanel();
-        taskView = new TaskPanel();
+        taskPanel = new TaskPanel();
+        goalPanel = new GoalPanel();
+        statisticsPanel = new StatisticsPanel();
 
         // Thêm các lá (Leaf Nodes) vào CardLayout Composite
         contentPanel.add(focusPanel, "TapTrung");
-        contentPanel.add(taskView, "QuanLyBaiTap");
-        contentPanel.add(createPlaceholderPanel("Màn hình Mục tiêu"), "MucTieu");
-        // Nếu file StatisticsPanel chưa đổi thành class khác thì dùng, không thì comment dòng dưới
-        contentPanel.add(new StatisticsPanel(), "ThongKe");
-        contentPanel.add(createPlaceholderPanel("Màn hình Hồ sơ"), "HoSo");
+        contentPanel.add(taskPanel, "QuanLyBaiTap");
+        contentPanel.add(goalPanel, "MucTieu");
+        contentPanel.add(statisticsPanel, "ThongKe");
 
         return contentPanel;
     }
@@ -149,5 +153,7 @@ public class MainFrame extends JFrame {
     }
 
     public FocusPanel getFocusPanel() { return focusPanel; }
-    public TaskPanel getTaskPanel() { return taskView; }
+    public TaskPanel getTaskPanel() { return taskPanel; }
+    public GoalPanel getGoalPanel() { return goalPanel; }
+    public ProfilePopupView getProfilePopupView() { return profilePopupView; }
 }

@@ -1,21 +1,18 @@
 package controller;
 
-import view.FocusPanel;
-import view.LoginForm;
-import view.MainFrame;
-import view.RegisterForm;
+import view.*;
 
 import javax.swing.*;
+import model.entity.User;
 
 public class MainController {
     private MainFrame mainFrame;
     private TaskController taskController;
-
     private IFocusController focusController;
-
+    private GoalController goalController;
     private LoginForm loginForm;
     private RegisterForm registerForm;
-
+    private User currentUser;
 
     public MainController(MainFrame view) {
         this.mainFrame = view;
@@ -50,7 +47,8 @@ public class MainController {
 
     public void handleLoginAction() {
         // logic khac
-
+        // Tạm thời giả lập việc đăng nhập thành công (Sau này bạn thay bằng code kiểm tra file users.txt)
+        this.currentUser = new User(1, "Nguyễn Ngọc Phương Uyên", "uyen.nnp@nlu.edu.vn", "password123");
         loginForm.dispose();
         startMainApp();
     }
@@ -63,11 +61,25 @@ public class MainController {
     private void startMainApp() {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
+        // Khởi tạo Task
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
-
+        // Khởi tạo Focus
         FocusPanel focusPanel = this.mainFrame.getFocusPanel();
         this.focusController = new FocusController(focusPanel);
         focusPanel.setController(this.focusController);
+        // Khởi tạo Goal
+        GoalPanel goalPanel = this.mainFrame.getGoalPanel();
+        this.goalController = new GoalController();
+        this.goalController.initialize(goalPanel);
+
+        // Bơm dữ liệu User vào cho Popup Hồ sơ
+        this.mainFrame.getProfilePopupView().fillUser(this.currentUser);
+
+        // Xử lý sự kiện khi nhấn nút "Đăng xuất" trên Popup
+        this.mainFrame.getProfilePopupView().setOnLogoutClicked(() -> {
+            mainFrame.dispose(); // Đóng màn hình chính
+            showLoginView();     // Quay lại màn hình đăng nhập
+        });
 
         openFocusView();
         initEventListeners();
@@ -105,7 +117,7 @@ public class MainController {
     }
 
     public void openProfileTrackingView() {
-        mainFrame.switchCard("HoSo");
         mainFrame.setActiveButton(mainFrame.getBtnHoSo());
+        mainFrame.getProfilePopupView().showNextTo(mainFrame.getBtnHoSo());
     }
 }
