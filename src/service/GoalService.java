@@ -1,8 +1,8 @@
 package service;
 
-import model.Goal;
-import model.GoalStatus;
-import model.GoalType;
+import model.entity.Goal;
+import model.entity.GoalStatus;
+import model.entity.GoalType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

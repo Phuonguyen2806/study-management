@@ -1,7 +1,7 @@
 package view;
 
-import model.Goal;
-import model.GoalStatus;
+import model.entity.Goal;
+import model.entity.GoalStatus;
 import controller.GoalController;
 
 import javax.swing.*;
