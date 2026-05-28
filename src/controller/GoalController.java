@@ -1,7 +1,7 @@
 package controller;
 
-import model.Goal;
-import model.GoalStatus;
+import model.entity.Goal;
+import model.entity.GoalStatus;
 import service.GoalService;
 import view.GoalPanel;
 

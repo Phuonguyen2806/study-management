@@ -1,20 +1,17 @@
 package view;
 
-import model.User;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-
 public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel contentPanel;
     private FocusPanel focusPanel;
-    private TaskPanel taskView;
     private GoalPanel goalPanel;
-
+    private TaskPanel taskPanel;
+    private StatisticsPanel statisticsPanel;
     private ProfilePopupView profilePopupView;
 
     private JButton btnTapTrung;
@@ -36,13 +33,20 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Sidebar Panel
+        // ÁP DỤNG COMPOSITE PATTERN: MainFrame chứa 2 Node lớn
+        add(createSidebarPanel(), BorderLayout.WEST);   // Khối Menu Trái
+        add(createContentPanel(), BorderLayout.CENTER); // Khối Nội dung Phải
+        this.profilePopupView = new ProfilePopupView(this);
+    }
+
+    // --- NODE 1: Tạo cây Sidebar ---
+    private JPanel createSidebarPanel() {
         JPanel sidebarPanel = new JPanel(new BorderLayout());
         sidebarPanel.setPreferredSize(new Dimension(180, 0));
         sidebarPanel.setBackground(Color.WHITE);
         sidebarPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(220, 220, 220)));
 
-        // Logo
+        // Node con: Logo
         JPanel logoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
         logoPanel.setBackground(Color.WHITE);
         JLabel appTitleLabel = new JLabel("Pomo Focus");
@@ -51,11 +55,11 @@ public class MainFrame extends JFrame {
         logoPanel.add(appTitleLabel);
         sidebarPanel.add(logoPanel, BorderLayout.NORTH);
 
-        // Menu Buttons
+        // Node con: Menu Buttons
         JPanel menuButtonsPanel = new JPanel();
         menuButtonsPanel.setLayout(new BoxLayout(menuButtonsPanel, BoxLayout.Y_AXIS));
         menuButtonsPanel.setBackground(Color.WHITE);
-        menuButtonsPanel.add(Box.createVerticalStrut(10));  // Tạo khoảng hở nhỏ giữa Logo và các nút
+        menuButtonsPanel.add(Box.createVerticalStrut(10));
 
         btnTapTrung = createMenuButton("Tập trung");
         btnQuanLyBaiTap = createMenuButton("Quản lý công việc");
@@ -69,73 +73,51 @@ public class MainFrame extends JFrame {
         }
         sidebarPanel.add(menuButtonsPanel, BorderLayout.CENTER);
 
-        add(sidebarPanel, BorderLayout.WEST);
+        return sidebarPanel;
+    }
 
-        // Content Panel (CardLayout)
+    // --- NODE 2: Tạo cây Content (CardLayout) ---
+    private JPanel createContentPanel() {
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
         contentPanel.setBackground(Color.WHITE);
 
         focusPanel = new FocusPanel();
-
-        contentPanel.add(focusPanel, "TapTrung");
-        taskView = new TaskPanel();
-        contentPanel.add(taskView, "QuanLyBaiTap");
-
-        contentPanel.add(createPlaceholderPanel("Màn hình Mục tiêu"), "MucTieu");
-
-        contentPanel.add(new StatisticsPanel(), "ThongKe");
-
-        contentPanel.add(createPlaceholderPanel("Màn hình Hồ sơ"), "HoSo");
-        contentPanel.add(createPlaceholderPanel("Màn hình Tập trung Pomodoro"), "TapTrung");
-        contentPanel.add(createPlaceholderPanel("Màn hình Quản lý bài tập"), "QuanLyBaiTap");
+        taskPanel = new TaskPanel();
         goalPanel = new GoalPanel();
-        contentPanel.add(goalPanel, "MucTieu");
-        contentPanel.add(createPlaceholderPanel("Màn hình Thống kê"), "ThongKe");
+        statisticsPanel = new StatisticsPanel();
 
-        profilePopupView = new ProfilePopupView(this); // Truyền 'this' (MainFrame) làm owner Window
-        User mockUser = new User(1, "Nguyễn Văn A", "24130689@st.hcmuaf.edu.vn", "NguyenVanA", "123");
-        profilePopupView.fillUser(mockUser);
-        add(contentPanel, BorderLayout.CENTER);
-        // Nút "Hồ sơ" bật popup nhỏ bên cạnh !
-        btnHoSo.addActionListener(e -> {
-            profilePopupView.showNextTo(btnHoSo);
-        });
+        // Thêm các lá (Leaf Nodes) vào CardLayout Composite
+        contentPanel.add(focusPanel, "TapTrung");
+        contentPanel.add(taskPanel, "QuanLyBaiTap");
+        contentPanel.add(goalPanel, "MucTieu");
+        contentPanel.add(statisticsPanel, "ThongKe");
+
+        return contentPanel;
     }
 
-    // Hàm tiện ích tạo JButton
     private JButton createMenuButton(String title) {
         JButton btn = new JButton(title);
-
         btn.setFont(FONT_REGULAR);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(true);
         btn.setOpaque(true);
-
         btn.setBackground(Color.WHITE);
         btn.setHorizontalAlignment(SwingConstants.LEFT);
 
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent evt) {
-                if (btn != currentActiveButton) {
-                    btn.setBackground(new Color(245, 245, 245));
-                }
+                if (btn != currentActiveButton) btn.setBackground(new Color(245, 245, 245));
             }
-
             public void mouseExited(MouseEvent evt) {
-                if (btn != currentActiveButton) {
-                    btn.setBackground(Color.WHITE);
-                }
+                if (btn != currentActiveButton) btn.setBackground(Color.WHITE);
             }
         });
-
-
         return btn;
     }
 
@@ -145,11 +127,9 @@ public class MainFrame extends JFrame {
             btn.setForeground(Color.BLACK);
             btn.setFont(FONT_REGULAR);
         }
-
-        selectedBtn.setBackground(new Color(220, 235, 252)); // xanh nhạt
+        selectedBtn.setBackground(new Color(220, 235, 252));
         selectedBtn.setForeground(COLOR_PRIMARY);
         selectedBtn.setFont(FONT_BOLD);
-
         currentActiveButton = selectedBtn;
     }
 
@@ -162,38 +142,18 @@ public class MainFrame extends JFrame {
         return panel;
     }
 
-    public JButton getBtnTapTrung() {
-        return btnTapTrung;
-    }
-
-    public JButton getBtnQuanLyBaiTap() {
-        return btnQuanLyBaiTap;
-    }
-
-    public JButton getBtnMucTieu() {
-        return btnMucTieu;
-    }
-
-    public JButton getBtnThongKe() {
-        return btnThongKe;
-    }
-
-    public JButton getBtnHoSo() {
-        return btnHoSo;
-    }
+    public JButton getBtnTapTrung() { return btnTapTrung; }
+    public JButton getBtnQuanLyBaiTap() { return btnQuanLyBaiTap; }
+    public JButton getBtnMucTieu() { return btnMucTieu; }
+    public JButton getBtnThongKe() { return btnThongKe; }
+    public JButton getBtnHoSo() { return btnHoSo; }
 
     public void switchCard(String cardName) {
         cardLayout.show(contentPanel, cardName);
     }
 
-    public GoalPanel getGoalPanel() {
-        return this.goalPanel;
-    }
-
-    public FocusPanel getFocusPanel() {
-        return focusPanel;
-    }
-    public TaskPanel getTaskPanel() {
-        return taskView;
-    }
+    public FocusPanel getFocusPanel() { return focusPanel; }
+    public TaskPanel getTaskPanel() { return taskPanel; }
+    public GoalPanel getGoalPanel() { return goalPanel; }
+    public ProfilePopupView getProfilePopupView() { return profilePopupView; }
 }

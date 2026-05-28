@@ -1,6 +1,6 @@
 package view;
 
-import model.User;
+import model.entity.User;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -33,9 +33,9 @@ public class ProfilePopupView extends JWindow {
     private static final Color C_LOGOUT_HV = new Color(243, 244, 246);
 
     // ── Font ─────────────────────────────────────────────────────────────────
-    private static final Font F_NAME   = new Font("Segoe UI", Font.BOLD,  13);
-    private static final Font F_EMAIL  = new Font("Segoe UI", Font.PLAIN, 12);
-    private static final Font F_LOGOUT = new Font("Segoe UI", Font.PLAIN, 13);
+    private static final Font F_NAME   = new Font("Segoe UI", Font.BOLD,  15);
+    private static final Font F_EMAIL  = new Font("Segoe UI", Font.PLAIN, 15);
+    private static final Font F_LOGOUT = new Font("Segoe UI", Font.PLAIN, 15);
 
     // ── Label cập nhật runtime ────────────────────────────────────────────────
     private JLabel lblName;
@@ -85,33 +85,38 @@ public class ProfilePopupView extends JWindow {
                 g2.dispose();
             }
         };
-        root.setPreferredSize(new Dimension(220,130));
+        root.setMinimumSize(new Dimension(220,130));
 
         root.setOpaque(false);
         root.setBorder(new EmptyBorder(0, 0, 6, 6)); // padding cho bóng
 
-        JPanel inner = new JPanel();
-        inner.setLayout(new BoxLayout(inner, BoxLayout.Y_AXIS));
+        // Dùng BorderLayout thay vì BoxLayout
+        JPanel inner = new JPanel(new BorderLayout());
         inner.setOpaque(false);
         inner.setBorder(new EmptyBorder(4, 0, 4, 0));
 
-        inner.add(buildInfoSection());
-        inner.add(buildDivider());
-        inner.add(buildLogoutRow());
-        
+        // Nửa trên: Tên + Email
+        inner.add(buildInfoSection(), BorderLayout.NORTH);
+
+        // Nửa dưới: Đường kẻ ngang + Nút Đăng xuất
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(buildDivider(), BorderLayout.NORTH);
+        bottomPanel.add(buildLogoutRow(), BorderLayout.SOUTH);
+
+        inner.add(bottomPanel, BorderLayout.SOUTH);
+
         root.add(inner, BorderLayout.CENTER);
         setContentPane(root);
-        pack();
     }
 
     // ─── Tên + email ─────────────────────────────────────────────────────────
 
     private JPanel buildInfoSection() {
         JPanel p = new JPanel();
-
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setLayout(new GridLayout(2, 1, 0, 3));
         p.setOpaque(false);
-        p.setBorder(new EmptyBorder(10, 15, 15, 25));
+        p.setBorder(new EmptyBorder(10, 15, 15, 30));
 
         lblName = new JLabel(" ");
         lblName.setFont(F_NAME);
@@ -124,7 +129,6 @@ public class ProfilePopupView extends JWindow {
         lblEmail.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         p.add(lblName);
-        p.add(Box.createVerticalStrut(3));
         p.add(lblEmail);
         return p;
     }
@@ -143,9 +147,10 @@ public class ProfilePopupView extends JWindow {
 
     // ─── Hàng Đăng xuất ──────────────────────────────────────────────────────
     private JPanel buildLogoutRow() {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel row = new JPanel();
+        row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
         row.setOpaque(false);
-        row.setBorder(new EmptyBorder(10, 25, 23, 10));
+        row.setBorder(new EmptyBorder(10, 25, 10, 25));
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
         row.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -155,12 +160,13 @@ public class ProfilePopupView extends JWindow {
         icon.setForeground(new Color(107, 114, 128));
         icon.setBorder(new EmptyBorder(0, 6, 0, 4));
 
-        JLabel text = new JLabel("Đăng xuất");
+        JLabel text = new JLabel("Đăng xuất   ");
         text.setFont(F_LOGOUT);
         text.setForeground(C_LOGOUT_FG);
 
         row.add(icon);
         row.add(text);
+        row.add(Box.createHorizontalGlue());    // Keo dán ép nút dài ra hết cỡ
 
         row.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
@@ -177,8 +183,12 @@ public class ProfilePopupView extends JWindow {
                 if (onLogoutClicked != null) onLogoutClicked.run();
             }
         });
-        return row;
-    }
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.setBorder(new EmptyBorder(0, 0, 12, 0));
+        wrapper.add(row, BorderLayout.CENTER);
+
+        return wrapper;    }
 
     // ═════════════════════════════════════════════════════════════════════════
     //  API CÔNG KHAI
@@ -187,10 +197,11 @@ public class ProfilePopupView extends JWindow {
     /** Điền tên + email từ User model vào labels */
     public void fillUser(User user) {
         if (user == null) return;
-        lblName.setText(user.getFullName());
-        lblEmail.setText(user.getEmail());
-        pack();
-    }
+        lblName.setText(user.getFullName()+"   ");
+        lblEmail.setText(user.getEmail()+"   ");
+        ((JComponent)getContentPane()).setPreferredSize(null);
+        revalidate();
+        repaint();    }
 
     /**
      * showNextTo — hiện popup ngay bên phải của anchor component.
@@ -200,6 +211,7 @@ public class ProfilePopupView extends JWindow {
      */
     public void showNextTo(Component anchor) {
         if (isVisible()) { setVisible(false); return; }
+        pack();
         Point pt = anchor.getLocationOnScreen();
         setLocation(pt.x + anchor.getWidth() + 4, pt.y);
         setVisible(true);
