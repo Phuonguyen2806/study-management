@@ -3,7 +3,7 @@ package service;
 import model.entity.SessionType;
 import model.entity.StudySession;
 import model.observer.FocusSessionEvent;
-import model.observer.ISessionHistoryObserver;
+import model.observer.SessionHistoryObserver;
 import model.repository.ITaskRepository;
 
 import java.io.BufferedWriter;
@@ -11,7 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-public class ProgressTrackingService implements ISessionHistoryObserver {
+public class ProgressTrackingService implements SessionHistoryObserver {
     private ITaskRepository taskRepository;
     private final String SESSION_FILE_PATH = "data/studysessions.txt"; // Đường dẫn lưu lịch sử
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

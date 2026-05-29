@@ -4,13 +4,13 @@ import controller.IFocusController;
 import model.entity.FocusStatus;
 import model.entity.SessionType;
 import model.entity.Task;
-import model.observer.IFocusViewObserver;
+import model.observer.FocusViewObserver;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class FocusPanel extends JPanel implements IFocusViewObserver {
+public class FocusPanel extends JPanel implements FocusViewObserver {
     private JButton btnSelectTask;
     private JLabel lblTaskProgress;
     private JButton btnModeFocus, btnModeShortBreak, btnModeLongBreak;
@@ -249,13 +249,16 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
 
         if (type == SessionType.FOCUS) {
             setActiveModeStyle(btnModeFocus);
-            if (state != FocusStatus.IDLE) btnStop.setText("Dừng lại");
+            btnStop.setText("Dừng lại");
+            btnStop.setVisible(state != FocusStatus.IDLE);
         } else if (type == SessionType.SHORT_BREAK) {
             setActiveModeStyle(btnModeShortBreak);
-            if (state != FocusStatus.IDLE) btnStop.setText("Bỏ qua");
+            btnStop.setText("Bỏ qua");
+            btnStop.setVisible(true);
         } else {
             setActiveModeStyle(btnModeLongBreak);
-            if (state != FocusStatus.IDLE) btnStop.setText("Bỏ qua");
+            btnStop.setText("Bỏ qua");
+            btnStop.setVisible(true);
         }
 
         if (task != null) {

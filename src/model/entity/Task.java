@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Task {
     private int taskId;
-    private int userId; // Thêm thuộc tính userId theo yêu cầu
+    private int userId;
     private String title;
     private String description;
     private Date deadline;

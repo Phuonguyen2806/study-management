@@ -35,8 +35,7 @@ public class FocusController implements IFocusController {
 
     @Override
     public void initFocusView() {
-        // Có thể để trống!
-        // Vì ngay khi gọi hàm addViewObserver ở trên, Model đã tự động
+        // Để trống vì ngay khi gọi hàm addViewObserver ở trên, Model đã tự động
         // gửi trạng thái đầu tiên sang cho View vẽ giao diện rồi.
     }
 
@@ -85,12 +84,14 @@ public class FocusController implements IFocusController {
         if (confirm) {
             if (sessionManager.getCurrentSessionType() == SessionType.FOCUS) {
                 sessionManager.stopSession(true);
+                sessionManager.clearTask();
             } else {
                 sessionManager.skipBreak();
             }
-            sessionManager.clearTask();
         } else {
-            sessionManager.resumeTimer();
+            if (sessionManager.getCurrentState() == FocusStatus.PAUSED) {
+                sessionManager.resumeTimer();
+            }
         }
     }
 

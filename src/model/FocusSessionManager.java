@@ -2,8 +2,8 @@ package model;
 
 import model.entity.*;
 import model.observer.FocusSessionEvent;
-import model.observer.IFocusViewObserver;
-import model.observer.ISessionHistoryObserver;
+import model.observer.FocusViewObserver;
+import model.observer.SessionHistoryObserver;
 
 import javax.swing.Timer;
 import java.util.ArrayList;
@@ -12,22 +12,22 @@ import java.util.List;
 
 public class FocusSessionManager {
     // 1. Observer lưu Data (Service)
-    private List<ISessionHistoryObserver> historyObservers = new ArrayList<>();
+    private List<SessionHistoryObserver> historyObservers = new ArrayList<>();
     // 2. Observer cập nhật Giao diện (View)
-    private List<IFocusViewObserver> viewObservers = new ArrayList<>();
+    private List<FocusViewObserver> viewObservers = new ArrayList<>();
 
     private FocusStatus currentState = FocusStatus.IDLE;
     private SessionType currentSessionType = SessionType.FOCUS;
     private int sessionCount = 0;
 
-    private final int TIME_FOCUS = 25 * 60;
+    private final int TIME_FOCUS = 1 * 60;
     private final int TIME_SHORT_BREAK = 5 * 60;
     private final int TIME_LONG_BREAK = 15 * 60;
 
     private int timeLeft;
     private Timer timer;
     private Task currentTask;
-    private Date sessionStartTime;
+    private Date sessionStartTime; // bên entity StudySession có startTime tại sao không lấy
 
     public FocusSessionManager() {
         this.timeLeft = TIME_FOCUS;
@@ -44,25 +44,25 @@ public class FocusSessionManager {
     // ==========================================
     // QUẢN LÝ OBSERVER: VIEW (Giao diện)
     // ==========================================
-    public void addViewObserver(IFocusViewObserver o) {
+    public void addViewObserver(FocusViewObserver o) {
         viewObservers.add(o);
         // Gửi trạng thái ngay lần đầu đăng ký để View vẽ giao diện ban đầu
         o.updateState(currentState, currentSessionType, currentTask);
         o.updateTime(timeLeft);
     }
 
-    public void removeViewObserver(IFocusViewObserver o) {
+    public void removeViewObserver(FocusViewObserver o) {
         viewObservers.remove(o);
     }
 
     private void notifyTimeChanged() {
-        for (IFocusViewObserver o : viewObservers) {
+        for (FocusViewObserver o : viewObservers) {
             o.updateTime(timeLeft);
         }
     }
 
     private void notifyStateChanged() {
-        for (IFocusViewObserver o : viewObservers) {
+        for (FocusViewObserver o : viewObservers) {
             o.updateState(currentState, currentSessionType, currentTask);
         }
         notifyTimeChanged(); // Cập nhật lại số trên đồng hồ luôn
@@ -71,16 +71,16 @@ public class FocusSessionManager {
     // ==========================================
     // QUẢN LÝ OBSERVER: HISTORY (Lưu lịch sử)
     // ==========================================
-    public void addHistoryObserver(ISessionHistoryObserver o) {
+    public void addHistoryObserver(SessionHistoryObserver o) {
         historyObservers.add(o);
     }
 
-    public void removeHistoryObserver(ISessionHistoryObserver o) {
+    public void removeHistoryObserver(SessionHistoryObserver o) {
         historyObservers.remove(o);
     }
 
     private void notifyHistoryObservers(FocusSessionEvent event) {
-        for (ISessionHistoryObserver o : historyObservers) {
+        for (SessionHistoryObserver o : historyObservers) {
             o.onSessionCompleted(event);
         }
     }
@@ -112,7 +112,7 @@ public class FocusSessionManager {
         }
 
         this.currentState = FocusStatus.RUNNING;
-        this.sessionStartTime = new Date();
+        this.sessionStartTime = new Date(); // chỉnh sửa lại
         timer.start();
         notifyStateChanged();
     }
@@ -133,7 +133,7 @@ public class FocusSessionManager {
         }
     }
 
-    public void stopSessionConfirm() {
+    public void stopSessionConfirm() { // có cần có phương thức này không
         currentState = FocusStatus.CONFIRMING_STOP;
         notifyStateChanged();
     }
@@ -162,7 +162,7 @@ public class FocusSessionManager {
             StudySession sessionRecord = createStudySessionRecord(duration, SessionStatus.COMPLETED);
             notifyHistoryObservers(new FocusSessionEvent(currentTask, sessionRecord));
 
-            currentState = FocusStatus.RUNNING;
+            currentState = FocusStatus.IDLE;
             if (sessionCount >= 4) {
                 currentSessionType = SessionType.LONG_BREAK;
                 timeLeft = TIME_LONG_BREAK;
@@ -171,14 +171,12 @@ public class FocusSessionManager {
                 currentSessionType = SessionType.SHORT_BREAK;
                 timeLeft = TIME_SHORT_BREAK;
             }
-            this.sessionStartTime = new Date();
-            timer.start();
         } else {
             StudySession breakRecord = createStudySessionRecord(duration, SessionStatus.COMPLETED);
             notifyHistoryObservers(new FocusSessionEvent(null, breakRecord));
             resetToIdle();
         }
-        notifyStateChanged();
+        notifyStateChanged(); // Cập nhật giao diện với thời gian mới và nút "Bắt đầu"
     }
 
     public void skipBreak() {
@@ -195,9 +193,9 @@ public class FocusSessionManager {
         notifyStateChanged();
     }
 
-    private StudySession createStudySessionRecord(int duration, SessionStatus status) {
+    private StudySession createStudySessionRecord(int duration, SessionStatus status) { // tại sao lại đưa vô 2 tham số này
         Date endTime = new Date();
-        int userId = (currentTask != null) ? currentTask.getUserId() : 1;
+        int userId = (currentTask != null) ? currentTask.getUserId() : 1; // tại sao bằng null lại đưa về user 1
         Integer taskId = (currentTask != null) ? currentTask.getTaskId() : null;
         int sessionId = (int) (System.currentTimeMillis() % 100000);
         return new StudySession(sessionId, userId, taskId, sessionStartTime, endTime, duration, currentSessionType, status);
