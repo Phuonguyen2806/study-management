@@ -17,4 +17,4 @@
 17|Làm slide Mạng máy tính|Thuyết trình về giao thức HTTP|2026-05-14 08:00:00|High|4|4|Done|10
 18|Dịch tài liệu tiếng Anh|Tài liệu về Design Patterns|2026-05-15 22:00:00|Low|6|0|Pending|11
 19|Cấu hình Router|Thực hành chia mạng con (Subnetting)|2026-05-11 13:00:00|High|5|1|In Progress|12
-20|Gặp nhóm trao đổi đồ án|Thảo luận tại Highland Coffee NLU|2026-05-11 14:00:00|Medium|2|2|Done|1
+20|Gặp nhóm trao đổi đồ án|Thảo luận tại Highland Coffee NLU|2026-05-11 23:59:00|High|2|2|Done|1

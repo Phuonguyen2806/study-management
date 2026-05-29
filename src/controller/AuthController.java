@@ -2,24 +2,27 @@ package controller;
 
 import javax.swing.JOptionPane;
 
-//import model.AuthManager;
+import model.AuthManager;
+import model.repository.UserRepository;
 
 public class AuthController {
-//    private AuthManager authManager;
+    private AuthManager authManager;
     private MainController mainController;
+    private UserRepository userRepository;
 
 
     public AuthController(MainController mainController) {
+        userRepository = new UserRepository();
+        authManager = new AuthManager(userRepository);
         this.mainController = mainController;
     }
 
     public void handleRegister(String fullName, String email, String password, String confirmPW) {
         try {
-            // Gọi xuống Manager để xử lý đăng ký
-//            authManager.register(fullName, email, password, confirmPW);
+            authManager.register(fullName, email, password, confirmPW);
 
-            // Thông báo và có thể điều hướng người dùng quay lại trang Login
             JOptionPane.showMessageDialog(null, "Đăng ký tài khoản thành công!");
+            mainController.getRegisterForm().resetForm();
             mainController.showLoginView();
         } catch (Exception e) {
             // Ví dụ: mật khẩu không khớp, email đã tồn tại...
@@ -29,16 +32,21 @@ public class AuthController {
 
     public void handleLogin(String email, String password) {
         try {
-            // Gọi xuống Manager để kiểm tra logic
-//            authManager.login(email, password);
+            // 1. Gọi AuthManager để kiểm tra email và password dưới Database/Repository
+            authManager.login(email, password);
 
-            // Nếu không có lỗi, thông báo thành công và chuyển màn hình
-            System.out.println("Đăng nhập thành công!");
-            // Gọi MainController để chuyển sang màn hình chính (Home)
-            mainController.openFocusView();
-        } catch (Exception e) {
-            // Hiển thị lỗi ra View nếu đăng nhập thất bại
+            // 2. Nếu không có Exception nào bị ném ra -> Đăng nhập thành công
+            JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
+
+            // 3. Tắt form đăng nhập và mở ứng dụng chính
+            mainController.getLoginForm().dispose();
+            mainController.startMainApp();
+
+        } catch (IllegalArgumentException e) {
+            // Bắt các lỗi sai mật khẩu, thiếu email từ AuthManager
             JOptionPane.showMessageDialog(null, "Lỗi: " + e.getMessage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Hệ thống có lỗi: " + e.getMessage());
         }
     }
 

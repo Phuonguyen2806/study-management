@@ -1,20 +1,21 @@
-1|Nguyễn Ngọc Phương Uyên|uyen.nnp@nlu.edu.vn|password123
-2|Nguyễn Hà Quỳnh Anh|quynhanh.ha@nlu.edu.vn|password123
-3|Nguyễn Thị Khánh Huyền|huyen.ntk@nlu.edu.vn|password123
-4|Cao Phan Hoài Ngọc|hoaingoc.cp@nlu.edu.vn|password123
-5|Lê Minh Triết|triet.lm@nlu.edu.vn|password123
-6|Trần Thanh Trúc|truc.tt@nlu.edu.vn|password123
-7|Phạm Đức Anh|ducanh.p@nlu.edu.vn|password123
-8|Võ Hoàng Nam|nam.vh@nlu.edu.vn|password123
-9|Đặng Thu Thảo|thao.dt@nlu.edu.vn|password123
-10|Bùi Minh Quân|quan.bm@nlu.edu.vn|password123
-11|Ngô Kiến Huy|huy.nk@nlu.edu.vn|password123
-12|Lý Thanh Thảo|thao.lt@nlu.edu.vn|password123
-13|Trương Gia Bình|binh.tg@nlu.edu.vn|password123
-14|Hồ Hoàng Hải|hai.hh@nlu.edu.vn|password123
-15|Phan Thanh Hùng|hung.pt@nlu.edu.vn|password123
-16|Lương Thùy Linh|linh.lt@nlu.edu.vn|password123
-17|Đỗ Kim Long|long.dk@nlu.edu.vn|password123
-18|Trịnh Thăng Bình|binh.tt@nlu.edu.vn|password123
-19|Nguyễn Quốc Cơ|co.nq@nlu.edu.vn|password123
-20|Đoàn Thiên Ân|an.dt@nlu.edu.vn|password123
+1|Nguyễn Ngọc Phương Uyên|uyen.nnp@nlu.edu.vn|password123|true
+2|Nguyễn Hà Quỳnh Anh|quynhanh.ha@nlu.edu.vn|password123|false
+3|Nguyễn Thị Khánh Huyền|huyen.ntk@nlu.edu.vn|password123|false
+4|Cao Phan Hoài Ngọc|hoaingoc.cp@nlu.edu.vn|password123|false
+5|Lê Minh Triết|triet.lm@nlu.edu.vn|password123|false
+6|Trần Thanh Trúc|truc.tt@nlu.edu.vn|password123|false
+7|Phạm Đức Anh|ducanh.p@nlu.edu.vn|password123|false
+8|Võ Hoàng Nam|nam.vh@nlu.edu.vn|password123|false
+9|Đặng Thu Thảo|thao.dt@nlu.edu.vn|password123|false
+10|Bùi Minh Quân|quan.bm@nlu.edu.vn|password123|false
+11|Ngô Kiến Huy|huy.nk@nlu.edu.vn|password123|false
+12|Lý Thanh Thảo|thao.lt@nlu.edu.vn|password123|false
+13|Trương Gia Bình|binh.tg@nlu.edu.vn|password123|false
+14|Hồ Hoàng Hải|hai.hh@nlu.edu.vn|password123|false
+15|Phan Thanh Hùng|hung.pt@nlu.edu.vn|password123|false
+16|Lương Thùy Linh|linh.lt@nlu.edu.vn|password123|false
+17|Đỗ Kim Long|long.dk@nlu.edu.vn|password123|false
+18|Trịnh Thăng Bình|binh.tt@nlu.edu.vn|password123|false
+19|Nguyễn Quốc Cơ|co.nq@nlu.edu.vn|password123|false
+20|Đoàn Thiên Ân|an.dt@nlu.edu.vn|password123|false
+21|Nguyễn Thị A|a@gmail.com|123|true

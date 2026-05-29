@@ -1,6 +1,6 @@
 package view;
 
-import model.User;
+import model.entity.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -87,15 +87,11 @@ public class MainFrame extends JFrame {
 
         contentPanel.add(new StatisticsPanel(), "ThongKe");
 
-        contentPanel.add(createPlaceholderPanel("Màn hình Hồ sơ"), "HoSo");
-        contentPanel.add(createPlaceholderPanel("Màn hình Tập trung Pomodoro"), "TapTrung");
-        contentPanel.add(createPlaceholderPanel("Màn hình Quản lý bài tập"), "QuanLyBaiTap");
         goalPanel = new GoalPanel();
         contentPanel.add(goalPanel, "MucTieu");
-        contentPanel.add(createPlaceholderPanel("Màn hình Thống kê"), "ThongKe");
 
         profilePopupView = new ProfilePopupView(this); // Truyền 'this' (MainFrame) làm owner Window
-        User mockUser = new User(1, "Nguyễn Văn A", "24130689@st.hcmuaf.edu.vn", "NguyenVanA", "123");
+        User mockUser = new User("Nguyễn Văn A", "24130689@st.hcmuaf.edu.vn",  "123");
         profilePopupView.fillUser(mockUser);
         add(contentPanel, BorderLayout.CENTER);
         // Nút "Hồ sơ" bật popup nhỏ bên cạnh !

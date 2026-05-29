@@ -73,15 +73,6 @@ public class RegisterForm extends JFrame{
         panel.add(btnLogin);
         btnRegister = createButton("Đăng ký");
         panel.add(btnRegister);
-        btnRegister.addActionListener(e -> {
-            String name = tFullName.getText();
-            String email = tEmail.getText();
-            String p1 = new String(pass.getPassword());
-            String p2 = new String(confiPW.getPassword());
-
-            // Gọi Controller xử lý
-            authController.handleRegister(name, email, p1, p2);
-        });
 
         JPanel mainWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 50));
         mainWrapper.add(panel);
@@ -96,11 +87,34 @@ public class RegisterForm extends JFrame{
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         return btn;
     }
+
+    public void resetForm() {
+        tFullName.setText("");
+        tEmail.setText("");
+        pass.setText("");
+        confiPW.setText("");
+    }
+
     public JButton getBtnLogin() {
         return btnLogin;
     }
     public JButton getBtnRegister() {
         return btnRegister;
+    }
+    public String getFullNameInput() {
+        return tFullName.getText();
+    }
+
+    public String getEmailInput() {
+        return tEmail.getText();
+    }
+
+    public String getPasswordInput() {
+        return new String(pass.getPassword());
+    }
+
+    public String getConfirmPasswordInput() {
+        return new String(confiPW.getPassword());
     }
 
 

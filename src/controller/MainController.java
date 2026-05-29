@@ -5,6 +5,7 @@ import view.MainFrame;
 import view.RegisterForm;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MainController {
 
@@ -15,14 +16,15 @@ public class MainController {
     private LoginForm loginForm;
     private RegisterForm registerForm;
 
+    private AuthController authController;
 
     public MainController(MainFrame view) {
         this.mainFrame = view;
+        authController = new AuthController(this);
         registerForm = new RegisterForm();
         loginForm = new LoginForm();
         initAuthEvents();
         showLoginView();
-        initEventListeners();
     }
 
     private void initAuthEvents() {
@@ -32,10 +34,7 @@ public class MainController {
 
         // Sự kiện trên RegisterForm
         registerForm.getBtnLogin().addActionListener(e -> showLoginView());
-        registerForm.getBtnRegister().addActionListener(e -> {
-            // Sau khi đăng ký xong thì quay lại login
-            handleRegisterAction();
-        });
+        registerForm.getBtnRegister().addActionListener(e -> {handleRegisterAction();});
     }
 
     public void showLoginView() {
@@ -49,18 +48,20 @@ public class MainController {
     }
 
     public void handleLoginAction() {
-        //logic khac
-
-        loginForm.dispose();
-        startMainApp();
+        String email = loginForm.getEmailInput();
+        String password = loginForm.getPasswordInput();
+        authController.handleLogin(email, password);
     }
 
     public void handleRegisterAction() {
-// logic khac
-        showLoginView();
+        String fullName = registerForm.getFullNameInput();
+        String email = registerForm.getEmailInput();
+        String password = registerForm.getPasswordInput();
+        String confirmPW =registerForm.getConfirmPasswordInput();
+        authController.handleRegister(fullName, email, password, confirmPW);
     }
 
-    private void startMainApp() {
+    public void startMainApp() {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
@@ -77,6 +78,7 @@ public class MainController {
         mainFrame.getBtnThongKe().addActionListener(e -> openStatisticTrackingView());
         mainFrame.getBtnHoSo().addActionListener(e -> openProfileTrackingView());
         taskController.addStartListener(e ->openFocusView());
+        registerForm.getBtnRegister().addActionListener(e -> {handleRegisterAction();});
     }
 
     public void openFocusView() {
@@ -98,11 +100,18 @@ public class MainController {
     public void openStatisticTrackingView() {
         mainFrame.switchCard("ThongKe");
         mainFrame.setActiveButton(mainFrame.getBtnThongKe());
-
     }
 
     public void openProfileTrackingView() {
         mainFrame.setActiveButton(mainFrame.getBtnHoSo());
 
+    }
+
+    public RegisterForm getRegisterForm() {
+        return registerForm;
+    }
+
+    public LoginForm getLoginForm() {
+        return loginForm;
     }
 }
