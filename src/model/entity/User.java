@@ -4,13 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
+    private int userId;
     private String fullName;
     private String userName; // Trong sơ đồ có userName
     private String passwd;
     private String email;
+    private String password;
     private int userID;
     private boolean isLogin;
 
+    public User() {
+    }
     // tạo user
     public User(String fullName, String email, String passwd) {
         this.fullName = fullName;
@@ -20,18 +24,31 @@ public class User {
         this.isLogin = false;
     }
 
+    public User(int userId, String fullName, String email, String password) {
+            this.userId = userId;
+            this.fullName = fullName;
+            this.email = email;
+            this.password = password;
+        }
     // đọc từ file
     public User(String fullName, String email, String passwd, boolean isLogin) {
         this.fullName = fullName;
         this.email = email;
+        this.password = password;
         this.passwd = passwd;
         this.userName = email;
         this.isLogin = isLogin;
 
     }
 
+    public int getUserId() {
+        return userId;
+    }
     public boolean checkPassword(String pass) {
-
+                return this.passwd.equals(pass);
+            }
+    public void setUserId(int userId) {
+        this.userId = userId;
         return this.passwd.equals(pass);
     }
 
@@ -51,6 +68,8 @@ public class User {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;}
     public String getPasswd() {
         return passwd;
     }
@@ -63,10 +82,15 @@ public class User {
         return userID;
     }
 
+    public void setPassword(String password) {
+        this.password = password;}
     public void setUserID(int userID) {
         this.userID = userID;
     }
 
+    @Override
+    public String toString() {
+        return userId + "|" + fullName + "|" + email + "|" + password;}
     public boolean isLogin() {
         return isLogin;
     }
@@ -75,3 +99,5 @@ public class User {
         isLogin = login;
     }
 }
+
+
