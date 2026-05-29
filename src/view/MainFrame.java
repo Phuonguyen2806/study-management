@@ -156,4 +156,9 @@ public class MainFrame extends JFrame {
     public TaskPanel getTaskPanel() { return taskPanel; }
     public GoalPanel getGoalPanel() { return goalPanel; }
     public ProfilePopupView getProfilePopupView() { return profilePopupView; }
+
+	public StatisticsPanel getStatisticsPanel() {
+		// TODO Auto-generated method stub
+		return statisticsPanel;
+	}
 }
