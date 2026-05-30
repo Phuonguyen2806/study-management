@@ -18,3 +18,9 @@
 18|Dịch tài liệu tiếng Anh|Tài liệu về Design Patterns|2026-05-15 22:00:00|Low|6|0|PENDING|11
 19|Cấu hình Router|Thực hành chia mạng con (Subnetting)|2026-05-11 13:00:00|High|5|1|IN_PROGRESS|12
 20|Gặp nhóm trao đổi đồ án|Thảo luận tại Highland Coffee NLU|2026-05-11 14:00:00|Medium|2|2|DONE|1
+21|Nộp báo cáo cuối kỳ|Gửi file PDF qua hệ thống quản lý|2026-05-29 23:59:00|High|1|2|DONE|1
+22|Họp team đồ án|Thảo luận tiến độ tại thư viện|2026-05-29 15:00:00|Medium|2|0|IN_PROGRESS|1
+23|Cập nhật dữ liệu SQL|Chạy script import dữ liệu mẫu|2026-05-29 10:00:00|Low|1|1|PENDING|1
+24|Hoàn thiện mã nguồn Java|Fix các lỗi Memory Leak|2026-05-29 23:59:00|High|8|5|IN_PROGRESS|1
+25|Vẽ sơ đồ lớp (Class Diagram)|Chỉnh sửa lại quan hệ giữa các class|2026-05-29 17:00:00|Medium|3|3|OVERDUE|1
+26|Gửi email cho giảng viên|Xin gia hạn thời gian nộp bài|2026-05-29 09:00:00|Low|1|0|PENDING|1
