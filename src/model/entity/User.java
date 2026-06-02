@@ -19,23 +19,23 @@ public class User {
     public User(String fullName, String email, String passwd) {
         this.fullName = fullName;
         this.email = email;
-        this.passwd = passwd;
+        this.password = passwd;
         this.userName = email;
         this.isLogin = false;
     }
 
     public User(int userId, String fullName, String email, String password) {
-            this.userId = userId;
-            this.fullName = fullName;
-            this.email = email;
-            this.password = password;
-        }
+        this.userId = userId;
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+    }
+
     // đọc từ file
     public User(String fullName, String email, String passwd, boolean isLogin) {
         this.fullName = fullName;
         this.email = email;
-        this.password = password;
-        this.passwd = passwd;
+        this.password = passwd;
         this.userName = email;
         this.isLogin = isLogin;
 
@@ -44,12 +44,13 @@ public class User {
     public int getUserId() {
         return userId;
     }
+
     public boolean checkPassword(String pass) {
-                return this.passwd.equals(pass);
-            }
+        return this.password.equals(pass);
+    }
+
     public void setUserId(int userId) {
         this.userId = userId;
-        return this.passwd.equals(pass);
     }
 
     public String getFullName() {
@@ -68,14 +69,8 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;}
     public String getPasswd() {
-        return passwd;
-    }
-
-    public void setPasswd(String passwd) {
-        this.passwd = passwd;
+        return password;
     }
 
     public int getUserID() {
@@ -83,7 +78,9 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password;}
+        this.password = password;
+    }
+
     public void setUserID(int userID) {
         this.userID = userID;
     }

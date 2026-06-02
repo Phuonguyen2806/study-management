@@ -87,15 +87,6 @@ public class MainFrame extends JFrame {
 
         focusPanel = new FocusPanel();
         taskPanel = new TaskPanel();
-
-        contentPanel.add(focusPanel, "TapTrung");
-        taskView = new TaskPanel();
-        contentPanel.add(taskView, "QuanLyBaiTap");
-
-        contentPanel.add(createPlaceholderPanel("Màn hình Mục tiêu"), "MucTieu");
-
-        contentPanel.add(new StatisticsPanel(), "ThongKe");
-
         goalPanel = new GoalPanel();
         statisticsPanel = new StatisticsPanel();
 
@@ -105,7 +96,6 @@ public class MainFrame extends JFrame {
         contentPanel.add(goalPanel, "MucTieu");
         contentPanel.add(statisticsPanel, "ThongKe");
 
-        return contentPanel;
         profilePopupView = new ProfilePopupView(this); // Truyền 'this' (MainFrame) làm owner Window
         User mockUser = new User("Nguyễn Văn A", "24130689@st.hcmuaf.edu.vn",  "123");
         profilePopupView.fillUser(mockUser);
@@ -114,6 +104,7 @@ public class MainFrame extends JFrame {
         btnHoSo.addActionListener(e -> {
             profilePopupView.showNextTo(btnHoSo);
         });
+        return contentPanel;
     }
 
     private JButton createMenuButton(String title) {

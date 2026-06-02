@@ -173,7 +173,7 @@ public class TaskPanel extends JPanel {
         java.text.SimpleDateFormat displayFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
         for (Task task : tasks) {
             String formattedDeadline = displayFormat.format(task.getDeadline());
-            addTaskToContainer(task.getTaskId(), task.getTitle(), task.getPriority(), task.getState(), formattedDeadline);
+            addTaskToContainer(task.getTaskId(), task.getTitle(), task.getPriority(), task.getStatus().name(), formattedDeadline);
         }
         listContainer.revalidate();
         listContainer.repaint();

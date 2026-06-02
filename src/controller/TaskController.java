@@ -1,6 +1,7 @@
 package controller;
 
 import model.entity.Task;
+import model.entity.TaskStatus;
 import model.repository.ITaskRepository;
 import model.repository.TaskRepositoryImpl;
 import model.repository.UserRepository;
@@ -25,6 +26,7 @@ public class TaskController {
         this.view = view;
         this.owner = owner;
         this.repository = new TaskRepositoryImpl();
+        repository.init("study-management/data/tasks.txt");
         this.userRepository = new UserRepository();
         initEvents();
         refreshView();
@@ -73,9 +75,8 @@ public class TaskController {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE
         );
-
         if (confirm == JOptionPane.YES_OPTION) {
-            boolean success = ((TaskRepositoryImpl) repository).delete(taskId);
+            boolean success = repository.delete(taskId);
             if (success) {
                 JOptionPane.showMessageDialog(owner, "Xóa công việc thành công!");
                 refreshView(); // Nạp lại dữ liệu hiển thị mới nhất lên màn hình
@@ -83,7 +84,6 @@ public class TaskController {
                 JOptionPane.showMessageDialog(owner, "Lỗi hệ thống: Không thể xóa công việc.", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         }
-
     }
 
 
@@ -120,14 +120,14 @@ public class TaskController {
             return false;
         }
         // --- BƯỚC 4: KHỞI TẠO ĐỐI TƯỢNG TASK MỚI ---
-        Task newTask = new Task(title, desc, deadlineDate, priority, 0, 0, status);
+        TaskStatus taskStatus = TaskStatus.valueOf(status.toUpperCase().replace(" ", "_"));
+        Task newTask = new Task(title, desc, deadlineDate, priority, 0, 0, taskStatus);
         // --- BƯỚC 5: GỌI REPOSITORY LƯU TRỮ XUỐNG FILE (LUỒNG RẼ NHÁNH #2) ---
         boolean isSaved = repository.save(newTask, currentUserId);
         if (!isSaved) {
             JOptionPane.showMessageDialog(form, "Lỗi hệ thống: Không thể lưu bài tập lúc này. Vui lòng thử lại sau.", "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
             return false; // Kết thúc tiến trình rẽ nhánh lỗi lưu trữ, giữ nguyên form nhập liệu
         }
-
         return true;
     }
 
@@ -152,7 +152,7 @@ public class TaskController {
         int currentUserId = userRepository.getLoggedInUserId();
         if (currentUserId != -1) {
             // 2. Lấy toàn bộ task từ file txt lên thông qua Repository
-            List<Task> allTasks = ((TaskRepositoryImpl) repository).getAllTasks();
+            List<Task> allTasks = repository.getAllTasks();
             // 3. Lấy giá trị độ ưu tiên đang được chọn từ ComboBox
             String selectedPriority = (String) view.getCbGlobalPriority().getSelectedItem();
             // 4. Tạo một danh sách mới để chứa các task thỏa mãn điều kiện lọc
@@ -182,7 +182,7 @@ public class TaskController {
     }
     private void handleEditTask(int taskId) {
         // Tìm đối tượng Task cũ trong cơ sở dữ liệu dựa vào taskId
-        List<Task> allTasks = ((TaskRepositoryImpl) repository).getAllTasks();
+        List<Task> allTasks = repository.getAllTasks();
         Task targetTask = null;
         for (Task t : allTasks) {
             if (t.getTaskId() == taskId) {
@@ -190,27 +190,21 @@ public class TaskController {
                 break;
             }
         }
-
         if (targetTask == null) {
             JOptionPane.showMessageDialog(owner, "Không tìm thấy công việc cần sửa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         // Khởi tạo Form và đổ dữ liệu cũ lên các ô nhập liệu
         TaskForm form = new TaskForm(owner);
-
         // Bạn hãy kiểm tra xem TaskForm của bạn đã có các hàm set dữ liệu này chưa nhé:
         form.setTitleInput(targetTask.getTitle());
         form.setDescriptionInput(targetTask.getDescription());
         form.setPriorityInput(targetTask.getPriority());
-        form.setStatusInput(targetTask.getState());
-
+        form.setStatusInput( targetTask.getStatus().name());
         java.text.SimpleDateFormat displayFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
         form.setDeadlineInput(displayFormat.format(targetTask.getDeadline()));
-
         // Thay đổi text của nút bấm trên Form thành "Cập nhật" thay vì "Thêm" (nếu cần thiết)
         form.getBtnAdd().setText("Cập nhật");
-
         // Lắng nghe sự kiện khi người dùng bấm nút xác nhận trên Form
         final Task finalTargetTask = targetTask; // Biến final để dùng trong Lambda
         form.getBtnAdd().addActionListener(evt -> {
@@ -233,16 +227,16 @@ public class TaskController {
                 JOptionPane.showMessageDialog(form, "Ngày tháng không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
+            TaskStatus taskStatus = TaskStatus.valueOf(status.toUpperCase().replace(" ", "_"));
             // Gán các giá trị mới cập nhật vào đối tượng task cũ
             finalTargetTask.setTitle(title);
             finalTargetTask.setDescription(desc);
             finalTargetTask.setDeadline(deadlineDate);
             finalTargetTask.setPriority(priority);
-            finalTargetTask.setState(status);
+            finalTargetTask.setStatus(taskStatus);
 
             // Gọi Repository cập nhật xuống file txt
-            boolean success = ((TaskRepositoryImpl) repository).update(finalTargetTask);
+            boolean success = repository.update(finalTargetTask);
             if (success) {
                 form.dispose(); // Đóng form
                 JOptionPane.showMessageDialog(owner, "Cập nhật công việc thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);

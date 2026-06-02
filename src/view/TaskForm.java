@@ -13,7 +13,7 @@ public class TaskForm extends JDialog {
 
     private JTextField txtTitle;
     private JTextField txtDeadline;
-    private JComboBox<String>  cbPriority, cbStatus;
+    private JComboBox<String> cbPriority, cbStatus;
     private JTextArea txtDescription;
     private JButton btnAdd, btnCancel;
 
@@ -70,7 +70,7 @@ public class TaskForm extends JDialog {
 
         // 3. Ưu tiên & Trạng thái
         pnlContent.add(createFieldGroup("Mức độ ưu tiên", cbPriority = new JComboBox<>(new String[]{"High", "Medium", "Low"})));
-        pnlContent.add(createFieldGroup("Trạng thái", cbStatus = new JComboBox<>(new String[]{"Pending", "In Progress", "Done"})));
+        pnlContent.add(createFieldGroup("Trạng thái", cbStatus = new JComboBox<>(new String[]{"PENDING", "IN_PROGRESS", "DONE"})));
         //khoảng cách giữa các thành phần
         pnlContent.add(Box.createVerticalStrut(15));
 
@@ -165,6 +165,7 @@ public class TaskForm extends JDialog {
             return false;
         }
     }
+
     public String getTitleInput() {
         return txtTitle.getText().trim();
     }
@@ -192,12 +193,15 @@ public class TaskForm extends JDialog {
     public JButton getBtnCancel() {
         return btnCancel;
     }
+
     public void setTitleInput(String title) {
         this.txtTitle.setText(title);
     }
+
     public void setDeadlineInput(String deadline) {
         this.txtDeadline.setText(deadline);
     }
+
     public void setPriorityInput(String priority) {
         this.cbPriority.setSelectedItem(priority);
     }

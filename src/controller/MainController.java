@@ -136,6 +136,5 @@ public class MainController {
 
     public LoginForm getLoginForm() {
         return loginForm;
-        mainFrame.getProfilePopupView().showNextTo(mainFrame.getBtnHoSo());
     }
 }
