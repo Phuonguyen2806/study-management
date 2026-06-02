@@ -7,15 +7,15 @@ import java.awt.*;
 import model.entity.User;
 
 public class MainController {
-    private MainFrame mainFrame;
-    private TaskController taskController;
-    private IFocusController focusController;
-    private GoalController goalController;
-    private LoginForm loginForm;
-    private RegisterForm registerForm;
-
+	private MainFrame mainFrame;
+	private TaskController taskController;
+	private IFocusController focusController;
+	private GoalController goalController;
+	private StatisticsController statisticsController;
+	private LoginForm loginForm;
+	private RegisterForm registerForm;
+	private User currentUser;
     private AuthController authController;
-    private User currentUser;
 
     public MainController(MainFrame view) {
         this.mainFrame = view;
@@ -26,25 +26,25 @@ public class MainController {
         showLoginView();
     }
 
-    private void initAuthEvents() {
-        // Sự kiện trên LoginForm
-        loginForm.getBtnLogin().addActionListener(e -> handleLoginAction());
-        loginForm.getBtnRegister().addActionListener(e -> showRegisterView());
+	private void initAuthEvents() {
+		// Sự kiện trên LoginForm
+		loginForm.getBtnLogin().addActionListener(e -> handleLoginAction());
+		loginForm.getBtnRegister().addActionListener(e -> showRegisterView());
 
         // Sự kiện trên RegisterForm
         registerForm.getBtnLogin().addActionListener(e -> showLoginView());
         registerForm.getBtnRegister().addActionListener(e -> {handleRegisterAction();});
     }
 
-    public void showLoginView() {
-        registerForm.setVisible(false);
-        loginForm.setVisible(true);
-    }
+	public void showLoginView() {
+		registerForm.setVisible(false);
+		loginForm.setVisible(true);
+	}
 
-    public void showRegisterView() {
-        loginForm.setVisible(false);
-        registerForm.setVisible(true);
-    }
+	public void showRegisterView() {
+		loginForm.setVisible(false);
+		registerForm.setVisible(true);
+	}
 
     public void handleLoginAction() {
         // logic khac
@@ -67,7 +67,7 @@ public class MainController {
         authController.handleRegister(fullName, email, password, confirmPW);
     }
 
-    public void startMainApp() {
+    private void startMainApp() {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         // Khởi tạo Task
@@ -80,19 +80,21 @@ public class MainController {
         GoalPanel goalPanel = this.mainFrame.getGoalPanel();
         this.goalController = new GoalController();
         this.goalController.initialize(goalPanel);
-
+// Khởi tạo Statistic
+        StatisticsPanel statisticsPanel = this.mainFrame.getStatisticsPanel();
+        this.statisticsController = new StatisticsController(mainFrame.getStatisticsPanel());
         // Bơm dữ liệu User vào cho Popup Hồ sơ
         this.mainFrame.getProfilePopupView().fillUser(this.currentUser);
 
-        // Xử lý sự kiện khi nhấn nút "Đăng xuất" trên Popup
-        this.mainFrame.getProfilePopupView().setOnLogoutClicked(() -> {
-            mainFrame.dispose(); // Đóng màn hình chính
-            showLoginView();     // Quay lại màn hình đăng nhập
-        });
+		// Xử lý sự kiện khi nhấn nút "Đăng xuất" trên Popup
+		this.mainFrame.getProfilePopupView().setOnLogoutClicked(() -> {
+			mainFrame.dispose(); // Đóng màn hình chính
+			showLoginView(); // Quay lại màn hình đăng nhập
+		});
 
-        openFocusView();
-        initEventListeners();
-    }
+		openFocusView();
+		initEventListeners();
+	}
 
     private void initEventListeners() {
         mainFrame.getBtnTapTrung().addActionListener(e -> openFocusView());
@@ -104,30 +106,36 @@ public class MainController {
         registerForm.getBtnRegister().addActionListener(e -> {handleRegisterAction();});
     }
 
-    public void openFocusView() {
-        mainFrame.switchCard("TapTrung");
-        mainFrame.setActiveButton(mainFrame.getBtnTapTrung());
+	public void openFocusView() {
+		mainFrame.switchCard("TapTrung");
+		mainFrame.setActiveButton(mainFrame.getBtnTapTrung());
 
-    }
+	}
 
-    public void openTaskManagementView() {
-        mainFrame.switchCard("QuanLyBaiTap");
-        mainFrame.setActiveButton(mainFrame.getBtnQuanLyBaiTap());
-    }
+	public void openTaskManagementView() {
+		mainFrame.switchCard("QuanLyBaiTap");
+		mainFrame.setActiveButton(mainFrame.getBtnQuanLyBaiTap());
+	}
 
-    public void openGoalTrackingView() {
-        mainFrame.switchCard("MucTieu");
-        mainFrame.setActiveButton(mainFrame.getBtnMucTieu());
-    }
+	public void openGoalTrackingView() {
+		mainFrame.switchCard("MucTieu");
+		mainFrame.setActiveButton(mainFrame.getBtnMucTieu());
+	}
 
-    public void openStatisticTrackingView() {
-        mainFrame.switchCard("ThongKe");
-        mainFrame.setActiveButton(mainFrame.getBtnThongKe());
-    }
+	public void openStatisticTrackingView() {
+		// 1. Chuyển đổi giao diện trước
+		mainFrame.switchCard("ThongKe");
+		mainFrame.setActiveButton(mainFrame.getBtnThongKe());
+		// 2. Gọi Controller để load dữ liệu
+		if (this.statisticsController != null && this.currentUser != null) {
+			this.statisticsController.loadDailyStats(this.currentUser);
+			this.statisticsController.loadWeeklyStats(this.currentUser);
+		}
+	}
 
     public void openProfileTrackingView() {
         mainFrame.setActiveButton(mainFrame.getBtnHoSo());
-
+        mainFrame.getProfilePopupView().showNextTo(mainFrame.getBtnHoSo());
     }
 
     public RegisterForm getRegisterForm() {
