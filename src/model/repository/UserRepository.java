@@ -5,12 +5,13 @@ import java.io.*;
 import java.util.*;
 
 
-public class UserRepository {
+public class UserRepository  implements IUserRepository {
     private final String FILE_PATH = "study-management/data/users.txt";
 
     public UserRepository() {
     }
 
+    @Override
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -40,6 +41,7 @@ public class UserRepository {
     }
 
         // Phương thức lưu người dùng mới (có trong sơ đồ)
+        @Override
     public void save(User user) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             int newID = getNextID();
@@ -51,6 +53,7 @@ public class UserRepository {
         }
     }
 
+    @Override
     public void updateLoginStatus(String email, boolean isLogin) {
         List<User> users = getAllUsers();
         boolean isUpdated = false;
@@ -62,7 +65,6 @@ public class UserRepository {
                 break;
             }
         }
-
         if (isUpdated) {
             saveAllUsers(users); // Gọi hàm ghi đè toàn bộ
         }
@@ -79,6 +81,7 @@ public class UserRepository {
         }
     }
 
+    @Override
     public User findUserByEmail(String email) {
         List<User> users = getAllUsers();
         for (User user : users) {
@@ -89,16 +92,7 @@ public class UserRepository {
         return null;
     }
 
-    public boolean findByUserEmail(String email) {
-        List<User> users = getAllUsers();
-        for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(email)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    private int getNextID() {
+    public int getNextID() {
         List<User> users = getAllUsers();
         int maxID = 0;
         for (User user : users) {

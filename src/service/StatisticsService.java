@@ -2,10 +2,8 @@ package service;
 
 import model.dto.DailyStats;
 import model.dto.WeeklyStats;
-import model.entity.StudySession; // Bạn cần import các enum tương ứng
-import model.entity.Task;
-import model.entity.TaskStatus;
-import model.entity.User;
+import model.entity.*;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -208,7 +206,7 @@ public class StatisticsService {
 			String title = parts[1];
 			String desc = parts[2];
 			Date deadline = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parts[3]);
-			String priority = parts[4];
+			Priority priority = Priority.valueOf(parts[4].trim().toUpperCase());
 			int estPomo = Integer.parseInt(parts[5]);
 			int compPomo = Integer.parseInt(parts[6]);
 			TaskStatus status = TaskStatus.valueOf(parts[7]);

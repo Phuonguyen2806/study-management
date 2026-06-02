@@ -85,9 +85,6 @@ public class User {
         this.userID = userID;
     }
 
-    @Override
-    public String toString() {
-        return userId + "|" + fullName + "|" + email + "|" + password;}
     public boolean isLogin() {
         return isLogin;
     }
@@ -95,6 +92,10 @@ public class User {
     public void setLogin(boolean login) {
         isLogin = login;
     }
+
+    @Override
+    public String toString() {
+        return userId + "|" + fullName + "|" + email + "|" + password;}
 }
 
 

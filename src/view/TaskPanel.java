@@ -19,12 +19,11 @@ public class TaskPanel extends JPanel {
     private JComboBox<String> cbGlobalPriority;
     private JButton btnAdd, btnEdit, btnRemove;
     private JPanel listContainer;
-    private ActionListener startListener = e -> {
-    };
-    private ActionListener deleteListener = e -> {
-    };
-    private ActionListener editListener = e -> {
-    };
+
+    //tạo sẵn các ActionListener
+    private ActionListener startListener = e -> {};
+    private ActionListener deleteListener = e -> {};
+    private ActionListener editListener = e -> {};
 
 
     public TaskPanel() {
@@ -173,7 +172,7 @@ public class TaskPanel extends JPanel {
         java.text.SimpleDateFormat displayFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
         for (Task task : tasks) {
             String formattedDeadline = displayFormat.format(task.getDeadline());
-            addTaskToContainer(task.getTaskId(), task.getTitle(), task.getPriority(), task.getStatus().name(), formattedDeadline);
+            addTaskToContainer(task.getTaskId(), task.getTitle(), task.getPriority().name(), task.getStatus().name(), formattedDeadline);
         }
         listContainer.revalidate();
         listContainer.repaint();

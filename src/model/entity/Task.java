@@ -8,13 +8,13 @@ public class Task {
     private String title;
     private String description;
     private Date deadline;
-    private String priority;
+    private Priority priority;
     private int estPomo;
     private int compPomo;
     private TaskStatus status;
 
     // dùng khi đọc từ file lên (đã có sẵn taskId)
-    public Task(int taskId, String title, String description, Date deadline, String priority, int estPomo, int compPomo, TaskStatus status, int userId) {
+    public Task(int taskId, String title, String description, Date deadline, Priority priority, int estPomo, int compPomo, TaskStatus status, int userId) {
         this.taskId = taskId;
         this.title = title;
         this.description = description;
@@ -27,7 +27,7 @@ public class Task {
     }
 
     // KHỞI TẠO MỚI (Bổ sung dùng khi thêm từ Form - Chưa có taskId)
-    public Task(String title, String description, Date deadline, String priority, int estPomo, int compPomo, TaskStatus status) {
+    public Task(String title, String description, Date deadline, Priority priority, int estPomo, int compPomo, TaskStatus status) {
         this.title = title;
         this.description = description;
         this.deadline = deadline;
@@ -37,13 +37,21 @@ public class Task {
         this.status = status;
     }
     public int getTaskId() { return taskId; }
+
     public String getTitle() { return title; }
+
     public String getDescription() { return description; }
+
     public Date getDeadline() { return deadline; }
-    public String getPriority() { return priority; }
+
+    public Priority getPriority() { return priority; }
+
     public int getEstPomo() { return estPomo; }
+
     public int getCompPomo() { return compPomo; }
+
     public int getUserId() { return userId; }
+
     public TaskStatus getStatus() {
         return status;
     }
@@ -60,7 +68,7 @@ public class Task {
         this.deadline = deadlineDate;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
 

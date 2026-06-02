@@ -1,5 +1,6 @@
 package model.repository;
 
+import model.entity.Priority;
 import model.entity.Task;
 import model.entity.TaskStatus;
 
@@ -38,10 +39,10 @@ public class TaskRepositoryImpl implements ITaskRepository {
                             parts[1].trim(),
                             parts[2].trim(),
                             dateFormat.parse(parts[3].trim()),
-                            parts[4].trim(),
+                            Priority.valueOf(parts[4].trim()),
                             Integer.parseInt(parts[5].trim()),
                             Integer.parseInt(parts[6].trim()),
-                            TaskStatus.valueOf(parts[7].trim().toUpperCase()),
+                            TaskStatus.valueOf(parts[7].trim()),
                             Integer.parseInt(parts[8].trim())
                     );
                     taskList.add(task);
@@ -73,7 +74,7 @@ public class TaskRepositoryImpl implements ITaskRepository {
         return maxID + 1;
     }
 
-    // hàm dùng để thêm task va lưu lại trong file
+    // hàm dùng để thêm task và lưu lại trong file
     public boolean save(Task task, int userId) {
         task.setTaskId(getNextID());
         task.setUserId(userId);
@@ -111,13 +112,12 @@ public class TaskRepositoryImpl implements ITaskRepository {
                                 task.getTitle() + "|" +
                                 task.getDescription() + "|" +
                                 dateFormat.format(task.getDeadline()) + "|" +
-                                task.getPriority() + "|" +
+                                task.getPriority().name() + "|" +
                                 task.getEstPomo() + "|" +
                                 task.getCompPomo() + "|" +
                                 task.getStatus().name() + "|" +
                                 task.getUserId()
                 );
-
                 bw.newLine();
             }
             return true;

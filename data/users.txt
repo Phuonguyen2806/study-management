@@ -18,4 +18,4 @@
 18|Trịnh Thăng Bình|binh.tt@nlu.edu.vn|password123|false
 19|Nguyễn Quốc Cơ|co.nq@nlu.edu.vn|password123|false
 20|Đoàn Thiên Ân|an.dt@nlu.edu.vn|password123|false
-21|Nguyễn Thị A|a@gmail.com|123|true
+21|Nguyễn Thị A|a@gmail.com|password123|true

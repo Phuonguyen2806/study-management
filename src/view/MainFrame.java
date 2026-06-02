@@ -168,7 +168,6 @@ public class MainFrame extends JFrame {
     public ProfilePopupView getProfilePopupView() { return profilePopupView; }
 
 	public StatisticsPanel getStatisticsPanel() {
-		// TODO Auto-generated method stub
 		return statisticsPanel;
 	}
 }

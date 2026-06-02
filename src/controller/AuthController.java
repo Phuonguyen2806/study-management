@@ -3,24 +3,26 @@ package controller;
 import javax.swing.JOptionPane;
 
 import model.AuthManager;
+import model.entity.User;
+import model.repository.IUserRepository;
 import model.repository.UserRepository;
+
 
 public class AuthController {
     private AuthManager authManager;
     private MainController mainController;
-    private UserRepository userRepository;
+    private IUserRepository iUserRepository;
 
 
     public AuthController(MainController mainController) {
-        userRepository = new UserRepository();
-        authManager = new AuthManager(userRepository);
+        iUserRepository = new UserRepository();
+        authManager = new AuthManager(iUserRepository);
         this.mainController = mainController;
     }
 
     public void handleRegister(String fullName, String email, String password, String confirmPW) {
         try {
             authManager.register(fullName, email, password, confirmPW);
-
             JOptionPane.showMessageDialog(null, "Đăng ký tài khoản thành công!");
             mainController.getRegisterForm().resetForm();
             mainController.showLoginView();
@@ -32,21 +34,13 @@ public class AuthController {
 
     public void handleLogin(String email, String password) {
         try {
-            // 1. Gọi AuthManager để kiểm tra email và password dưới Database/Repository
-            authManager.login(email, password);
-
-            // 2. Nếu không có Exception nào bị ném ra -> Đăng nhập thành công
+            User user = authManager.login(email, password);
             JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
-
-            // 3. Tắt form đăng nhập và mở ứng dụng chính
+            mainController.setCurrentUser(user);
             mainController.getLoginForm().dispose();
             mainController.startMainApp();
-
         } catch (IllegalArgumentException e) {
-            // Bắt các lỗi sai mật khẩu, thiếu email từ AuthManager
             JOptionPane.showMessageDialog(null, "Lỗi: " + e.getMessage());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Hệ thống có lỗi: " + e.getMessage());
         }
     }
 

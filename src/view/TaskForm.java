@@ -56,7 +56,7 @@ public class TaskForm extends JDialog {
         txtDeadline.setText("31/12/2026"); // Đặt mặc định hoặc để trống
         txtDeadline.setForeground(Color.GRAY); // Màu chữ mờ cho giống gợi ý
 
-// Thêm sự kiện để khi click vào thì tự xóa gợi ý (Optional)
+        // Thêm sự kiện để khi click vào thì tự xóa gợi ý (Optional)
         txtDeadline.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 if (txtDeadline.getText().equals("31/12/2026")) {
@@ -69,7 +69,7 @@ public class TaskForm extends JDialog {
         addInputSimple(txtDeadline, pnlContent);
 
         // 3. Ưu tiên & Trạng thái
-        pnlContent.add(createFieldGroup("Mức độ ưu tiên", cbPriority = new JComboBox<>(new String[]{"High", "Medium", "Low"})));
+        pnlContent.add(createFieldGroup("Mức độ ưu tiên", cbPriority = new JComboBox<>(new String[]{"HIGH", "MEDIUM", "LOW"})));
         pnlContent.add(createFieldGroup("Trạng thái", cbStatus = new JComboBox<>(new String[]{"PENDING", "IN_PROGRESS", "DONE"})));
         //khoảng cách giữa các thành phần
         pnlContent.add(Box.createVerticalStrut(15));

@@ -1,5 +1,6 @@
 package controller;
 
+import model.entity.Priority;
 import model.entity.Task;
 import model.entity.TaskStatus;
 import model.repository.ITaskRepository;
@@ -121,7 +122,8 @@ public class TaskController {
         }
         // --- BƯỚC 4: KHỞI TẠO ĐỐI TƯỢNG TASK MỚI ---
         TaskStatus taskStatus = TaskStatus.valueOf(status.toUpperCase().replace(" ", "_"));
-        Task newTask = new Task(title, desc, deadlineDate, priority, 0, 0, taskStatus);
+        Priority priorityTask = Priority.valueOf(priority);
+        Task newTask = new Task(title, desc, deadlineDate, priorityTask, 0, 0, taskStatus);
         // --- BƯỚC 5: GỌI REPOSITORY LƯU TRỮ XUỐNG FILE (LUỒNG RẼ NHÁNH #2) ---
         boolean isSaved = repository.save(newTask, currentUserId);
         if (!isSaved) {
@@ -167,7 +169,7 @@ public class TaskController {
                     } else {
                         // Lưu ý: So sánh không phân biệt hoa thường hoặc chuẩn hóa chuỗi nếu cần
                         // Ví dụ: "Cao", "Trung bình", "Thấp"
-                        if (task.getPriority().equalsIgnoreCase(selectedPriority)) {
+                        if (task.getPriority().name().equalsIgnoreCase(selectedPriority)) {
                             filteredTasks.add(task);
                         }
                     }
@@ -199,7 +201,7 @@ public class TaskController {
         // Bạn hãy kiểm tra xem TaskForm của bạn đã có các hàm set dữ liệu này chưa nhé:
         form.setTitleInput(targetTask.getTitle());
         form.setDescriptionInput(targetTask.getDescription());
-        form.setPriorityInput(targetTask.getPriority());
+        form.setPriorityInput(targetTask.getPriority().name());
         form.setStatusInput( targetTask.getStatus().name());
         java.text.SimpleDateFormat displayFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
         form.setDeadlineInput(displayFormat.format(targetTask.getDeadline()));
@@ -228,11 +230,12 @@ public class TaskController {
                 return;
             }
             TaskStatus taskStatus = TaskStatus.valueOf(status.toUpperCase().replace(" ", "_"));
+            Priority priorityTask = Priority.valueOf(priority);
             // Gán các giá trị mới cập nhật vào đối tượng task cũ
             finalTargetTask.setTitle(title);
             finalTargetTask.setDescription(desc);
             finalTargetTask.setDeadline(deadlineDate);
-            finalTargetTask.setPriority(priority);
+            finalTargetTask.setPriority(priorityTask);
             finalTargetTask.setStatus(taskStatus);
 
             // Gọi Repository cập nhật xuống file txt
@@ -245,7 +248,6 @@ public class TaskController {
                 JOptionPane.showMessageDialog(form, "Lỗi hệ thống: Không thể cập nhật công việc.", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         });
-
         form.setVisible(true);
     }
 }
