@@ -8,6 +8,7 @@ import model.entity.TaskStatus;
 import model.repository.ITaskRepository;
 import model.repository.TaskRepositoryImpl;
 import service.ProgressTrackingService;
+import service.SessionFinishedNotificationService;
 import view.FocusPanel;
 
 import javax.swing.JOptionPane;
@@ -30,6 +31,9 @@ public class FocusController implements IFocusController {
 
         // 2. Cắm ổ cắm View để giao diện tự động nhảy số theo thời gian thực
         this.sessionManager.addViewObserver(this.view);
+
+        // 3. Cắm ổ cắm Âm thanh để đánh chuông khi hết giờ
+        this.sessionManager.addHistoryObserver(new SessionFinishedNotificationService());
     }
 
     @Override

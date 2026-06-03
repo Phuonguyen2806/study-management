@@ -27,7 +27,7 @@ public class TaskController {
         this.view = view;
         this.owner = owner;
         this.repository = new TaskRepositoryImpl();
-        repository.init("study-management/data/tasks.txt");
+        repository.init("data/tasks.txt");
         this.userRepository = new UserRepository();
         initEvents();
         refreshView();
