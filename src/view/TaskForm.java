@@ -13,7 +13,7 @@ public class TaskForm extends JDialog {
 
     private JTextField txtTitle;
     private JTextField txtDeadline;
-    private JComboBox<String>  cbPriority, cbStatus;
+    private JComboBox<String> cbPriority, cbStatus;
     private JTextArea txtDescription;
     private JButton btnAdd, btnCancel;
 
@@ -56,7 +56,7 @@ public class TaskForm extends JDialog {
         txtDeadline.setText("31/12/2026"); // Đặt mặc định hoặc để trống
         txtDeadline.setForeground(Color.GRAY); // Màu chữ mờ cho giống gợi ý
 
-// Thêm sự kiện để khi click vào thì tự xóa gợi ý (Optional)
+        // Thêm sự kiện để khi click vào thì tự xóa gợi ý (Optional)
         txtDeadline.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 if (txtDeadline.getText().equals("31/12/2026")) {
@@ -69,8 +69,8 @@ public class TaskForm extends JDialog {
         addInputSimple(txtDeadline, pnlContent);
 
         // 3. Ưu tiên & Trạng thái
-        pnlContent.add(createFieldGroup("Mức độ ưu tiên", cbPriority = new JComboBox<>(new String[]{"Cao", "Trung bình", "Thấp"})));
-        pnlContent.add(createFieldGroup("Trạng thái", cbStatus = new JComboBox<>(new String[]{"Đang chờ", "Đang thực hiện", "Hoàn thành"})));
+        pnlContent.add(createFieldGroup("Mức độ ưu tiên", cbPriority = new JComboBox<>(new String[]{"HIGH", "MEDIUM", "LOW"})));
+        pnlContent.add(createFieldGroup("Trạng thái", cbStatus = new JComboBox<>(new String[]{"PENDING", "IN_PROGRESS", "DONE"})));
         //khoảng cách giữa các thành phần
         pnlContent.add(Box.createVerticalStrut(15));
 
@@ -97,12 +97,6 @@ public class TaskForm extends JDialog {
         btnAdd.setFont(FONT_BOLD);
         btnAdd.setBackground(new Color(13, 15, 28));
         btnAdd.setForeground(Color.WHITE);
-//        btnAdd.addActionListener(e -> {
-//            if (validateDate()) {
-//                // Thực hiện lưu dữ liệu...
-//                System.out.println("Ngày hợp lệ, đang lưu...");
-//            }
-//        });
 
         pnlButtons.add(btnCancel);
         pnlButtons.add(btnAdd);
@@ -171,12 +165,52 @@ public class TaskForm extends JDialog {
             return false;
         }
     }
-    public JButton getBtnAdd(){
+
+    public String getTitleInput() {
+        return txtTitle.getText().trim();
+    }
+
+    public String getDeadlineInput() {
+        return txtDeadline.getText().trim();
+    }
+
+    public String getPriorityInput() {
+        return (String) cbPriority.getSelectedItem();
+    }
+
+    public String getStatusInput() {
+        return (String) cbStatus.getSelectedItem();
+    }
+
+    public String getDescriptionInput() {
+        return txtDescription.getText().trim();
+    }
+
+    public JButton getBtnAdd() {
         return btnAdd;
     }
-    public JButton getBtnCancel(){
+
+    public JButton getBtnCancel() {
         return btnCancel;
     }
 
+    public void setTitleInput(String title) {
+        this.txtTitle.setText(title);
+    }
 
+    public void setDeadlineInput(String deadline) {
+        this.txtDeadline.setText(deadline);
+    }
+
+    public void setPriorityInput(String priority) {
+        this.cbPriority.setSelectedItem(priority);
+    }
+
+    public void setDescriptionInput(String description) {
+        this.txtDescription.setText(description);
+    }
+
+    public void setStatusInput(String state) {
+        this.cbStatus.setSelectedItem(state);
+    }
 }
