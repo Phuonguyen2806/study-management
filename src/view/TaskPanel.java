@@ -1,9 +1,12 @@
 package view;
 
+import model.entity.Task;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class TaskPanel extends JPanel {
     private final Color COLOR_PRIMARY = new Color(0, 102, 204);
@@ -14,9 +17,13 @@ public class TaskPanel extends JPanel {
     private final Font FONT_STATUS = new Font("Segoe UI", Font.PLAIN, 11);
 
     private JComboBox<String> cbGlobalPriority;
-    private JButton btnAdd,btnEdit,btnRemove;
+    private JButton btnAdd, btnEdit, btnRemove;
     private JPanel listContainer;
+
+    //tạo sẵn các ActionListener
     private ActionListener startListener = e -> {};
+    private ActionListener deleteListener = e -> {};
+    private ActionListener editListener = e -> {};
 
 
     public TaskPanel() {
@@ -34,7 +41,7 @@ public class TaskPanel extends JPanel {
         JPanel pnlControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         pnlControls.setOpaque(false);
 
-        cbGlobalPriority = new JComboBox<>(new String[]{"Ưu tiên: Tất cả", "Cao", "Trung bình", "Thấp"});
+        cbGlobalPriority = new JComboBox<>(new String[]{"Ưu tiên: ALL", "HIGH", "MEDIUM", "LOW"});
         cbGlobalPriority.setFont(FONT_REGULAR);
         cbGlobalPriority.setPreferredSize(new Dimension(150, 35));
 
@@ -56,24 +63,23 @@ public class TaskPanel extends JPanel {
         listContainer.setLayout(new BoxLayout(listContainer, BoxLayout.Y_AXIS));
         listContainer.setOpaque(false);
 
-        // Giả lập dữ liệu mẫu
-        addTaskToContainer("Làm bài tập React Hooks", "cao", "Đang thực hiện", "15/05/2024");
-        listContainer.add(Box.createVerticalStrut(12));
-        addTaskToContainer("Học Unit 5", "trung bình", "Đang chờ",  "18/05/2024");
-
         JScrollPane scrollPane = new JScrollPane(listContainer);
-        scrollPane.setBorder(null); // Xóa viền ScrollPane cho sạch
+        scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
 
         this.add(pnlHeader, BorderLayout.NORTH);
         this.add(scrollPane, BorderLayout.CENTER);
     }
 
-    public void addTaskToContainer(String title, String priority, String status, String deadline) {
-        listContainer.add(createTaskCard(title, priority, status, deadline));
+    public void addTaskToContainer(int taskId, String title, String priority, String status, String deadline) {
+        listContainer.add(createTaskCard(taskId, title, priority, status, deadline));
+        // Thêm khoảng giãn cách giữa các Card trong cấu trúc BoxLayout dọc
+        listContainer.add(Box.createVerticalStrut(12));
     }
 
-    public JPanel createTaskCard(String title, String priority, String status, String deadline) {
+    public JPanel createTaskCard(int taskId, String title, String priority, String status, String deadline) {
         JPanel card = new JPanel(new BorderLayout(15, 0));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -81,15 +87,14 @@ public class TaskPanel extends JPanel {
                 BorderFactory.createEmptyBorder(15, 20, 15, 20)
         ));
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-
-        // 1. Bên trái: Checkbox và Chấm màu
+        // 1. Bên trái: Checkbox
         JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 5));
         pnlLeft.setOpaque(false);
         JCheckBox chk = new JCheckBox();
         chk.setCursor(new Cursor(Cursor.HAND_CURSOR));
         pnlLeft.add(chk);
 
-        // 2. Giữa: Tiêu đề và Các Tag (Priority, Status, Subject, Deadline)
+        // 2. Giữa: Tiêu đề văn bản & Tập hợp thẻ nhãn (Badge)
         JPanel pnlMid = new JPanel(new GridLayout(2, 1, 0, 8));
         pnlMid.setOpaque(false);
 
@@ -113,7 +118,11 @@ public class TaskPanel extends JPanel {
         JButton btnStart = createActionBtn("Bắt đầu", COLOR_START);
         btnStart.addActionListener(e -> startListener.actionPerformed(e));
         JButton btnEdit = createActionBtn("Sửa", Color.GRAY);
+        btnEdit.putClientProperty("taskId", taskId); //Lưu lại taskId để biết sửa task nào
+        btnEdit.addActionListener(e -> editListener.actionPerformed(e));
         JButton btnRemove = createActionBtn("Xóa", new Color(220, 53, 69));
+        btnRemove.putClientProperty("taskId", taskId);
+        btnRemove.addActionListener(e -> deleteListener.actionPerformed(e));
 
         pnlRight.add(btnStart);
         pnlRight.add(btnEdit);
@@ -136,38 +145,56 @@ public class TaskPanel extends JPanel {
         btn.setBorder(BorderFactory.createLineBorder(color, 1));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setPreferredSize(new Dimension(85, 30));
-
-
-        // Hiệu ứng hover đơn giản
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(color);
-                btn.setForeground(Color.WHITE);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(Color.WHITE);
-                btn.setForeground(color);
-            }
-        });
         return btn;
     }
 
     private JPanel createBadge(String txt, Color bg, Color fg) {
-        JPanel b = new JPanel();
+        JPanel b = new JPanel(new BorderLayout());
         b.setBackground(bg);
-        b.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8)); // Padding cho tag
-        JLabel l = new JLabel(txt.toUpperCase());
+        b.setBorder(BorderFactory.createEmptyBorder(3, 10, 3, 10));
+        JLabel l = new JLabel(txt.toUpperCase(), SwingConstants.CENTER);
         l.setFont(FONT_STATUS);
         l.setForeground(fg);
         b.add(l);
         return b;
     }
+
+    // Hàm xóa sạch các thẻ card cũ để chuẩn bị nạp lại danh sách mới
+    public void clearTaskList() {
+        listContainer.removeAll();
+        listContainer.revalidate();
+        listContainer.repaint();
+    }
+
+    // Duyệt qua danh sách Task thật nạp từ file txt và hiển thị lên giao diện
+    public void renderTaskList(List<Task> tasks) {
+        clearTaskList();
+        java.text.SimpleDateFormat displayFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
+        for (Task task : tasks) {
+            String formattedDeadline = displayFormat.format(task.getDeadline());
+            addTaskToContainer(task.getTaskId(), task.getTitle(), task.getPriority().name(), task.getStatus().name(), formattedDeadline);
+        }
+        listContainer.revalidate();
+        listContainer.repaint();
+    }
+
     public void setOnStartTask(ActionListener listener) {
         this.startListener = listener;
+    }
+
+    public void setOnDeleteTask(ActionListener listener) {
+        this.deleteListener = listener;
+    }
+
+    public void setOnEditTask(ActionListener listener) {
+        this.editListener = listener;
     }
 
     public JButton getBtnAdd() {
         return btnAdd;
     }
 
+    public JComboBox<String> getCbGlobalPriority() {
+        return cbGlobalPriority;
+    }
 }

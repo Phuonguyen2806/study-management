@@ -1,20 +1,24 @@
 package model.repository;
 
+import model.entity.Priority;
 import model.entity.Task;
 import model.entity.TaskStatus;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class TaskRepositoryImpl implements ITaskRepository {
+    private final String FILE_PATH = "study-management/data/tasks.txt";
     private String filePath;
-    private List<Task> taskList;
+    private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public TaskRepositoryImpl() {
-        this.taskList = new ArrayList<>();
+
+    public List<Task> getAllTasks() {
+        return new ArrayList<>(this.taskList);
     }
 
     // 1. ĐỌC DỮ LIỆU TỪ FILE TXT VÀO BỘ NHỚ
@@ -22,36 +26,33 @@ public class TaskRepositoryImpl implements ITaskRepository {
     public void init(String filePath) {
         this.filePath = filePath;
         this.taskList.clear();
-
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        File file = new File(filePath);
+        if (!file.exists()) return;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
-                // Format chuẩn của file data:
-                // taskId|title|description|deadline|priority|estPomo|compPomo|status|userId
                 String[] parts = line.split("\\|");
                 if (parts.length >= 9) {
                     Task task = new Task(
-                            Integer.parseInt(parts[0]),     // taskId
-                            parts[1],                       // title
-                            parts[2],                       // description
-                            dateFormat.parse(parts[3]),     // deadline
-                            parts[4],                       // priority
-                            Integer.parseInt(parts[5]),     // estPomo
-                            Integer.parseInt(parts[6]),     // compPomo
-                            TaskStatus.valueOf(parts[7].toUpperCase()), // status
-                            Integer.parseInt(parts[8])      // userId
+                            Integer.parseInt(parts[0].trim()),
+                            parts[1].trim(),
+                            parts[2].trim(),
+                            dateFormat.parse(parts[3].trim()),
+                            Priority.valueOf(parts[4].trim()),
+                            Integer.parseInt(parts[5].trim()),
+                            Integer.parseInt(parts[6].trim()),
+                            TaskStatus.valueOf(parts[7].trim()),
+                            Integer.parseInt(parts[8].trim())
                     );
                     taskList.add(task);
                 }
             }
-            System.out.println("Init thành công: Đã load " + taskList.size() + " tasks từ file.");
         } catch (Exception e) {
-            System.err.println("Lỗi đọc file tasks.txt: " + e.getMessage());
+            System.err.println("Lỗi đọc file: " + e.getMessage());
         }
     }
 
-    // 2. TÌM KIẾM CÔNG VIỆC THEO TRẠNG THÁI
     @Override
     public List<Task> findTasksByStatus(String status) {
         List<Task> result = new ArrayList<>();
@@ -63,51 +64,66 @@ public class TaskRepositoryImpl implements ITaskRepository {
         return result;
     }
 
+    public int getNextID() {
+        int maxID = 0;
+        for (Task task : taskList) {
+            if (task.getTaskId() > maxID) {
+                maxID = task.getTaskId();
+            }
+        }
+        return maxID + 1;
+    }
+
+    // hàm dùng để thêm task và lưu lại trong file
+    public boolean save(Task task, int userId) {
+        task.setTaskId(getNextID());
+        task.setUserId(userId);
+        taskList.add(task);
+        return saveToFile();
+    }
+
+    public boolean delete(int taskId) {
+        for (int i = 0; i < taskList.size(); i++) {
+            if (taskList.get(i).getTaskId() == taskId) {
+                taskList.remove(i);
+                return saveToFile();
+            }
+        }
+        return false;
+    }
+
     // 3. CẬP NHẬT CÔNG VIỆC VÀ GHI LẠI VÀO FILE
-    @Override
-    public void updateTask(Task updatedTask) {
-        // Cập nhật trong bộ nhớ
+    public boolean update(Task updatedTask) {
         for (int i = 0; i < taskList.size(); i++) {
             if (taskList.get(i).getTaskId() == updatedTask.getTaskId()) {
                 taskList.set(i, updatedTask);
-                break;
+                return saveToFile();
             }
         }
-        // Ghi lại toàn bộ xuống file
-        saveToFile();
-    }
-
-    // 4. THÊM CÔNG VIỆC MỚI
-    @Override
-    public void addTask(Task newTask) {
-        taskList.add(newTask);
-        saveToFile();
+        return false;
     }
 
     // HÀM HỖ TRỢ: GHI ĐÈ BỘ NHỚ XUỐNG FILE TXT
-    private void saveToFile() {
-        if (filePath == null || filePath.isEmpty()) return;
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+    private boolean saveToFile() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, false))) {
             for (Task task : taskList) {
-                // Ráp lại thành chuỗi format có dấu |
-                String line = String.format("%d|%s|%s|%s|%s|%d|%d|%s|%d",
-                        task.getTaskId(),
-                        task.getTitle(),
-                        task.getDescription(),
-                        dateFormat.format(task.getDeadline()),
-                        task.getPriority(),
-                        task.getEstPomo(),
-                        task.getCompPomo(),
-                        task.getStatus().name(),
-                        task.getUserId()
+                bw.write(
+                        task.getTaskId() + "|" +
+                                task.getTitle() + "|" +
+                                task.getDescription() + "|" +
+                                dateFormat.format(task.getDeadline()) + "|" +
+                                task.getPriority().name() + "|" +
+                                task.getEstPomo() + "|" +
+                                task.getCompPomo() + "|" +
+                                task.getStatus().name() + "|" +
+                                task.getUserId()
                 );
-                bw.write(line);
                 bw.newLine();
             }
-            System.out.println("Đã cập nhật dữ liệu xuống file " + filePath + " thành công!");
+            return true;
         } catch (IOException e) {
-            System.err.println("Lỗi ghi file tasks.txt: " + e.getMessage());
+            System.out.println("Lỗi ghi file: " + e.getMessage());
+            return false;
         }
     }
 }

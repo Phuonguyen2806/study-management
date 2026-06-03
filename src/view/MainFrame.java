@@ -1,5 +1,7 @@
 package view;
 
+import model.entity.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -94,6 +96,14 @@ public class MainFrame extends JFrame {
         contentPanel.add(goalPanel, "MucTieu");
         contentPanel.add(statisticsPanel, "ThongKe");
 
+        profilePopupView = new ProfilePopupView(this); // Truyền 'this' (MainFrame) làm owner Window
+        User mockUser = new User("Nguyễn Văn A", "24130689@st.hcmuaf.edu.vn",  "123");
+        profilePopupView.fillUser(mockUser);
+        add(contentPanel, BorderLayout.CENTER);
+        // Nút "Hồ sơ" bật popup nhỏ bên cạnh !
+        btnHoSo.addActionListener(e -> {
+            profilePopupView.showNextTo(btnHoSo);
+        });
         return contentPanel;
     }
 
@@ -156,4 +166,8 @@ public class MainFrame extends JFrame {
     public TaskPanel getTaskPanel() { return taskPanel; }
     public GoalPanel getGoalPanel() { return goalPanel; }
     public ProfilePopupView getProfilePopupView() { return profilePopupView; }
+
+	public StatisticsPanel getStatisticsPanel() {
+		return statisticsPanel;
+	}
 }

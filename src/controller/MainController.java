@@ -3,6 +3,8 @@ package controller;
 import view.*;
 
 import javax.swing.*;
+import java.awt.*;
+
 import model.entity.User;
 
 public class MainController {
@@ -10,12 +12,15 @@ public class MainController {
     private TaskController taskController;
     private IFocusController focusController;
     private GoalController goalController;
+    private StatisticsController statisticsController;
     private LoginForm loginForm;
     private RegisterForm registerForm;
     private User currentUser;
+    private AuthController authController;
 
     public MainController(MainFrame view) {
         this.mainFrame = view;
+        authController = new AuthController(this);
         registerForm = new RegisterForm();
         loginForm = new LoginForm();
         initAuthEvents();
@@ -30,7 +35,6 @@ public class MainController {
         // Sự kiện trên RegisterForm
         registerForm.getBtnLogin().addActionListener(e -> showLoginView());
         registerForm.getBtnRegister().addActionListener(e -> {
-            // Sau khi đăng ký xong thì quay lại login
             handleRegisterAction();
         });
     }
@@ -46,19 +50,20 @@ public class MainController {
     }
 
     public void handleLoginAction() {
-        // logic khac
-        // Tạm thời giả lập việc đăng nhập thành công (Sau này bạn thay bằng code kiểm tra file users.txt)
-        this.currentUser = new User(1, "Nguyễn Ngọc Phương Uyên", "uyen.nnp@nlu.edu.vn", "password123");
-        loginForm.dispose();
-        startMainApp();
+        String email = loginForm.getEmailInput();
+        String password = loginForm.getPasswordInput();
+        authController.handleLogin(email, password);
     }
 
     public void handleRegisterAction() {
-        // logic khac
-        showLoginView();
+        String fullName = registerForm.getFullNameInput();
+        String email = registerForm.getEmailInput();
+        String password = registerForm.getPasswordInput();
+        String confirmPW = registerForm.getConfirmPasswordInput();
+        authController.handleRegister(fullName, email, password, confirmPW);
     }
 
-    private void startMainApp() {
+    public void startMainApp() {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         // Khởi tạo Task
@@ -71,14 +76,16 @@ public class MainController {
         GoalPanel goalPanel = this.mainFrame.getGoalPanel();
         this.goalController = new GoalController();
         this.goalController.initialize(goalPanel);
-
+        // Khởi tạo Statistic
+        StatisticsPanel statisticsPanel = this.mainFrame.getStatisticsPanel();
+        this.statisticsController = new StatisticsController(mainFrame.getStatisticsPanel());
         // Bơm dữ liệu User vào cho Popup Hồ sơ
         this.mainFrame.getProfilePopupView().fillUser(this.currentUser);
 
         // Xử lý sự kiện khi nhấn nút "Đăng xuất" trên Popup
         this.mainFrame.getProfilePopupView().setOnLogoutClicked(() -> {
             mainFrame.dispose(); // Đóng màn hình chính
-            showLoginView();     // Quay lại màn hình đăng nhập
+            showLoginView(); // Quay lại màn hình đăng nhập
         });
 
         openFocusView();
@@ -91,13 +98,12 @@ public class MainController {
         mainFrame.getBtnMucTieu().addActionListener(e -> openGoalTrackingView());
         mainFrame.getBtnThongKe().addActionListener(e -> openStatisticTrackingView());
         mainFrame.getBtnHoSo().addActionListener(e -> openProfileTrackingView());
-        taskController.addStartListener(e ->openFocusView());
+        taskController.addStartListener(e -> openFocusView());
     }
 
     public void openFocusView() {
         mainFrame.switchCard("TapTrung");
         mainFrame.setActiveButton(mainFrame.getBtnTapTrung());
-
     }
 
     public void openTaskManagementView() {
@@ -111,13 +117,29 @@ public class MainController {
     }
 
     public void openStatisticTrackingView() {
+        // 1. Chuyển đổi giao diện trước
         mainFrame.switchCard("ThongKe");
         mainFrame.setActiveButton(mainFrame.getBtnThongKe());
-
+        // 2. Gọi Controller để load dữ liệu
+        if (this.statisticsController != null && this.currentUser != null) {
+            this.statisticsController.loadDailyStats(this.currentUser);
+            this.statisticsController.loadWeeklyStats(this.currentUser);
+        }
     }
 
     public void openProfileTrackingView() {
         mainFrame.setActiveButton(mainFrame.getBtnHoSo());
-        mainFrame.getProfilePopupView().showNextTo(mainFrame.getBtnHoSo());
+    }
+
+    public RegisterForm getRegisterForm() {
+        return registerForm;
+    }
+
+    public LoginForm getLoginForm() {
+        return loginForm;
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
     }
 }

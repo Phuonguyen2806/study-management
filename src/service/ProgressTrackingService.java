@@ -31,7 +31,7 @@ public class ProgressTrackingService implements SessionHistoryObserver {
         // 2. Nếu là phiên Focus và có chọn Task, cập nhật số phiên của Task đó vào file tasks.txt
         if (session.getSessionType() == SessionType.FOCUS && event.getTask() != null) {
             System.out.println(">>> [Observer] Đang cập nhật tiến độ cho Task: " + event.getTask().getTitle());
-            taskRepository.updateTask(event.getTask());
+            taskRepository.update(event.getTask());
         }
     }
 
