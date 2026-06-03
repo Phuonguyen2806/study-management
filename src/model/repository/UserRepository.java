@@ -57,7 +57,6 @@ public class UserRepository  implements IUserRepository {
     public void updateLoginStatus(String email, boolean isLogin) {
         List<User> users = getAllUsers();
         boolean isUpdated = false;
-
         for (User user : users) {
             if (user.getEmail().equalsIgnoreCase(email)) {
                 user.setLogin(isLogin);

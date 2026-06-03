@@ -46,4 +46,22 @@ public class AuthManager {
         iUserRepository.save(newUser);
     }
 
+    public void logout() {
+        int loggedInId =  iUserRepository.getLoggedInUserId();
+        if (loggedInId != -1) {
+            User currentUser = null;
+            for (User user : iUserRepository.getAllUsers()) {
+                if (user.getUserID() == loggedInId) {
+                    currentUser = user;
+                    break;
+                }
+            }
+            if (currentUser != null) {
+                iUserRepository.updateLoginStatus(currentUser.getEmail(), false);
+            }
+        } else {
+            throw new IllegalStateException("Không có người dùng nào đang đăng nhập!");
+        }
+    }
+
 }
