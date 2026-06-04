@@ -22,33 +22,38 @@ public class StatisticsController {
 		this.service = new StatisticsService();
 	}
 
+	// Trong StatisticsController.java
 	public void loadDailyStats(User currentUser) {
-		// Gọi Service lấy đối tượng DTO hoàn chỉnh
-		DailyStats stats = service.getDailyStats(currentUser);
-		List<Task> overdue = service.getOverdueTasks(currentUser);
-		List<Task> upcoming = service.getUpcomingTodayTasks(currentUser);
+		if (currentUser == null) return;
 
-		// Cập nhật lên View (Các phương thức hiển thị)
+		// Sử dụng service hiện có, đảm bảo lấy lại dữ liệu mới nhất
+		DailyStats stats = service.getDailyStats();
+		List<Task> overdue = service.getOverdueTasks();
+		List<Task> upcoming = service.getUpcomingTodayTasks();
+		Map<TaskStatus, Integer> statsMap = service.getTodayTaskStatusStatistics(); // Đảm bảo hàm này trả về dữ liệu đúng
+
+		// Cập nhật lên View
 		view.displayDailyStudyTime(stats.getTodayFocusTime());
 		view.displayPomodoroCount(stats.getPomodoroCount());
-		view.displayTaskStatus(stats.getTaskStatusMap());
+//		view.displayTaskStatus(stats.getTaskStatusMap());
 		view.displayDailyTables(overdue, upcoming);
-		// Refresh giao diện để vẽ lại kết quả
+		view.displayTaskStatus(statsMap);
+
 		view.refresh();
 	}
 
 	public void loadWeeklyStats(User currentUser) {
 		// Gọi Service
-		WeeklyStats weeklyStats = service.getWeeklyStatistics(currentUser);
-		Map<TaskStatus, Integer> counts = service.getTaskStatusCounts(currentUser);
+		WeeklyStats weeklyStats = service.getWeeklyStatistics();
+		Map<TaskStatus, Integer> counts = service.getTaskStatusCounts();
 	    int total = counts.values().stream().mapToInt(Integer::intValue).sum();
-	    
+
 	    if (total > 0) {
 	        int done = (counts.getOrDefault(TaskStatus.DONE, 0) * 100) / total;
-	        int prog = (counts.getOrDefault(TaskStatus.IN_PROGRESS, 0) * 100) / total;
-	        int over = 100 - done - prog;
-	        
-	        view.updatePieChartData(done, prog, over);
+	        int pend = (counts.getOrDefault(TaskStatus.PENDING, 0) * 100) / total;
+	        int over = Math.max(0, 100 - done - pend);
+
+	        view.updatePieChartData(done, pend, over);
 	    }
 		// Giai đoạn 4: Hiển thị lên UI
 		double avgTime = weeklyStats.getAverageFocusTime();

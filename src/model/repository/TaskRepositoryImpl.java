@@ -11,11 +11,14 @@ import java.util.Date;
 import java.util.List;
 
 public class TaskRepositoryImpl implements ITaskRepository {
-    private final String FILE_PATH = "study-management/data/tasks.txt";
+    private final String FILE_PATH = "data/tasks.txt";
     private String filePath;
     private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    public TaskRepositoryImpl() {
+        init(FILE_PATH);
+    }
 
     public List<Task> getAllTasks() {
         return new ArrayList<>(this.taskList);

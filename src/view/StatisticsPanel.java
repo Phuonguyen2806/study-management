@@ -48,6 +48,7 @@ public class StatisticsPanel extends JPanel {
 		tabPane.addTab("Thống kê Tuần", createWeeklyView());
 
 		add(tabPane, BorderLayout.CENTER);
+
 	}
 
 	public void showNoDataMessage() {
@@ -82,25 +83,12 @@ public class StatisticsPanel extends JPanel {
 		int done = stats.getOrDefault(TaskStatus.DONE, 0);
 		int overdue = stats.getOrDefault(TaskStatus.OVERDUE, 0);
 
-		// Khởi tạo tránh lỗi NullPointer nếu các nhãn này không trực tiếp nằm trên Card
-		// layout chính
-		if (lblPendingTasks == null)
-			lblPendingTasks = new JLabel();
-		if (lblInProgressTasks == null)
-			lblInProgressTasks = new JLabel();
-		if (lblOverdueTasks == null)
-			lblOverdueTasks = new JLabel();
-
-		lblPendingTasks.setText(String.valueOf(pending));
-		lblInProgressTasks.setText(String.valueOf(inProgress));
-		lblDoneTasks.setText(String.valueOf(done));
-		lblOverdueTasks.setText(String.valueOf(overdue));
-
-		// Cập nhật lên thẻ hiển thị tổng số công việc chưa hoàn thành trong ngày
-		// (Pending + In Progress)
+		// Cập nhật "Công việc chưa hoàn thành" (Pending + In Progress + Overdue)
 		if (lblTotalTasks != null) {
 			lblTotalTasks.setText(String.valueOf(pending + inProgress + overdue));
 		}
+
+		// Cập nhật "Công việc đã hoàn thành"
 		if (lblDoneTasks != null) {
 			lblDoneTasks.setText(String.valueOf(done));
 		}
@@ -288,10 +276,11 @@ public class StatisticsPanel extends JPanel {
 		        int n = studyTimeData.size();
 		        int margin = 30;
 		        int spacing = 15;
-		        int availableWidth = getWidth() - (2 * margin);
-		        int barWidth = (availableWidth - (spacing * (n - 1))) / n;
+
+				int availableWidth = Math.max(0, getWidth() - (2 * margin));
+				int barWidth = (n > 0) ? (availableWidth - (spacing * (n - 1))) / n : 0;
 		        int baseLineY = getHeight() - 40;
-		        int maxHeight = getHeight() - 100;
+				int maxHeight = Math.max(0, getHeight() - 100);
 		        double maxHours = 10.0; // Đặt mốc trần cho biểu đồ
 
 		        int i = 0;
@@ -301,12 +290,14 @@ public class StatisticsPanel extends JPanel {
 		        for (Map.Entry<LocalDate, Double> entry : studyTimeData.entrySet()) {
 		            double hours = entry.getValue();
 		            int x = margin + i * (barWidth + spacing);
-		            int barHeight = (int) ((hours / maxHours) * maxHeight);
-		            
+
+					int barHeight = (maxHours > 0) ? (int) ((hours / maxHours) * maxHeight) : 0;
 		            // 1. Vẽ cột
-		            g2.setPaint(new GradientPaint(x, baseLineY - barHeight, COLOR_PRIMARY, x, baseLineY, new Color(100, 180, 255)));
-		            g2.fillRoundRect(x, baseLineY - barHeight, barWidth, barHeight, 8, 8);
-		            
+					g2.setPaint(new GradientPaint(x, baseLineY - barHeight, COLOR_PRIMARY, x, baseLineY, new Color(100, 180, 255)));
+					// Chỉ vẽ nếu barWidth và barHeight > 0 để tránh lỗi fillRect
+					if (barWidth > 0 && barHeight > 0) {
+						g2.fillRoundRect(x, baseLineY - barHeight, barWidth, barHeight, 8, 8);
+					}
 		            // 2. Vẽ nhãn Thứ (Tiếng Việt)
 		            g2.setColor(Color.GRAY);
 		            g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -317,14 +308,14 @@ public class StatisticsPanel extends JPanel {
 		            };
 		            int labelX = x + (barWidth - g2.getFontMetrics().stringWidth(dayLabel)) / 2;
 		            g2.drawString(dayLabel, labelX, baseLineY + 20);
-		            
+
 		            // 3. Vẽ số giờ trên đỉnh cột
 		            g2.setColor(Color.DARK_GRAY);
 		            g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
 		            String hourText = String.format("%.1f", hours) + "h";
 		            int hourX = x + (barWidth - fm.stringWidth(hourText)) / 2;
 		            g2.drawString(hourText, hourX, baseLineY - barHeight - 5);
-		            
+
 		            i++;
 		        }
 		    }
@@ -337,54 +328,44 @@ public class StatisticsPanel extends JPanel {
 				super.paintComponent(g);
 				Graphics2D g2 = (Graphics2D) g;
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
 				// 1. Cấu hình thông số
 				this.setBackground(Color.WHITE);
 				int paddingBottom = 60;
 				int size = Math.min(getWidth(), getHeight() - paddingBottom) - 60;
 				int x = (getWidth() - size) / 2;
 				int y = 30;
-
 				int donePercent = StatisticsPanel.this.doneP;
-	            int progressPercent = StatisticsPanel.this.progressP;
-	            int overduePercent = StatisticsPanel.this.overdueP;
-
+				int progressPercent = StatisticsPanel.this.progressP;
+				int overduePercent = StatisticsPanel.this.overdueP;
 				if (donePercent == 0 && progressPercent == 0 && overduePercent == 0) {
-				    // Vẽ một hình tròn xám nếu không có dữ liệu
-				    g2.setColor(Color.LIGHT_GRAY);
-				    g2.fillOval(x, y, size, size);
-				    return;
+					// Vẽ một hình tròn xám nếu không có dữ liệu
+					g2.setColor(Color.LIGHT_GRAY);
+					g2.fillOval(x, y, size, size);
+					return;
 				}
 				// Chuyển sang độ (tổng 360)
 				int angleDone = (int) (donePercent * 3.6);
 				int angleProgress = (int) (progressPercent * 3.6);
 				int angleOverdue = 360 - angleDone - angleProgress;
-
 				// 2. Vẽ biểu đồ Pie
 				g2.setColor(new Color(40, 167, 69)); // Xanh lá
 				g2.fillArc(x, y, size, size, 0, angleDone);
-
 				g2.setColor(new Color(255, 193, 7)); // Vàng
 				g2.fillArc(x, y, size, size, angleDone, angleProgress);
-
 				g2.setColor(new Color(220, 53, 69)); // Đỏ
 				g2.fillArc(x, y, size, size, angleDone + angleProgress, angleOverdue);
-
 				// 3. Vẽ chữ % lên từng phần bánh
 				g2.setColor(Color.WHITE);
 				g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
-
 				drawPercentText(g2, x, y, size, 0, angleDone, donePercent + "%");
 				drawPercentText(g2, x, y, size, angleDone, angleProgress, progressPercent + "%");
 				drawPercentText(g2, x, y, size, angleDone + angleProgress, angleOverdue, overduePercent + "%");
-
 				// 4. Vẽ lỗ trắng ở giữa (Donut)
 				g2.setColor(Color.WHITE);
 				int innerSize = size / 2;
 				int innerX = x + (size - innerSize) / 2;
 				int innerY = y + (size - innerSize) / 2;
 				g2.fillOval(innerX, innerY, innerSize, innerSize);
-
 				// 5. Chú thích bên dưới (Legend) - Giống image_e64875.png
 				drawLegend(g2, x + size / 2, y + size + 40);
 			}
@@ -423,7 +404,7 @@ public class StatisticsPanel extends JPanel {
 				}
 			}
 		};
-		setupChartStyle(pnlPieChart, "Tỉ lệ hoàn thành công việc");
+		setupChartStyle(pnlPieChart, "Tỉ lệ công việc trong tuần");
 
 		chartPanel.add(pnlBarChart);
 		chartPanel.add(pnlPieChart);
