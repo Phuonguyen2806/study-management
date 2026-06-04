@@ -1,4 +1,4 @@
-1|Nguyễn Ngọc Phương Uyên|uyen.nnp@nlu.edu.vn|password123|true
+1|Nguyễn Ngọc Phương Uyên|1|1|true
 2|Nguyễn Hà Quỳnh Anh|quynhanh.ha@nlu.edu.vn|password123|false
 3|Nguyễn Thị Khánh Huyền|huyen.ntk@nlu.edu.vn|password123|false
 4|Cao Phan Hoài Ngọc|hoaingoc.cp@nlu.edu.vn|password123|false
@@ -18,5 +18,5 @@
 18|Trịnh Thăng Bình|binh.tt@nlu.edu.vn|password123|false
 19|Nguyễn Quốc Cơ|co.nq@nlu.edu.vn|password123|false
 20|Đoàn Thiên Ân|an.dt@nlu.edu.vn|password123|false
-21|Nguyễn Thị A|a@gmail.com|password123|true
-22|Nguyễn Văn B|1|1|true
+21|Nguyễn Thị A|a@gmail.com|password123|false
+22|Nguyễn Văn B|1|1|false

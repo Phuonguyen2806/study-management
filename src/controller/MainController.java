@@ -1,11 +1,7 @@
 package controller;
 
-import view.*;
-
-import javax.swing.*;
-import java.awt.*;
-
 import model.entity.User;
+import view.*;
 
 public class MainController {
     private MainFrame mainFrame;
@@ -109,6 +105,11 @@ public class MainController {
     public void openTaskManagementView() {
         mainFrame.switchCard("QuanLyBaiTap");
         mainFrame.setActiveButton(mainFrame.getBtnQuanLyBaiTap());
+
+        // Tự động làm mới danh sách công việc khi người dùng click chọn tab này
+        if (this.taskController != null) {
+            this.taskController.refreshView();
+        }
     }
 
     public void openGoalTrackingView() {

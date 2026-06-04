@@ -150,6 +150,7 @@ public class TaskController {
     }
 
     public void refreshView() {
+        repository.init("data/tasks.txt");
         // 1. Lấy ID của user đang đăng nhập (isLogin = true)
         int currentUserId = userRepository.getLoggedInUserId();
         if (currentUserId != -1) {
@@ -175,6 +176,7 @@ public class TaskController {
                     }
                 }
             }
+
             // 5. Gọi View render lại danh sách đã lọc
             view.renderTaskList(filteredTasks);
         } else {

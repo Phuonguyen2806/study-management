@@ -37,16 +37,12 @@ public class FocusController implements IFocusController {
     }
 
     @Override
-    public void initFocusView() {
-        // Để trống vì ngay khi gọi hàm addViewObserver ở trên, Model đã tự động
-        // gửi trạng thái đầu tiên sang cho View vẽ giao diện rồi.
-    }
-
-    @Override
     public void handleSelectTaskClick() {
         List<Task> pendingTasks = taskRepository.findTasksByStatus(TaskStatus.PENDING.name());
         List<Task> inProgressTasks = taskRepository.findTasksByStatus(TaskStatus.IN_PROGRESS.name());
+        List<Task> overdueTasks = taskRepository.findTasksByStatus(TaskStatus.OVERDUE.name());
         pendingTasks.addAll(inProgressTasks);
+        pendingTasks.addAll(overdueTasks);
 
         Task selectedTask = view.showTaskSelectionDialog(pendingTasks);
         if (selectedTask != null) {
@@ -106,7 +102,11 @@ public class FocusController implements IFocusController {
         if (confirm) {
             Task currentTask = sessionManager.getCurrentTask();
             if (currentTask != null) {
+                // 1. Cập nhật trạng thái trong bộ nhớ RAM của module Focus
                 currentTask.setStatus(TaskStatus.DONE);
+
+                // 2. Gọi repository lưu ngay trạng thái DONE xuống file data/tasks.txt
+                this.taskRepository.update(currentTask);
             }
 
             sessionManager.stopSession(true);

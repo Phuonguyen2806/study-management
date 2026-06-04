@@ -34,7 +34,6 @@ public class FocusPanel extends JPanel implements FocusViewObserver {
     public void setController(IFocusController controller) {
         this.controller = controller;
         this.setupEvents();
-        this.controller.initFocusView();
     }
 
     // ==========================================
