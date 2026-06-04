@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 
 import model.entity.User;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class MainController {
     private MainFrame mainFrame;
@@ -84,8 +86,18 @@ public class MainController {
 
         // Xử lý sự kiện khi nhấn nút "Đăng xuất" trên Popup
         this.mainFrame.getProfilePopupView().setOnLogoutClicked(() -> {
+            authController.handleLogout();
             mainFrame.dispose(); // Đóng màn hình chính
             showLoginView(); // Quay lại màn hình đăng nhập
+        });
+
+        mainFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                authController.handleLogout();
+                mainFrame.dispose();
+                System.exit(0);
+            }
         });
 
         openFocusView();
