@@ -49,13 +49,7 @@ public class AuthManager {
     public void logout() {
         int loggedInId =  iUserRepository.getLoggedInUserId();
         if (loggedInId != -1) {
-            User currentUser = null;
-            for (User user : iUserRepository.getAllUsers()) {
-                if (user.getUserID() == loggedInId) {
-                    currentUser = user;
-                    break;
-                }
-            }
+            User currentUser = iUserRepository.getUserById(loggedInId);
             if (currentUser != null) {
                 iUserRepository.updateLoginStatus(currentUser.getEmail(), false);
             }

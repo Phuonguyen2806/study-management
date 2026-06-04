@@ -95,6 +95,8 @@ public class MainController {
             @Override
             public void windowClosing(WindowEvent e) {
                 authController.handleLogout();
+                mainFrame.dispose();
+                System.exit(0);
             }
         });
 

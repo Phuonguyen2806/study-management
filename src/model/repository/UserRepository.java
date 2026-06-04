@@ -113,6 +113,15 @@ public class UserRepository  implements IUserRepository {
         return -1; // Trả về -1 nếu không tìm thấy ai đang đăng nhập
     }
 
+    public User getUserById(int userId) {
+        for (User user : getAllUsers()) {
+            if (user.getUserID() == userId) {
+                return user;
+            }
+        }
+        return null;
+    }
+
     private String formatUserToLine(User u) {
         return u.getUserID() + "|" + u.getFullName() + "|" + u.getEmail() + "|" + u.getPasswd() + "|" + u.isLogin();
     }
