@@ -37,6 +37,7 @@ public class MainFrame extends JFrame {
         add(createSidebarPanel(), BorderLayout.WEST);   // Khối Menu Trái
         add(createContentPanel(), BorderLayout.CENTER); // Khối Nội dung Phải
         this.profilePopupView = new ProfilePopupView(this);
+
     }
 
     // --- NODE 1: Tạo cây Sidebar ---

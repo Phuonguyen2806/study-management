@@ -126,7 +126,7 @@ public class StatisticsPanel extends JPanel {
 	public void displayWeeklyStudyTime(double avgTime) {
 		String text = String.format("%.1f h", avgTime);
 		this.lblWeeklyAvgTime.setText(text);
-		lblWeeklyAvgTime.setText(avgTime + " giờ/ngày");
+		lblWeeklyAvgTime.setText(avgTime + " giờ/tuần");
 	}
 
 	public void showStudyTimeChart(Map<LocalDate, Double> data) {
@@ -173,13 +173,30 @@ public class StatisticsPanel extends JPanel {
 		// --- PHẦN TRÊN: 4 Ô THỐNG KÊ CƠ BẢN ---
 		JPanel statsPanel = new JPanel(new GridLayout(1, 4, 15, 15));
 		statsPanel.setOpaque(false);
-
-		statsPanel.add(createStatCard("Tổng tập trung", lblDailyStudyTime = new JLabel("0.0 giờ"), "",
-				new Color(0, 102, 204)));
-		statsPanel.add(
-				createStatCard("Số Pomodoro", lblPomodoroCount = new JLabel("0 Pomo"), "", new Color(255, 87, 34)));
-		statsPanel.add(createStatCard("Chưa hoàn thành", lblTotalTasks = new JLabel("0"), "", new Color(0, 150, 136)));
-		statsPanel.add(createStatCard("Đã hoàn thành", lblDoneTasks = new JLabel("0"), "", new Color(40, 167, 69)));
+		statsPanel.add(createStatCard(
+				"<html>Tổng giờ tập<br/> trung</html>", // Thêm HTML và thẻ <br/>
+				lblDailyStudyTime = new JLabel("0.0 giờ"),
+				"",
+				new Color(0, 102, 204)
+		));
+		statsPanel.add(createStatCard(
+				"<html>Pomodoro<br/>hoàn thành</html>",
+				lblPomodoroCount = new JLabel("0 Pomo"),
+				"",
+				new Color(255, 87, 34)
+		));
+		statsPanel.add(createStatCard(
+				"<html>Công việc chưa<br/>hoàn thành</html>",
+				lblTotalTasks = new JLabel("0"),
+				"",
+				new Color(0, 150, 136)
+		));
+		statsPanel.add(createStatCard(
+				"<html>Công việc<br/>đã hoàn thành</html>",
+				lblDoneTasks = new JLabel("0"),
+				"",
+				new Color(40, 167, 69)
+		));
 
 		// --- PHẦN DƯỚI: 2 DANH SÁCH BẢNG TÁC VỤ ---
 		JPanel listsContainer = new JPanel(new GridLayout(2, 1, 0, 20));
@@ -246,9 +263,9 @@ public class StatisticsPanel extends JPanel {
 		// 1. Top Cards: Tóm tắt tuần
 		JPanel topCards = new JPanel(new GridLayout(1, 2, 20, 0));
 		topCards.setOpaque(false);
-		topCards.add(createStatCard("Trung bình thời gian học", lblWeeklyAvgTime = new JLabel("0.0"), "",
+		topCards.add(createStatCard("Trung bình thời gian tập trung trong tuần", lblWeeklyAvgTime = new JLabel("0.0"), "",
 				new Color(0, 102, 204)));
-		topCards.add(createStatCard("Tỷ lệ hoàn thành tuần", lblWeeklyCompletionRate = new JLabel("0%"), "",
+		topCards.add(createStatCard("Tỷ lệ hoàn thành công việc trong tuần", lblWeeklyCompletionRate = new JLabel("0%"), "",
 				new Color(0, 102, 204)));
 		mainPanel.add(topCards, BorderLayout.NORTH);
 

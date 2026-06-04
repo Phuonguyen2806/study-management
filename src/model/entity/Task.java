@@ -23,6 +23,7 @@ public class Task {
         this.estPomo = estPomo;
         this.compPomo = compPomo;
         this.status = status;
+
     }
 
     @Override
@@ -105,6 +106,7 @@ public class Task {
     public void incrementCompPomo() {
         this.compPomo++;
     }
+
 }
 
 
