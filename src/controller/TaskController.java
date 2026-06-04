@@ -56,7 +56,6 @@ public class TaskController {
 
     private void showTaskForm() {
         TaskForm form = new TaskForm(owner);
-        // Đăng ký lắng nghe sự kiện nút Thêm trực tiếp từ Controller (Tách biệt logic khỏi View)
         form.getBtnAdd().addActionListener(e -> {
             boolean success = handleAddTask(form);
             if (success) {

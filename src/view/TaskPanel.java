@@ -91,7 +91,12 @@ public class TaskPanel extends JPanel {
         JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 5));
         pnlLeft.setOpaque(false);
         JCheckBox chk = new JCheckBox();
-        chk.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        if ("DONE".equalsIgnoreCase(status)) {
+            chk.setSelected(true);
+        } else {
+            chk.setSelected(false);
+        }
+        chk.setEnabled(false);
         pnlLeft.add(chk);
 
         // 2. Giữa: Tiêu đề văn bản & Tập hợp thẻ nhãn (Badge)

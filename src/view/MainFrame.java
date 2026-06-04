@@ -32,13 +32,16 @@ public class MainFrame extends JFrame {
         setTitle("Pomo Focus - Nâng cao năng suất làm việc với Bộ đếm Pomodoro");
         setSize(900, 600);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Dùng DO_NOTHING_ON_CLOSE để khi người dùng tắt đột ngột app thì sẽ ko tắt ngay
+        // mà đợi hàm logout của chạy xong để lưu file
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // ÁP DỤNG COMPOSITE PATTERN: MainFrame chứa 2 Node lớn
         add(createSidebarPanel(), BorderLayout.WEST);   // Khối Menu Trái
         add(createContentPanel(), BorderLayout.CENTER); // Khối Nội dung Phải
         this.profilePopupView = new ProfilePopupView(this);
+
     }
 
     // --- NODE 1: Tạo cây Sidebar ---

@@ -57,7 +57,6 @@ public class UserRepository  implements IUserRepository {
     public void updateLoginStatus(String email, boolean isLogin) {
         List<User> users = getAllUsers();
         boolean isUpdated = false;
-
         for (User user : users) {
             if (user.getEmail().equalsIgnoreCase(email)) {
                 user.setLogin(isLogin);
@@ -112,6 +111,15 @@ public class UserRepository  implements IUserRepository {
             }
         }
         return -1; // Trả về -1 nếu không tìm thấy ai đang đăng nhập
+    }
+
+    public User getUserById(int userId) {
+        for (User user : getAllUsers()) {
+            if (user.getUserID() == userId) {
+                return user;
+            }
+        }
+        return null;
     }
 
     private String formatUserToLine(User u) {

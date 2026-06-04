@@ -16,4 +16,6 @@ public interface IUserRepository {
     public int getNextID();
 
     public int getLoggedInUserId();
+
+    public User getUserById(int userId);
 }

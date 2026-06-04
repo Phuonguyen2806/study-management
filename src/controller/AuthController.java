@@ -44,4 +44,12 @@ public class AuthController {
         }
     }
 
+    public void handleLogout() {
+        try {
+            authManager.logout();
+        } catch (Exception e) {
+            System.out.println("Lỗi khi đăng xuất ở Model: " + e.getMessage());
+        }
+    }
+
 }
