@@ -1,5 +1,7 @@
 package view;
 
+import model.entity.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -30,7 +32,9 @@ public class MainFrame extends JFrame {
         setTitle("Pomo Focus - Nâng cao năng suất làm việc với Bộ đếm Pomodoro");
         setSize(900, 600);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Dùng DO_NOTHING_ON_CLOSE để khi người dùng tắt đột ngột app thì sẽ ko tắt ngay
+        // mà đợi hàm logout của chạy xong để lưu file
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // ÁP DỤNG COMPOSITE PATTERN: MainFrame chứa 2 Node lớn
@@ -95,6 +99,14 @@ public class MainFrame extends JFrame {
         contentPanel.add(goalPanel, "MucTieu");
         contentPanel.add(statisticsPanel, "ThongKe");
 
+        profilePopupView = new ProfilePopupView(this); // Truyền 'this' (MainFrame) làm owner Window
+        User mockUser = new User("Nguyễn Văn A", "24130689@st.hcmuaf.edu.vn",  "123");
+        profilePopupView.fillUser(mockUser);
+        add(contentPanel, BorderLayout.CENTER);
+        // Nút "Hồ sơ" bật popup nhỏ bên cạnh !
+        btnHoSo.addActionListener(e -> {
+            profilePopupView.showNextTo(btnHoSo);
+        });
         return contentPanel;
     }
 
@@ -159,7 +171,6 @@ public class MainFrame extends JFrame {
     public ProfilePopupView getProfilePopupView() { return profilePopupView; }
 
 	public StatisticsPanel getStatisticsPanel() {
-		// TODO Auto-generated method stub
 		return statisticsPanel;
 	}
 }

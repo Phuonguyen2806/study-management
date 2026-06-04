@@ -1,20 +1,8 @@
 package view;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 public class LoginForm extends JFrame {
     private JTextField tEmail;
@@ -24,6 +12,8 @@ public class LoginForm extends JFrame {
     private JButton btnLogin;
     private JButton btnRegister;
 
+    private final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 24);
+    private final Font FONT_REGULAR = new Font("Segoe UI", Font.PLAIN, 14);
     private final Font FONT_BOLD = new Font("Segoe UI", Font.BOLD, 14);
 
     public LoginForm() {
@@ -37,14 +27,21 @@ public class LoginForm extends JFrame {
         panel.setPreferredSize(new Dimension(400, 150));
         panel.setBorder(BorderFactory.createTitledBorder("ĐĂNG NHẬP"));
 
+        JLabel lblTitle = new JLabel("Pomo Focus", SwingConstants.CENTER);
+        lblTitle.setFont(FONT_TITLE);
+        lblTitle.setForeground(new Color(0,102,204));
+        add(lblTitle, BorderLayout.NORTH);
+
         // dòng email
         lEmail = new JLabel("Email:");
+        lEmail.setFont(FONT_REGULAR);
         panel.add(lEmail);
         tEmail = new JTextField(15);
         panel.add(tEmail);
 
         // dòng password
         lPass = new JLabel("Mật khẩu:");
+        lPass.setFont(FONT_REGULAR);
         panel.add(lPass);
         pass = new JPasswordField(15);
         panel.add(pass);
@@ -65,8 +62,11 @@ public class LoginForm extends JFrame {
         JButton btn = new JButton(title);
         btn.setFont(FONT_BOLD);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn.setPreferredSize(new Dimension(170, 40));
+        btn.setFocusPainted(false);
+        btn.setBackground(Color.WHITE);
+        btn.setForeground(new Color(0, 102, 204));
+        btn.setBorder(BorderFactory.createLineBorder(new Color(0, 102, 204), 1));
         return btn;
     }
 

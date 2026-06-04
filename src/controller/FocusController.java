@@ -22,7 +22,6 @@ public class FocusController implements IFocusController {
         this.view = view;
         this.taskRepository = new TaskRepositoryImpl();
         this.taskRepository.init("data/tasks.txt");
-
         this.sessionManager = new FocusSessionManager();
 
         // 1. Cắm ổ cắm History để ghi file khi kết thúc
@@ -113,4 +112,5 @@ public class FocusController implements IFocusController {
             sessionManager.resumeTimer();
         }
     }
+
 }
