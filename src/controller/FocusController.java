@@ -59,7 +59,6 @@ public class FocusController implements IFocusController {
         if (selectedTask != null) {
             int est;
 
-            // LÀM MỚI LOGIC TẠI ĐÂY:
             // Nếu số phiên dự kiến của Task nhỏ hơn hoặc bằng 0 -> Chưa từng đặt -> Hiện dialog hỏi
             if (selectedTask.getEstPomo() <= 0) {
                 est = view.showEstimateDialog();
