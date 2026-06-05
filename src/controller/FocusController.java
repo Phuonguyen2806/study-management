@@ -45,6 +45,7 @@ public class FocusController implements IFocusController {
     // Nút [Chọn công việc]: Lọc file và chỉ hiển thị task của riêng user đang đăng nhập
     @Override
     public void handleSelectTaskClick() {
+        this.taskRepository.init("data/tasks.txt");
         List<Task> allTasks = taskRepository.getAllTasks();
 
         List<Task> userTasks = new ArrayList<>();
@@ -56,7 +57,16 @@ public class FocusController implements IFocusController {
         }
         Task selectedTask = view.showTaskSelectionDialog(userTasks);
         if (selectedTask != null) {
-            int est = view.showEstimateDialog();
+            int est;
+
+            // LÀM MỚI LOGIC TẠI ĐÂY:
+            // Nếu số phiên dự kiến của Task nhỏ hơn hoặc bằng 0 -> Chưa từng đặt -> Hiện dialog hỏi
+            if (selectedTask.getEstPomo() <= 0) {
+                est = view.showEstimateDialog();
+            } else {
+                // Nếu đã lớn hơn 0 -> Đã đặt rồi -> Lấy luôn cấu hình cũ, không hỏi nữa
+                est = selectedTask.getEstPomo();
+            }
             // 1. Cập nhật số phiên dự kiến vào đối tượng trên RAM
             sessionManager.setTask(selectedTask, est);
 
@@ -88,23 +98,41 @@ public class FocusController implements IFocusController {
     // Nút [Dừng lại / Bỏ qua]: Hiện thông báo xác nhận để hủy phiên học hoặc bỏ qua giờ giải lao
     @Override
     public void handleStopClick() {
-        sessionManager.pauseTimer();
+        sessionManager.pauseTimer(); // Tạm dừng đồng hồ để chờ người dùng xác nhận
 
         boolean confirm;
+
+        // Kiểm tra nếu đang trong phiên học (FOCUS)
         if (sessionManager.getCurrentSessionType() == SessionType.FOCUS) {
-            confirm = view.showConfirmStopDialog();
+            // Nếu chưa học đủ 10 giây -> Hiện cảnh báo không ghi nhận lịch sử
+            if (sessionManager.getElapsedTime() < 10) {
+                int choice = JOptionPane.showConfirmDialog(
+                        null,
+                        "Bạn chưa học đủ 10 giây. Nếu dừng lại lúc này, phiên học sẽ KHÔNG ĐƯỢC GHI NHẬN!\nBạn có chắc chắn muốn dừng không?",
+                        "Cảnh báo dừng quá sớm",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+                confirm = (choice == JOptionPane.YES_OPTION);
+            } else {
+                // Nếu đã học trên 10 giây -> Hiện hộp thoại hỏi dừng sớm bình thường
+                confirm = view.showConfirmStopDialog();
+            }
         } else {
+            // Nếu đang ở phiên nghỉ -> Hiện hộp thoại bỏ qua giờ nghỉ
             confirm = view.showConfirmSkipBreakDialog();
         }
 
+        // Xử lý khi người dùng đồng ý dừng
         if (confirm) {
             if (sessionManager.getCurrentSessionType() == SessionType.FOCUS) {
-                sessionManager.stopSession(true);
+                sessionManager.stopSession(true); // Dừng phiên học
                 sessionManager.clearTask();
             } else {
-                sessionManager.skipBreak();
+                sessionManager.skipBreak();       // Bỏ qua phiên nghỉ
             }
         } else {
+            // Nếu bấm nhầm/Hủy dừng -> Cho đồng hồ chạy tiếp tục
             if (sessionManager.getCurrentState() == FocusStatus.PAUSED) {
                 sessionManager.resumeTimer();
             }
@@ -147,5 +175,4 @@ public class FocusController implements IFocusController {
             sessionManager.resumeTimer();
         }
     }
-
 }

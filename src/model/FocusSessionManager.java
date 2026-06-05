@@ -173,19 +173,20 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
     public void stopSession(boolean isConfirmed) {
         if (isConfirmed) {
             timer.stop();
-            int duration = getPlannedTime(currentSessionType) - timeLeft;
+            int duration = getElapsedTime();
 
-            // 1. Đặt trạng thái mặc định khi dừng sớm là STOPPED_EARLY
+            // Mặc định là dừng sớm
             SessionStatus status = SessionStatus.STOPPED_EARLY;
 
-            // 2. THÊM ĐIỀU KIỆN: Nếu là phiên TẬP TRUNG và chưa đủ 5 phút (5 * 60 = 300 giây)
-            if (currentSessionType == SessionType.FOCUS && duration < 10) {
-                status = SessionStatus.CANCELED; // Chuyển thành Bị hủy
+            // ĐIỀU KIỆN: Nếu thời gian thực tế chưa đủ 10 giây -> Đánh dấu là Bị hủy
+            if (duration < 10) {
+                status = SessionStatus.CANCELED;
             }
 
-            // Tạo bản ghi với trạng thái đã qua bộ lọc điều kiện
+            // Ghi nhận lịch sử (Vẫn lưu file nhưng trạng thái là CANCELED)
             StudySession sessionRecord = createStudySessionRecord(duration, status);
             notifyFocusSessionObservers(new FocusSessionEvent(currentTask, sessionRecord));
+
             resetToIdle();
         } else {
             currentState = FocusStatus.PAUSED;
