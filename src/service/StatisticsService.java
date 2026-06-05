@@ -212,6 +212,7 @@ public class StatisticsService {
         return new WeeklyStats(avg, map, calculateTaskCompletionRate());
     }
 
+
     // Method 1
     public Map<LocalDate, Double> getStudyTimeByDay() {
         Map<LocalDate, Double> studyTimeMap = new LinkedHashMap<>();
@@ -259,27 +260,28 @@ public Map<TaskStatus, Integer> getTaskStatusCounts() {
         LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate sunday = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
-        for (Task task : tasks) {
-            if (task != null && task.getUserId() == targetUserId && task.getDeadline() != null) {
-                LocalDateTime taskDeadline = task.getDeadline().toInstant()
-                        .atZone(ZoneId.systemDefault()).toLocalDateTime();
-                LocalDate taskDate = taskDeadline.toLocalDate();
+    for (Task task : tasks) {
+        if (task != null && task.getUserId() == targetUserId && task.getDeadline() != null) {
+            LocalDateTime taskDeadline = task.getDeadline().toInstant()
+                    .atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-                // Kiểm tra task có nằm trong tuần này không
-                if (!taskDate.isBefore(monday) && !taskDate.isAfter(sunday)) {
-                    TaskStatus status = task.getStatus();
+            // Kiểm tra phạm vi thời gian (tuần này)
+            LocalDate taskDate = taskDeadline.toLocalDate();
+            if (!taskDate.isBefore(monday) && !taskDate.isAfter(sunday)) {
 
-                    // PHÂN LOẠI:
-                    if (status == TaskStatus.DONE) {
-                        counts.put(TaskStatus.DONE, counts.getOrDefault(TaskStatus.DONE, 0) + 1);
-                    } else if (taskDeadline.isBefore(now)) {
-                        counts.put(TaskStatus.OVERDUE, counts.getOrDefault(TaskStatus.OVERDUE, 0) + 1);
-                    } else {
-                        counts.put(status, counts.getOrDefault(status, 0) + 1);
-                    }
+                // 1. Xác định trạng thái thực tế
+                TaskStatus effectiveStatus = task.getStatus();
+
+                // 2. Logic ưu tiên: Nếu chưa xong (NOT DONE) mà quá hạn -> OVERDUE
+                if (effectiveStatus != TaskStatus.DONE && taskDeadline.isBefore(now)) {
+                    effectiveStatus = TaskStatus.OVERDUE;
                 }
+
+                // 3. Cập nhật vào map (IN_PROGRESS, TODO, DONE, hoặc OVERDUE đều nằm ở đây)
+                counts.put(effectiveStatus, counts.getOrDefault(effectiveStatus, 0) + 1);
             }
         }
+    }
         return counts;
     }
 }

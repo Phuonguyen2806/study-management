@@ -31,3 +31,5 @@
 31|Họp nhóm|Họp tại thư viện|2026-06-05 01:00:00|MEDIUM|1|0|PENDING|1
 32|Đọc tài liệu|Đọc chương 1|2026-06-05 10:00:00|LOW|1|1|DONE|1
 33|Đi mua sách|Mua sách giáo khoa|2026-06-05 10:00:00|LOW|1|0|PENDING|1
+34|Gửi email cho giảng viên|Xin gia hạn thời gian nộp bài|2026-06-05 21:00:00|LOW|1|0|IN_PROGRESS|1
+35|Đi mua sách|Mua sách|2026-06-05 22:00:00|LOW|1|0|PENDING|1

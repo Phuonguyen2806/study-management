@@ -46,14 +46,15 @@ public class StatisticsController {
 		// Gọi Service
 		WeeklyStats weeklyStats = service.getWeeklyStatistics();
 		Map<TaskStatus, Integer> counts = service.getTaskStatusCounts();
-	    int total = counts.values().stream().mapToInt(Integer::intValue).sum();
+		double total = counts.values().stream().mapToInt(Integer::intValue).sum();
 
 	    if (total > 0) {
-	        int done = (counts.getOrDefault(TaskStatus.DONE, 0) * 100) / total;
-	        int pend = (counts.getOrDefault(TaskStatus.PENDING, 0) * 100) / total;
-	        int over = Math.max(0, 100 - done - pend);
+			double done = (counts.getOrDefault(TaskStatus.DONE, 0) * 100) / total;
+			double prog = (counts.getOrDefault(TaskStatus.IN_PROGRESS, 0) * 100) / total;
+			double pend = (counts.getOrDefault(TaskStatus.PENDING, 0) * 100) / total;
+			double over = Math.max(0, 100 - done - prog - pend);
 
-	        view.updatePieChartData(done, pend, over);
+					view.updatePieChartData(done, prog, over, pend);
 	    }
 		// Giai đoạn 4: Hiển thị lên UI
 		double avgTime = weeklyStats.getAverageFocusTime();
