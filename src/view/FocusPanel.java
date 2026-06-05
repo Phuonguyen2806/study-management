@@ -4,13 +4,13 @@ import controller.IFocusController;
 import model.entity.FocusStatus;
 import model.entity.SessionType;
 import model.entity.Task;
-import model.observer.IFocusViewObserver;
+import model.observer.FocusViewObserver;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class FocusPanel extends JPanel implements IFocusViewObserver {
+public class FocusPanel extends JPanel implements FocusViewObserver {
     private JButton btnSelectTask;
     private JLabel lblTaskProgress;
     private JButton btnModeFocus, btnModeShortBreak, btnModeLongBreak;
@@ -27,14 +27,15 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
     private final Color dangerRed = new Color(220, 53, 69);
     private final Color successGreen = new Color(40, 167, 69);
 
+    // Hàm khởi tạo (Constructor): Thiết lập giao diện ban đầu
     public FocusPanel() {
         initComponents();
     }
 
+    // Gán bộ điều khiển (Controller) và kích hoạt cài đặt sự kiện nút bấm
     public void setController(IFocusController controller) {
         this.controller = controller;
         this.setupEvents();
-        this.controller.initFocusView();
     }
 
     // ==========================================
@@ -54,7 +55,7 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
         add(Box.createVerticalGlue());
     }
 
-    // --- NODE 1: Khu vực Task ---
+    // Node 1: Tạo vùng hiển thị công việc (Nút bấm chọn Task và Chữ hiển thị tiến độ)
     private JPanel createTaskSection() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -85,7 +86,7 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
         return panel;
     }
 
-    // --- NODE 2: Khu vực Đồng hồ ---
+    // Node 2: Tạo vùng Đồng hồ (Nút chọn 3 chế độ Pomo và Chữ số đếm ngược thời gian)
     private JPanel createTimerSection() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -117,7 +118,7 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
         return panel;
     }
 
-    // --- NODE 3: Khu vực Điều khiển ---
+    // Node 3: Tạo vùng Nút chức năng (Bắt đầu/Tạm dừng, Dừng lại, Hoàn thành công việc)
     private JPanel createControlSection() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -162,6 +163,7 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
         return panel;
     }
 
+    // Kết nối các nút bấm trên giao diện tới các hàm xử lý tương ứng trong Controller
     private void setupEvents() {
         btnSelectTask.addActionListener(e -> controller.handleSelectTaskClick());
         btnAction.addActionListener(e -> controller.handleActionClick());
@@ -173,6 +175,7 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
         btnModeLongBreak.addActionListener(e -> controller.handleModeChange(SessionType.LONG_BREAK));
     }
 
+    // Bật hộp thoại danh sách công việc dạng thả xuống (Dropdown) để người dùng chọn
     public Task showTaskSelectionDialog(List<Task> tasks) {
         if (tasks.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Không có công việc nào đang chờ!");
@@ -183,6 +186,7 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
                 JOptionPane.QUESTION_MESSAGE, null, tasks.toArray(), tasks.get(0));
     }
 
+    // Bật hộp thoại yêu cầu nhập số lượng phiên Pomodoro dự kiến cho Task vừa chọn
     public int showEstimateDialog() {
         String input = JOptionPane.showInputDialog(this, "Nhập số phiên dự kiến:");
         try {
@@ -191,22 +195,25 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
             return 1;
         }
     }
-
+    // Bật hộp thoại hỏi xác nhận khi người dùng chủ động bấm "Dừng lại" phiên học tập
     public boolean showConfirmStopDialog() {
         int res = JOptionPane.showConfirmDialog(this, "Bạn muốn kết thúc hẳn phiên làm việc này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
         return res == JOptionPane.YES_OPTION;
     }
 
+    // Bật hộp thoại hỏi xác nhận khi người dùng muốn bỏ qua thời gian nghỉ giải lao
     public boolean showConfirmSkipBreakDialog() {
         int res = JOptionPane.showConfirmDialog(this, "Bạn muốn bỏ qua giờ nghỉ ngơi?", "Bỏ qua", JOptionPane.YES_NO_OPTION);
         return res == JOptionPane.YES_OPTION;
     }
 
+    // Bật hộp thoại hỏi xác nhận khi người dùng muốn báo hoàn thành công việc sớm hơn 25 phút
     public boolean showConfirmCompleteDialog() {
         int res = JOptionPane.showConfirmDialog(this, "Xác nhận hoàn thành bài tập sớm?", "Hoàn thành", JOptionPane.YES_NO_OPTION);
         return res == JOptionPane.YES_OPTION;
     }
 
+    // Đổi màu sắc, độ dày viền của nút chế độ (Focus/Break) đang được chọn để làm nổi bật
     private void setActiveModeStyle(JButton activeBtn) {
         JButton[] modeBtns = {btnModeFocus, btnModeShortBreak, btnModeLongBreak};
         for (JButton btn : modeBtns) {
@@ -228,14 +235,17 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
         }
     }
 
+    // [Observer Pattern] Nhận số giây đếm ngược từ Model và vẽ lại chữ hiển thị (mm:ss)
     @Override
     public void updateTime(int timeLeft) {
         String timeStr = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60);
         lblTime.setText(timeStr);
     }
 
+    // [Observer Pattern] Tự động ẩn/hiện nút, đổi chữ, đổi kích thước giao diện khi trạng thái hệ thống thay đổi
     @Override
     public void updateState(FocusStatus state, SessionType type, Task task) {
+        // Đổi chữ hiển thị trên nút chức năng chính theo trạng thái Timer
         if (state == FocusStatus.IDLE) {
             btnAction.setText("Bắt đầu");
             btnStop.setVisible(false);
@@ -247,17 +257,22 @@ public class FocusPanel extends JPanel implements IFocusViewObserver {
             btnStop.setVisible(true);
         }
 
+        // Định dạng tiêu đề cho nút Hủy tùy theo đang học hay đang nghỉ giải lao
         if (type == SessionType.FOCUS) {
             setActiveModeStyle(btnModeFocus);
-            if (state != FocusStatus.IDLE) btnStop.setText("Dừng lại");
+            btnStop.setText("Dừng lại");
+            btnStop.setVisible(state != FocusStatus.IDLE);
         } else if (type == SessionType.SHORT_BREAK) {
             setActiveModeStyle(btnModeShortBreak);
-            if (state != FocusStatus.IDLE) btnStop.setText("Bỏ qua");
+            btnStop.setText("Bỏ qua");
+            btnStop.setVisible(true);
         } else {
             setActiveModeStyle(btnModeLongBreak);
-            if (state != FocusStatus.IDLE) btnStop.setText("Bỏ qua");
+            btnStop.setText("Bỏ qua");
+            btnStop.setVisible(true);
         }
 
+        // Thay đổi toàn bộ giao diện chữ viết khu vực hiển thị Task dựa trên việc có Task nào đang chọn hay không
         if (task != null) {
             btnSelectTask.setText(task.getTitle());
             btnSelectTask.setFont(new Font("Segoe UI", Font.BOLD, 26));

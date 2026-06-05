@@ -1,7 +1,7 @@
 package model.entity;
 
 public enum SessionType {
-    FOCUS,
-    SHORT_BREAK,
-    LONG_BREAK
+    FOCUS, // Phiên tập trung
+    SHORT_BREAK, // Phiên nghỉ ngắn
+    LONG_BREAK // Phiên nghỉ dài
 }
