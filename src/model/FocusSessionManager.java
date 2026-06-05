@@ -16,8 +16,8 @@ import java.util.List;
  */
 
 public class FocusSessionManager implements FocusViewSubject, FocusSessionSubject {
-    // 1. Observer lưu Data (Service)
-    private List<FocusSessionObserver> historyObservers = new ArrayList<>();
+    // 1. Observer thông báo Phiên học kết thúc để Cập nhật file .txt và Phát chuông thông báo
+    private List<FocusSessionObserver> focusSessionObservers = new ArrayList<>();
     // 2. Observer cập nhật Giao diện (View)
     private List<FocusViewObserver> viewObservers = new ArrayList<>();
 
@@ -26,14 +26,13 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
     private int sessionCount = 0; // Đếm số phiên tập trung để chuyển từ nghỉ ngắn sang nghỉ dài
 
     private final int TIME_FOCUS = 1 * 60;
-    private final int TIME_SHORT_BREAK = 5 * 60;
+    private final int TIME_SHORT_BREAK = 1 * 60;
     private final int TIME_LONG_BREAK = 15 * 60;
 
     private int timeLeft;
     private Timer timer;
     private Task currentTask;
     private Date sessionStartTime; // đồng hồ phải tự nhớ lúc nó bắt đầu (lúc bấm nút) để đến khi hết giờ, nó mới tạo dữ liệu StudySession được.
-    private IUserRepository userRepository= new UserRepository();
 
     public FocusSessionManager() {
         this.timeLeft = TIME_FOCUS;
@@ -76,7 +75,7 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
         for (FocusViewObserver o : viewObservers) {
             o.updateState(currentState, currentSessionType, currentTask);
         }
-        notifyTimeChanged(); // Luôn cập nhật lại con số đồng hồ khi trạng thái đổi
+        notifyTimeChanged(); // Cập nhật lại số trên đồng hồ luôn
     }
 
     // ==========================================
@@ -85,17 +84,17 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
 
     @Override
     public void addFocusSessionObserver(FocusSessionObserver o) {
-        historyObservers.add(o);
+        focusSessionObservers.add(o);
     }
 
     @Override
     public void removeFocusSessionObserver(FocusSessionObserver o) {
-        historyObservers.remove(o);
+        focusSessionObservers.remove(o);
     }
 
     @Override
     public void notifyFocusSessionObservers(FocusSessionEvent event) {
-        for (FocusSessionObserver o : historyObservers) {
+        for (FocusSessionObserver o : focusSessionObservers) {
             o.onSessionCompleted(event);
         }
     }
@@ -138,7 +137,6 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
         }
 
         this.currentState = FocusStatus.RUNNING;
-        // Ghi lại thời điểm thực tế bắt đầu bấm nút để làm mốc cho lịch sử
         this.sessionStartTime = new Date();
         timer.start();
         notifyStateChanged();
@@ -175,8 +173,6 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
     public void stopSession(boolean isConfirmed) {
         if (isConfirmed) {
             timer.stop();
-
-            // Tính thời gian thực tế đã trôi qua (giây)
             int duration = getPlannedTime(currentSessionType) - timeLeft;
 
             // 1. Đặt trạng thái mặc định khi dừng sớm là STOPPED_EARLY
@@ -234,10 +230,30 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
 
     /**
      * Bỏ qua phiên nghỉ ngơi hiện tại.
-     * Chế độ này không lưu vào cơ sở dữ liệu để tránh dữ liệu rác.
+     * Nếu thời gian đã chạy (đếm giây) thì lưu lịch sử, nếu chưa chạy thì không lưu.
      */
     public void skipBreak() {
         timer.stop();
+
+        // Tính thời gian thực tế người dùng đã nghỉ (giây)
+        int duration = getElapsedTime();
+
+        // ĐIỀU KIỆN: Nếu thời gian đã đếm (lớn hơn 0 giây) thì tiến hành lưu file
+        if (duration > 0) {
+            SessionStatus status = SessionStatus.STOPPED_EARLY;
+
+            // Bộ lọc bảo vệ: Nếu bấm bỏ qua quá sớm khi chưa đủ 10 giây -> Tính là Bị hủy (CANCELED)
+            if (duration < 10) {
+                status = SessionStatus.CANCELED;
+            }
+
+            // Tạo bản ghi và phát tín hiệu cho ProgressTrackingService tự động ghi xuống file studysessions.txt
+            StudySession sessionRecord = createStudySessionRecord(duration, status);
+            notifyFocusSessionObservers(new FocusSessionEvent(null, sessionRecord));
+            System.out.println(">>> [Model] Đã lưu lịch sử dừng sớm cho phiên nghỉ.");
+        }
+
+        // Reset hệ thống về trạng thái chờ của phiên làm việc mới
         resetToIdle();
     }
 
