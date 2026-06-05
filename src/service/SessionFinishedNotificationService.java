@@ -2,8 +2,8 @@ package service;
 
 import model.entity.SessionStatus;
 import model.observer.FocusSessionEvent;
-import model.observer.FocusSessionObserver;
 import model.entity.SessionType;
+import model.observer.FocusSessionObserver;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
