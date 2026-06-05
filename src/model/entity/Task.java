@@ -97,6 +97,11 @@ public class Task {
         this.compPomo++;
     }
 
+    @Override
+    public String toString() {
+        return "Task: " + title + " [" + status + "] - Priority: " + priority;
+    }
+
 }
 
 
