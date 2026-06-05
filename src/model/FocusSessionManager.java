@@ -1,42 +1,48 @@
 package model;
 
 import model.entity.*;
-import model.observer.FocusSessionEvent;
-import model.observer.IFocusViewObserver;
-import model.observer.ISessionHistoryObserver;
+import model.observer.*;
+import model.repository.IUserRepository;
+import model.repository.UserRepository;
 
 import javax.swing.Timer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class FocusSessionManager {
+/**
+ * Lớp quản lý logic cốt lõi của phiên làm việc (Model).
+ * Đóng vai trò là Subject trong Observer Pattern cho cả Giao diện và Lịch sử.
+ */
+
+public class FocusSessionManager implements FocusViewSubject, FocusSessionSubject {
     // 1. Observer lưu Data (Service)
-    private List<ISessionHistoryObserver> historyObservers = new ArrayList<>();
+    private List<FocusSessionObserver> historyObservers = new ArrayList<>();
     // 2. Observer cập nhật Giao diện (View)
-    private List<IFocusViewObserver> viewObservers = new ArrayList<>();
+    private List<FocusViewObserver> viewObservers = new ArrayList<>();
 
     private FocusStatus currentState = FocusStatus.IDLE;
     private SessionType currentSessionType = SessionType.FOCUS;
-    private int sessionCount = 0;
+    private int sessionCount = 0; // Đếm số phiên tập trung để chuyển từ nghỉ ngắn sang nghỉ dài
 
-    private final int TIME_FOCUS = 25 * 60;
+    private final int TIME_FOCUS = 1 * 60;
     private final int TIME_SHORT_BREAK = 5 * 60;
     private final int TIME_LONG_BREAK = 15 * 60;
 
     private int timeLeft;
     private Timer timer;
     private Task currentTask;
-    private Date sessionStartTime;
+    private Date sessionStartTime; // đồng hồ phải tự nhớ lúc nó bắt đầu (lúc bấm nút) để đến khi hết giờ, nó mới tạo dữ liệu StudySession được.
+    private IUserRepository userRepository= new UserRepository();
 
     public FocusSessionManager() {
         this.timeLeft = TIME_FOCUS;
         timer = new Timer(1000, e -> {
             if (timeLeft > 0) {
                 timeLeft--;
-                notifyTimeChanged(); // Báo cho View biết thời gian đã giảm 1 giây
+                notifyTimeChanged(); // Thông báo View cập nhật con số hiển thị
             } else {
-                handleTimeOver();
+                handleTimeOver(); // Xử lý khi đồng hồ về 00:00
             }
         });
     }
@@ -44,43 +50,52 @@ public class FocusSessionManager {
     // ==========================================
     // QUẢN LÝ OBSERVER: VIEW (Giao diện)
     // ==========================================
-    public void addViewObserver(IFocusViewObserver o) {
+
+    @Override
+    public void addViewObserver(FocusViewObserver o) {
         viewObservers.add(o);
-        // Gửi trạng thái ngay lần đầu đăng ký để View vẽ giao diện ban đầu
+        // Ngay khi View kết nối, cập nhật ngay trạng thái và thời gian hiện tại
         o.updateState(currentState, currentSessionType, currentTask);
         o.updateTime(timeLeft);
     }
 
-    public void removeViewObserver(IFocusViewObserver o) {
+    @Override
+    public void removeViewObserver(FocusViewObserver o) {
         viewObservers.remove(o);
     }
 
-    private void notifyTimeChanged() {
-        for (IFocusViewObserver o : viewObservers) {
+    @Override
+    public void notifyTimeChanged() {
+        for (FocusViewObserver o : viewObservers) {
             o.updateTime(timeLeft);
         }
     }
 
-    private void notifyStateChanged() {
-        for (IFocusViewObserver o : viewObservers) {
+    @Override
+    public void notifyStateChanged() {
+        for (FocusViewObserver o : viewObservers) {
             o.updateState(currentState, currentSessionType, currentTask);
         }
-        notifyTimeChanged(); // Cập nhật lại số trên đồng hồ luôn
+        notifyTimeChanged(); // Luôn cập nhật lại con số đồng hồ khi trạng thái đổi
     }
 
     // ==========================================
     // QUẢN LÝ OBSERVER: HISTORY (Lưu lịch sử)
     // ==========================================
-    public void addHistoryObserver(ISessionHistoryObserver o) {
+
+    @Override
+    public void addFocusSessionObserver(FocusSessionObserver o) {
         historyObservers.add(o);
     }
 
-    public void removeHistoryObserver(ISessionHistoryObserver o) {
+    @Override
+    public void removeFocusSessionObserver(FocusSessionObserver o) {
         historyObservers.remove(o);
     }
 
-    private void notifyHistoryObservers(FocusSessionEvent event) {
-        for (ISessionHistoryObserver o : historyObservers) {
+    @Override
+    public void notifyFocusSessionObservers(FocusSessionEvent event) {
+        for (FocusSessionObserver o : historyObservers) {
             o.onSessionCompleted(event);
         }
     }
@@ -88,15 +103,23 @@ public class FocusSessionManager {
 
     // ==========================================
     // CÁC HÀM XỬ LÝ LOGIC NGHIỆP VỤ
-    // =======================================
-    // Nạp Task vào nhưng chưa chạy đồng hồ
+    // ==========================================
+
+    /**
+     * Gán công việc cụ thể cho phiên làm việc hiện tại.
+     *
+     * @param task              Đối tượng công việc được chọn.
+     * @param estimatedSessions Số phiên dự kiến người dùng nhập vào.
+     */
     public void setTask(Task task, int estimatedSessions) {
         this.currentTask = task;
         this.currentTask.setEstPomo(estimatedSessions);
         notifyStateChanged();
     }
 
-    // Đổi chế độ thủ công khi đang dừng
+    /**
+     * Thay đổi chế độ phiên (Tập trung/Nghỉ ngắn/Nghỉ dài) thủ công khi đang ở trạng thái chờ.
+     */
     public void setSessionType(SessionType type) {
         if (currentState == FocusStatus.IDLE) {
             this.currentSessionType = type;
@@ -105,18 +128,25 @@ public class FocusSessionManager {
         }
     }
 
-    // Nhấn nút Bắt đầu
+    /**
+     * Bắt đầu chạy đồng hồ đếm ngược cho phiên hiện tại.
+     * Cập nhật trạng thái Task sang "Đang thực hiện".
+     */
     public void startSession() {
         if (this.currentTask != null && this.currentTask.getStatus() == TaskStatus.PENDING) {
             this.currentTask.setStatus(TaskStatus.IN_PROGRESS);
         }
 
         this.currentState = FocusStatus.RUNNING;
+        // Ghi lại thời điểm thực tế bắt đầu bấm nút để làm mốc cho lịch sử
         this.sessionStartTime = new Date();
         timer.start();
         notifyStateChanged();
     }
 
+    /**
+     * Tạm dừng đồng hồ đếm ngược.
+     */
     public void pauseTimer() {
         if (currentState == FocusStatus.RUNNING) {
             timer.stop();
@@ -125,6 +155,9 @@ public class FocusSessionManager {
         }
     }
 
+    /**
+     * Tiếp tục chạy đồng hồ sau khi đã tạm dừng.
+     */
     public void resumeTimer() {
         if (currentState == FocusStatus.PAUSED) {
             currentState = FocusStatus.RUNNING;
@@ -133,17 +166,30 @@ public class FocusSessionManager {
         }
     }
 
-    public void stopSessionConfirm() {
-        currentState = FocusStatus.CONFIRMING_STOP;
-        notifyStateChanged();
-    }
-
+    /**
+     * Kết thúc phiên làm việc sớm theo yêu cầu của người dùng.
+     * Kiểm tra điều kiện thời gian tích lũy để phân loại phiên hợp lệ hay bị hủy.
+     *
+     * @param isConfirmed Kết quả xác nhận từ hộp thoại người dùng.
+     */
     public void stopSession(boolean isConfirmed) {
         if (isConfirmed) {
             timer.stop();
+
+            // Tính thời gian thực tế đã trôi qua (giây)
             int duration = getPlannedTime(currentSessionType) - timeLeft;
-            StudySession sessionRecord = createStudySessionRecord(duration, SessionStatus.STOPPED_EARLY);
-            notifyHistoryObservers(new FocusSessionEvent(currentTask, sessionRecord));
+
+            // 1. Đặt trạng thái mặc định khi dừng sớm là STOPPED_EARLY
+            SessionStatus status = SessionStatus.STOPPED_EARLY;
+
+            // 2. THÊM ĐIỀU KIỆN: Nếu là phiên TẬP TRUNG và chưa đủ 5 phút (5 * 60 = 300 giây)
+            if (currentSessionType == SessionType.FOCUS && duration < 10) {
+                status = SessionStatus.CANCELED; // Chuyển thành Bị hủy
+            }
+
+            // Tạo bản ghi với trạng thái đã qua bộ lọc điều kiện
+            StudySession sessionRecord = createStudySessionRecord(duration, status);
+            notifyFocusSessionObservers(new FocusSessionEvent(currentTask, sessionRecord));
             resetToIdle();
         } else {
             currentState = FocusStatus.PAUSED;
@@ -151,6 +197,10 @@ public class FocusSessionManager {
         }
     }
 
+    /**
+     * Xử lý tự động khi đồng hồ đếm về 0.
+     * Lưu lịch sử hoàn thành và chuyển đổi chế độ làm việc/nghỉ ngơi.
+     */
     private void handleTimeOver() {
         timer.stop();
         int duration = getPlannedTime(currentSessionType);
@@ -159,10 +209,12 @@ public class FocusSessionManager {
             sessionCount++;
             if (currentTask != null) currentTask.incrementCompPomo();
 
+            // Lưu lịch sử phiên tập trung đã hoàn thành
             StudySession sessionRecord = createStudySessionRecord(duration, SessionStatus.COMPLETED);
-            notifyHistoryObservers(new FocusSessionEvent(currentTask, sessionRecord));
+            notifyFocusSessionObservers(new FocusSessionEvent(currentTask, sessionRecord));
 
-            currentState = FocusStatus.RUNNING;
+            // Chuyển giao diện sang chế độ nghỉ nhưng giữ ở trạng thái IDLE để chờ người dùng sẵn sàng
+            currentState = FocusStatus.IDLE;
             if (sessionCount >= 4) {
                 currentSessionType = SessionType.LONG_BREAK;
                 timeLeft = TIME_LONG_BREAK;
@@ -171,46 +223,62 @@ public class FocusSessionManager {
                 currentSessionType = SessionType.SHORT_BREAK;
                 timeLeft = TIME_SHORT_BREAK;
             }
-            this.sessionStartTime = new Date();
-            timer.start();
         } else {
+            // Lưu lịch sử phiên nghỉ đã hoàn thành
             StudySession breakRecord = createStudySessionRecord(duration, SessionStatus.COMPLETED);
-            notifyHistoryObservers(new FocusSessionEvent(null, breakRecord));
+            notifyFocusSessionObservers(new FocusSessionEvent(null, breakRecord));
             resetToIdle();
         }
         notifyStateChanged();
     }
 
+    /**
+     * Bỏ qua phiên nghỉ ngơi hiện tại.
+     * Chế độ này không lưu vào cơ sở dữ liệu để tránh dữ liệu rác.
+     */
     public void skipBreak() {
         timer.stop();
-        int duration = getPlannedTime(currentSessionType) - timeLeft;
-        StudySession breakRecord = createStudySessionRecord(duration, SessionStatus.CANCELED);
-        notifyHistoryObservers(new FocusSessionEvent(null, breakRecord));
         resetToIdle();
     }
 
-    // Xóa Task khi đã hoàn thành xong
+    /**
+     * Gỡ bỏ Task hiện tại ra khỏi Manager (sau khi hoàn thành hoặc dừng hẳn).
+     */
     public void clearTask() {
         this.currentTask = null;
         notifyStateChanged();
     }
 
-    private StudySession createStudySessionRecord(int duration, SessionStatus status) {
+    /**
+     * Hàm nhà máy tạo ra đối tượng StudySession để lưu vào lịch sử.
+     *
+     * @param duration Thời gian thực tế đã sử dụng (giây).
+     * @param status   Trạng thái kết thúc của phiên.
+     *
+     */
+    private StudySession createStudySessionRecord(int duration, SessionStatus status) { //Truyền vào 2 tham số này vì 2 thông số này luôn thay đổi. Nếu hoàn thành đủ 25 phút, duration là 25 và status là COMPLETED. Nhưng nếu đang làm 10 phút mà bấm dừng, duration chỉ là 10 và status phải là STOPPED_EARLY. Do đó phải truyền vào làm tham số để hàm nó biết mà tạo lịch sử cho đúng.
         Date endTime = new Date();
-        int userId = (currentTask != null) ? currentTask.getUserId() : 1;
+        IUserRepository userRepository = new UserRepository();
+        int loggedInId = userRepository.getLoggedInUserId();
         Integer taskId = (currentTask != null) ? currentTask.getTaskId() : null;
         int sessionId = (int) (System.currentTimeMillis() % 100000);
-        return new StudySession(sessionId, userId, taskId, sessionStartTime, endTime, duration, currentSessionType, status);
+
+        return new StudySession(sessionId, loggedInId, taskId, sessionStartTime, endTime, duration, currentSessionType, status);
     }
 
+    /**
+     * Reset hệ thống về trạng thái nghỉ, mặc định sẵn sàng cho phiên tập trung mới.
+     */
     private void resetToIdle() {
         currentState = FocusStatus.IDLE;
-        // Tự động chuyển qua Focus sau khi nghỉ xong
         currentSessionType = SessionType.FOCUS;
-        timeLeft = TIME_FOCUS;
+        this.timeLeft = TIME_FOCUS;
         notifyStateChanged();
     }
 
+    /**
+     * Lấy thời gian quy định theo từng loại phiên.
+     */
     private int getPlannedTime(SessionType type) {
         if (type == SessionType.FOCUS) return TIME_FOCUS;
         if (type == SessionType.SHORT_BREAK) return TIME_SHORT_BREAK;
@@ -231,5 +299,13 @@ public class FocusSessionManager {
 
     public Task getCurrentTask() {
         return currentTask;
+    }
+
+    /**
+     * Lấy thời gian thực tế đã trôi qua của phiên hiện tại (tính bằng giây).
+     * Dùng để kiểm tra điều kiện tối thiểu khi hoàn thành sớm.
+     */
+    public int getElapsedTime() {
+        return getPlannedTime(currentSessionType) - timeLeft;
     }
 }

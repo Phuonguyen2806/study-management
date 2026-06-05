@@ -7,7 +7,6 @@ import model.entity.TaskStatus;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TaskRepositoryImpl implements ITaskRepository {
@@ -15,7 +14,6 @@ public class TaskRepositoryImpl implements ITaskRepository {
     private String filePath;
     private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
 
     public List<Task> getAllTasks() {
         return new ArrayList<>(this.taskList);
