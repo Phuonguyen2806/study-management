@@ -2,7 +2,7 @@ package service;
 
 import model.entity.SessionStatus;
 import model.observer.FocusSessionEvent;
-import model.observer.SessionHistoryObserver;
+import model.observer.FocusSessionObserver;
 import model.entity.SessionType;
 
 import javax.sound.sampled.*;
@@ -14,7 +14,7 @@ import java.io.File;
  * Nhiệm vụ: Thông báo bằng âm thanh dài và hiển thị hộp thoại khi kết thúc phiên.
  */
 
-public class SessionFinishedNotificationService implements SessionHistoryObserver {
+public class SessionFinishedNotificationService implements FocusSessionObserver {
     private final String soundPath = "data/alarm.wav";
 
     @Override

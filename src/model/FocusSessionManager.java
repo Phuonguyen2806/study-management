@@ -15,9 +15,9 @@ import java.util.List;
  * Đóng vai trò là Subject trong Observer Pattern cho cả Giao diện và Lịch sử.
  */
 
-public class FocusSessionManager implements FocusViewSubject, SessionHistorySubject {
+public class FocusSessionManager implements FocusViewSubject, FocusSessionSubject {
     // 1. Observer lưu Data (Service)
-    private List<SessionHistoryObserver> historyObservers = new ArrayList<>();
+    private List<FocusSessionObserver> historyObservers = new ArrayList<>();
     // 2. Observer cập nhật Giao diện (View)
     private List<FocusViewObserver> viewObservers = new ArrayList<>();
 
@@ -33,6 +33,7 @@ public class FocusSessionManager implements FocusViewSubject, SessionHistorySubj
     private Timer timer;
     private Task currentTask;
     private Date sessionStartTime; // đồng hồ phải tự nhớ lúc nó bắt đầu (lúc bấm nút) để đến khi hết giờ, nó mới tạo dữ liệu StudySession được.
+    private IUserRepository userRepository= new UserRepository();
 
     public FocusSessionManager() {
         this.timeLeft = TIME_FOCUS;
@@ -83,18 +84,18 @@ public class FocusSessionManager implements FocusViewSubject, SessionHistorySubj
     // ==========================================
 
     @Override
-    public void addHistoryObserver(SessionHistoryObserver o) {
+    public void addFocusSessionObserver(FocusSessionObserver o) {
         historyObservers.add(o);
     }
 
     @Override
-    public void removeHistoryObserver(SessionHistoryObserver o) {
+    public void removeFocusSessionObserver(FocusSessionObserver o) {
         historyObservers.remove(o);
     }
 
     @Override
-    public void notifyHistoryObservers(FocusSessionEvent event) {
-        for (SessionHistoryObserver o : historyObservers) {
+    public void notifyFocusSessionObservers(FocusSessionEvent event) {
+        for (FocusSessionObserver o : historyObservers) {
             o.onSessionCompleted(event);
         }
     }
@@ -188,7 +189,7 @@ public class FocusSessionManager implements FocusViewSubject, SessionHistorySubj
 
             // Tạo bản ghi với trạng thái đã qua bộ lọc điều kiện
             StudySession sessionRecord = createStudySessionRecord(duration, status);
-            notifyHistoryObservers(new FocusSessionEvent(currentTask, sessionRecord));
+            notifyFocusSessionObservers(new FocusSessionEvent(currentTask, sessionRecord));
             resetToIdle();
         } else {
             currentState = FocusStatus.PAUSED;
@@ -210,7 +211,7 @@ public class FocusSessionManager implements FocusViewSubject, SessionHistorySubj
 
             // Lưu lịch sử phiên tập trung đã hoàn thành
             StudySession sessionRecord = createStudySessionRecord(duration, SessionStatus.COMPLETED);
-            notifyHistoryObservers(new FocusSessionEvent(currentTask, sessionRecord));
+            notifyFocusSessionObservers(new FocusSessionEvent(currentTask, sessionRecord));
 
             // Chuyển giao diện sang chế độ nghỉ nhưng giữ ở trạng thái IDLE để chờ người dùng sẵn sàng
             currentState = FocusStatus.IDLE;
@@ -225,7 +226,7 @@ public class FocusSessionManager implements FocusViewSubject, SessionHistorySubj
         } else {
             // Lưu lịch sử phiên nghỉ đã hoàn thành
             StudySession breakRecord = createStudySessionRecord(duration, SessionStatus.COMPLETED);
-            notifyHistoryObservers(new FocusSessionEvent(null, breakRecord));
+            notifyFocusSessionObservers(new FocusSessionEvent(null, breakRecord));
             resetToIdle();
         }
         notifyStateChanged();
@@ -259,11 +260,10 @@ public class FocusSessionManager implements FocusViewSubject, SessionHistorySubj
         Date endTime = new Date();
         IUserRepository userRepository = new UserRepository();
         int loggedInId = userRepository.getLoggedInUserId();
-        int userId = loggedInId;
         Integer taskId = (currentTask != null) ? currentTask.getTaskId() : null;
         int sessionId = (int) (System.currentTimeMillis() % 100000);
 
-        return new StudySession(sessionId, userId, taskId, sessionStartTime, endTime, duration, currentSessionType, status);
+        return new StudySession(sessionId, loggedInId, taskId, sessionStartTime, endTime, duration, currentSessionType, status);
     }
 
     /**
@@ -299,5 +299,13 @@ public class FocusSessionManager implements FocusViewSubject, SessionHistorySubj
 
     public Task getCurrentTask() {
         return currentTask;
+    }
+
+    /**
+     * Lấy thời gian thực tế đã trôi qua của phiên hiện tại (tính bằng giây).
+     * Dùng để kiểm tra điều kiện tối thiểu khi hoàn thành sớm.
+     */
+    public int getElapsedTime() {
+        return getPlannedTime(currentSessionType) - timeLeft;
     }
 }

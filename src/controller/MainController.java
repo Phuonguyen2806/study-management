@@ -2,9 +2,6 @@ package controller;
 
 import view.*;
 
-import javax.swing.*;
-import java.awt.*;
-
 import model.entity.User;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;

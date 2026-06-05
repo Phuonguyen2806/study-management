@@ -6,69 +6,82 @@ import model.entity.SessionType;
 import model.entity.Task;
 import model.entity.TaskStatus;
 import model.repository.ITaskRepository;
+import model.repository.IUserRepository;
 import model.repository.TaskRepositoryImpl;
+import model.repository.UserRepository;
 import service.ProgressTrackingService;
 import service.SessionFinishedNotificationService;
 import view.FocusPanel;
 
 import javax.swing.JOptionPane;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FocusController implements IFocusController {
     private FocusPanel view;
     private FocusSessionManager sessionManager;
     private ITaskRepository taskRepository;
+    private IUserRepository userRepository;
 
+    // Hàm khởi tạo: Kết nối View, nạp file dữ liệu và cắm các bộ lắng nghe (Observer)
     public FocusController(FocusPanel view) {
         this.view = view;
         this.taskRepository = new TaskRepositoryImpl();
         this.taskRepository.init("data/tasks.txt");
+        userRepository = new UserRepository();
         this.sessionManager = new FocusSessionManager();
 
         // 1. Cắm ổ cắm History để ghi file khi kết thúc
         ProgressTrackingService progressService = new ProgressTrackingService(this.taskRepository);
-        this.sessionManager.addHistoryObserver(progressService);
+        this.sessionManager.addFocusSessionObserver(progressService);
 
         // 2. Cắm ổ cắm View để giao diện tự động nhảy số theo thời gian thực
         this.sessionManager.addViewObserver(this.view);
 
         // 3. Cắm ổ cắm Âm thanh để đánh chuông khi hết giờ
-        this.sessionManager.addHistoryObserver(new SessionFinishedNotificationService());
+        this.sessionManager.addFocusSessionObserver(new SessionFinishedNotificationService());
     }
 
+    // Nút [Chọn công việc]: Lọc file và chỉ hiển thị task của riêng user đang đăng nhập
     @Override
     public void handleSelectTaskClick() {
-        List<Task> pendingTasks = taskRepository.findTasksByStatus(TaskStatus.PENDING.name());
-        List<Task> inProgressTasks = taskRepository.findTasksByStatus(TaskStatus.IN_PROGRESS.name());
-        List<Task> overdueTasks = taskRepository.findTasksByStatus(TaskStatus.OVERDUE.name());
-        pendingTasks.addAll(inProgressTasks);
-        pendingTasks.addAll(overdueTasks);
+        List<Task> allTasks = taskRepository.getAllTasks();
 
-        Task selectedTask = view.showTaskSelectionDialog(pendingTasks);
+        List<Task> userTasks = new ArrayList<>();
+        int loggedInId = userRepository.getLoggedInUserId();
+        for (Task task : allTasks) {
+            if (task.getUserId() == loggedInId&& task.getStatus()!=TaskStatus.DONE) {
+                userTasks.add(task);
+            }
+        }
+        Task selectedTask = view.showTaskSelectionDialog(userTasks);
         if (selectedTask != null) {
             int est = view.showEstimateDialog();
             sessionManager.setTask(selectedTask, est);
         }
     }
 
+    // Tab chuyển chế độ: Đổi thủ công giữa Tập trung (25p) / Nghỉ ngắn (5p) / Nghỉ dài (15p)
     @Override
     public void handleModeChange(SessionType type) {
         sessionManager.setSessionType(type);
     }
 
+    // Nút bấm chính: Tự động đổi chức năng [Bắt đầu] -> [Tạm dừng] -> [Tiếp tục] theo trạng thái đồng hồ
     @Override
     public void handleActionClick() {
         FocusStatus state = sessionManager.getCurrentState();
 
         if (state == FocusStatus.IDLE) {
-            sessionManager.startSession();
+            sessionManager.startSession(); // Đang chờ -> Chạy đồng hồ
         } else if (state == FocusStatus.RUNNING) {
-            sessionManager.pauseTimer();
+            sessionManager.pauseTimer(); // Đang chạy -> Tạm dừng
         } else if (state == FocusStatus.PAUSED) {
-            sessionManager.resumeTimer();
+            sessionManager.resumeTimer(); // Đang dừng -> Chạy tiếp
         }
     }
 
+    // Nút [Dừng lại / Bỏ qua]: Hiện thông báo xác nhận để hủy phiên học hoặc bỏ qua giờ giải lao
     @Override
     public void handleStopClick() {
         sessionManager.pauseTimer();
@@ -94,8 +107,21 @@ public class FocusController implements IFocusController {
         }
     }
 
+    // Nút [Hoàn thành công việc]: Đổi task sang DONE, ghi đè file lưu trữ (Chặn nếu chưa học đủ 10 giây)
     @Override
     public void handleCompleteEarlyClick() {
+        // Chặn không cho bấm hoàn thành nếu phiên học chưa chạy được 10 giây
+        if (sessionManager.getElapsedTime() < 10) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Phiên học chưa đủ 10 giây. Bạn không thể hoàn thành công việc lúc này!",
+                    "Thông báo",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return; // Dừng lại, không thực hiện tiếp
+        }
+
+        // Nếu đủ 10 giây mới tiếp tục
         sessionManager.pauseTimer();
         boolean confirm = view.showConfirmCompleteDialog();
 
