@@ -50,14 +50,18 @@ public class FocusController implements IFocusController {
         List<Task> userTasks = new ArrayList<>();
         int loggedInId = userRepository.getLoggedInUserId();
         for (Task task : allTasks) {
-            if (task.getUserId() == loggedInId&& task.getStatus()!=TaskStatus.DONE) {
+            if (task.getUserId() == loggedInId && task.getStatus() != TaskStatus.DONE) {
                 userTasks.add(task);
             }
         }
         Task selectedTask = view.showTaskSelectionDialog(userTasks);
         if (selectedTask != null) {
             int est = view.showEstimateDialog();
+            // 1. Cập nhật số phiên dự kiến vào đối tượng trên RAM
             sessionManager.setTask(selectedTask, est);
+
+            // 2. Ra lệnh cho repository lưu ngay số dự kiến này xuống file tasks.txt
+            this.taskRepository.update(selectedTask);
         }
     }
 
