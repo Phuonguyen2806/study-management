@@ -40,9 +40,11 @@ public class TaskPanel extends JPanel {
         JPanel pnlControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         pnlControls.setOpaque(false);
 
-        cbGlobalPriority = new JComboBox<>(new String[]{"Ưu tiên: ALL", "HIGH", "MEDIUM", "LOW"});
+        JLabel lblPriority = new JLabel("Ưu tiên:");
+        lblPriority.setFont(FONT_BOLD);
+        cbGlobalPriority = new JComboBox<>(new String[]{"ALL", "HIGH", "MEDIUM", "LOW"});
         cbGlobalPriority.setFont(FONT_REGULAR);
-        cbGlobalPriority.setPreferredSize(new Dimension(150, 35));
+        cbGlobalPriority.setPreferredSize(new Dimension(100, 35));
 
         btnAdd = new JButton("+Thêm công việc");
         btnAdd.setBackground(COLOR_PRIMARY);
@@ -51,6 +53,7 @@ public class TaskPanel extends JPanel {
         btnAdd.setFocusPainted(false);
         btnAdd.setPreferredSize(new Dimension(180, 35));
 
+        pnlControls.add(lblPriority);
         pnlControls.add(cbGlobalPriority);
         pnlControls.add(btnAdd);
 
@@ -119,8 +122,10 @@ public class TaskPanel extends JPanel {
         JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         pnlRight.setOpaque(false);
 
-        JButton btnEdit = createActionBtn("Sửa", Color.GRAY);
+        JButton btnEdit = createActionBtn("Sửa", Color.BLUE);
         btnEdit.putClientProperty("taskId", taskId); //Lưu lại taskId để biết sửa task nào
+        boolean editable = "PENDING".equalsIgnoreCase(status) || "IN_PROGRESS".equalsIgnoreCase(status);
+        btnEdit.setEnabled(editable);
         btnEdit.addActionListener(e -> editListener.actionPerformed(e));
         JButton btnRemove = createActionBtn("Xóa", new Color(220, 53, 69));
         btnRemove.putClientProperty("taskId", taskId);
