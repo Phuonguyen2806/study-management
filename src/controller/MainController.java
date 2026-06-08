@@ -1,5 +1,6 @@
 package controller;
 
+import model.entity.Task;
 import view.*;
 
 import model.entity.User;
@@ -33,9 +34,7 @@ public class MainController {
 
         // Sự kiện trên RegisterForm
         registerForm.getBtnLogin().addActionListener(e -> showLoginView());
-        registerForm.getBtnRegister().addActionListener(e -> {
-            handleRegisterAction();
-        });
+        registerForm.getBtnRegister().addActionListener(e -> handleRegisterAction());
     }
 
     public void showLoginView() {
@@ -63,7 +62,6 @@ public class MainController {
     }
 
     public void startMainApp() {
-        this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         // Khởi tạo Task
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
@@ -107,7 +105,6 @@ public class MainController {
         mainFrame.getBtnMucTieu().addActionListener(e -> openGoalTrackingView());
         mainFrame.getBtnThongKe().addActionListener(e -> openStatisticTrackingView());
         mainFrame.getBtnHoSo().addActionListener(e -> openProfileTrackingView());
-        taskController.addStartListener(e -> openFocusView());
     }
 
     public void openFocusView() {

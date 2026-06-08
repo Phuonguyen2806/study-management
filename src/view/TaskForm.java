@@ -1,5 +1,7 @@
 package view;
 
+import model.entity.Task;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -93,7 +95,7 @@ public class TaskForm extends JDialog {
         btnCancel.setFont(FONT_BOLD);
         btnCancel.addActionListener(e -> dispose());
 
-        btnAdd = new JButton("Thêm");
+        btnAdd = new JButton("Lưu");
         btnAdd.setFont(FONT_BOLD);
         btnAdd.setBackground(new Color(13, 15, 28));
         btnAdd.setForeground(Color.WHITE);
@@ -166,6 +168,14 @@ public class TaskForm extends JDialog {
         }
     }
 
+    public void fillData(Task task) {
+        setTitleInput(task.getTitle());
+        setDescriptionInput(task.getDescription());
+        setPriorityInput(task.getPriority().name());setStatusInput(task.getStatus().name());
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+        setDeadlineInput(sdf.format(task.getDeadline()));
+    }
+
     public String getTitleInput() {
         return txtTitle.getText().trim();
     }
@@ -188,10 +198,6 @@ public class TaskForm extends JDialog {
 
     public JButton getBtnAdd() {
         return btnAdd;
-    }
-
-    public JButton getBtnCancel() {
-        return btnCancel;
     }
 
     public void setTitleInput(String title) {

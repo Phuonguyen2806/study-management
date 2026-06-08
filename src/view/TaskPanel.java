@@ -21,7 +21,6 @@ public class TaskPanel extends JPanel {
     private JPanel listContainer;
 
     //tạo sẵn các ActionListener
-    private ActionListener startListener = e -> {};
     private ActionListener deleteListener = e -> {};
     private ActionListener editListener = e -> {};
 
@@ -120,8 +119,6 @@ public class TaskPanel extends JPanel {
         JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         pnlRight.setOpaque(false);
 
-        JButton btnStart = createActionBtn("Bắt đầu", COLOR_START);
-        btnStart.addActionListener(e -> startListener.actionPerformed(e));
         JButton btnEdit = createActionBtn("Sửa", Color.GRAY);
         btnEdit.putClientProperty("taskId", taskId); //Lưu lại taskId để biết sửa task nào
         btnEdit.addActionListener(e -> editListener.actionPerformed(e));
@@ -129,7 +126,6 @@ public class TaskPanel extends JPanel {
         btnRemove.putClientProperty("taskId", taskId);
         btnRemove.addActionListener(e -> deleteListener.actionPerformed(e));
 
-        pnlRight.add(btnStart);
         pnlRight.add(btnEdit);
         pnlRight.add(btnRemove);
 
@@ -183,9 +179,6 @@ public class TaskPanel extends JPanel {
         listContainer.repaint();
     }
 
-    public void setOnStartTask(ActionListener listener) {
-        this.startListener = listener;
-    }
 
     public void setOnDeleteTask(ActionListener listener) {
         this.deleteListener = listener;

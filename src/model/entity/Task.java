@@ -72,14 +72,6 @@ public class Task {
         this.priority = priority;
     }
 
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public void setEstPomo(int estPomo) {
         this.estPomo = estPomo;
     }
@@ -94,6 +86,23 @@ public class Task {
 
     public void incrementCompPomo() {
         this.compPomo++;
+    }
+
+    public boolean isUserTask(int userId) {
+        return this.userId == this.userId;
+    }
+    public boolean checkOverdue() {
+        if ((status == TaskStatus.PENDING  || status == TaskStatus.IN_PROGRESS) && deadline.before(new Date())) {
+            status = TaskStatus.OVERDUE;
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isPriority(String priority) {
+        return this.priority.name()
+                .equalsIgnoreCase(priority);
     }
 
     @Override
