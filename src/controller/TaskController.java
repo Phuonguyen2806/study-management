@@ -98,7 +98,7 @@ public class TaskController {
 
     private void handleEditTask(int taskId) {
         TaskForm form = new TaskForm(owner);
-        form.fillData(taskManager.getTaskById(taskId));
+        form.loadForm(taskManager.getTaskById(taskId));
         form.getBtnAdd().addActionListener(e -> updateTask(form, taskId));
         form.setVisible(true);
     }

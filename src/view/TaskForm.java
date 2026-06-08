@@ -19,6 +19,9 @@ public class TaskForm extends JDialog {
     private JTextArea txtDescription;
     private JButton btnAdd, btnCancel;
 
+    private JLabel lblHeader;
+    private JLabel lblSubHeader;
+
 
     public TaskForm(Frame owner) {
         super(owner, "Thêm công việc mới", true);
@@ -34,13 +37,13 @@ public class TaskForm extends JDialog {
         pnlContent.setBorder(new EmptyBorder(25, 40, 25, 40));
 
         // Tiêu đề form
-        JLabel lblHeader = new JLabel("Thêm công việc mới");
+        lblHeader = new JLabel("Thêm công việc mới");
         lblHeader.setFont(FONT_TITLE);
         pnlContent.add(lblHeader);
 
         pnlContent.add(Box.createVerticalStrut(5)); // Khoảng cách nhỏ
 
-        JLabel lblSubHeader = new JLabel("Điền thông tin công việc và nhấn lưu");
+        lblSubHeader = new JLabel("Điền thông tin công việc và nhấn lưu");
         lblSubHeader.setFont(FONT_STATUS);
         lblSubHeader.setForeground(Color.GRAY);
         pnlContent.add(lblSubHeader);
@@ -168,7 +171,10 @@ public class TaskForm extends JDialog {
         }
     }
 
-    public void fillData(Task task) {
+    public void loadForm(Task task) {
+        setTitle("Chỉnh sửa công việc");
+        lblHeader.setText("Chỉnh sửa công việc");
+        lblSubHeader.setText("Cập nhật thông tin công việc");
         setTitleInput(task.getTitle());
         setDescriptionInput(task.getDescription());
         setPriorityInput(task.getPriority().name());setStatusInput(task.getStatus().name());
