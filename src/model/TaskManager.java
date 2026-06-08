@@ -68,6 +68,14 @@ public class TaskManager {
         }
     }
 
+    public Task getEditableTask(int taskId) {
+        Task task = getTaskById(taskId);
+        if(task.isDone() || task.isOverdue()){
+            throw new IllegalStateException("Chỉ được chỉnh sửa công việc ở trạng thái PENDING hoặc IN_PROGRESS!");
+        }
+        return task;
+    }
+
     public List<Task> getTasksByUserAndPriority(int userId, String priority) {
         List<Task> result = new ArrayList<>();
         for (Task task : repository.getAllTasks()) {
@@ -117,7 +125,5 @@ public class TaskManager {
         return task;
     }
 
-    public List<Task> getAllTasks() {
-        return repository.getAllTasks();
-    }
+
 }

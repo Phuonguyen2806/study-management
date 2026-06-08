@@ -97,10 +97,19 @@ public class TaskController {
     }
 
     private void handleEditTask(int taskId) {
-        TaskForm form = new TaskForm(owner);
-        form.loadForm(taskManager.getTaskById(taskId));
-        form.getBtnAdd().addActionListener(e -> updateTask(form, taskId));
-        form.setVisible(true);
+        try {
+            Task task = taskManager.getEditableTask(taskId);
+            TaskForm form = new TaskForm(owner);
+            form.loadForm(task);
+            form.getBtnAdd().addActionListener(e -> updateTask(form, taskId));
+            form.setVisible(true);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    owner, e.getMessage(),
+                    "Không thể chỉnh sửa",
+                    JOptionPane.WARNING_MESSAGE
+            );
+        }
     }
 
     private void updateTask(TaskForm form, int taskId) {

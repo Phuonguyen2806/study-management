@@ -35,7 +35,6 @@ public class AuthController {
     public void handleLogin(String email, String password) {
         try {
             User user = authManager.login(email, password);
-            JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
             mainController.setCurrentUser(user);
             mainController.getLoginForm().dispose();
             mainController.startMainApp();

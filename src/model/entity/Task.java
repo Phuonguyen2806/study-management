@@ -100,6 +100,14 @@ public class Task {
         return false;
     }
 
+    public boolean isOverdue() {
+       return status == TaskStatus.OVERDUE;
+    }
+
+    public boolean isDone() {
+        return status == TaskStatus.DONE;
+    }
+
     public boolean isPriority(String priority) {
         return this.priority.name()
                 .equalsIgnoreCase(priority);
