@@ -1,36 +1,44 @@
 package controller;
 
-import model.entity.Task;
+import model.repository.IReminderRepository;
+import model.repository.ITaskRepository;
+import model.repository.ReminderRepository; // Import đúng class cài đặt
 import service.ReminderService;
-import java.util.List;
+import view.MainFrame;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import model.repository.TaskRepositoryImpl;
 
 public class ReminderController {
-    private ReminderService reminderService;
-
+    private final ReminderService reminderService;
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ITaskRepository taskRepository;
     public ReminderController() {
-        this.reminderService = new ReminderService();
+        this.taskRepository = new TaskRepositoryImpl();
+        IReminderRepository repo = new ReminderRepository();
+        repo.init("data/reminders.txt");
+        this.reminderService = new ReminderService(repo);
     }
 
-    /**
-     * Phương thức chính để kích hoạt kiểm tra nhắc nhở.
-     * Được gọi bởi MainController hoặc Timer định kỳ.
-     */
-    public void startCheckingReminders(List<Task> userTasks, boolean isAppOpen) {
-        System.out.println("[Controller] Bắt đầu quy trình kiểm tra nhắc nhở...");
-
-        // Chuyển tiếp nhiệm vụ cho tầng Service (Phase: Processing)
-        reminderService.runReminderCheck(userTasks, isAppOpen);
-
-        // Sau khi Service xử lý xong, Controller cập nhật lại UI (Phase: UI Update)
-        updateMainUI();
-
-        System.out.println("[Controller] Quy trình kiểm tra kết thúc.");
+    public void startCheckingReminders(MainFrame mainFrame) {
+        // Lên lịch chạy sau mỗi 1 phút
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                // 1. Tự động load lại dữ liệu mới nhất từ file
+                taskRepository.refresh();
+                boolean isAppActive = mainFrame.isVisible();
+                reminderService.executeReminderWorkflow(isAppActive);
+            } catch (Exception e) {
+                System.err.println("Lỗi trong scheduler: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }, 0, 1, TimeUnit.MINUTES);
     }
 
-    private void updateMainUI() {
-        // Gọi lệnh để MainController làm mới giao diện
-        // Ví dụ: MainController.refreshTaskTable();
-
-        System.out.println("[Controller] Giao diện đã được làm mới.");
+    // Đừng quên stop khi đóng ứng dụng
+    public void stopScheduler() {
+        scheduler.shutdown();
     }
+
 }

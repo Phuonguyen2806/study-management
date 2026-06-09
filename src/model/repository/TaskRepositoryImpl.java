@@ -129,4 +129,7 @@ public class TaskRepositoryImpl implements ITaskRepository {
             return false;
         }
     }
+    public void refresh() {
+        this.init(this.FILE_PATH);
+    }
 }
