@@ -112,12 +112,10 @@ public class Task {
         return this.priority.name()
                 .equalsIgnoreCase(priority);
     }
-
     @Override
     public String toString() {
         return "Task: " + title + " [" + status + "] - Priority: " + priority;
     }
-
 }
 
 

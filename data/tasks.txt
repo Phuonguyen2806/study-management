@@ -28,7 +28,10 @@
 30|Nộp bài tập Java|Hạn chót là sáng nay|2026-06-05 00:00:00|HIGH|2|0|OVERDUE|1
 31|Họp nhóm|Họp tại thư viện|2026-06-05 01:00:00|MEDIUM|1|0|OVERDUE|1
 32|Đọc tài liệu|Đọc chương 1|2026-06-05 10:00:00|LOW|1|1|DONE|1
-33|Đi mua sách|Mua sách giáo khoa|2026-06-09 22:00:00|LOW|1|0|PENDING|2
-34|Đi mua sách 1|Mua sách giáo khoa|2026-06-09 22:01:00|LOW|1|0|PENDING|2
-35|Đi mua sách 1|Mua sách giáo khoa|2026-06-09 22:01:00|LOW|1|0|PENDING|22
+33|Đi mua sách|Mua sách giáo khoa|2026-06-09 22:00:00|LOW|1|0|OVERDUE|2
+34|Đi mua sách 1|Mua sách giáo khoa|2026-06-09 22:01:00|LOW|1|0|OVERDUE|2
+35|Đi mua sách 1|Mua sách giáo khoa|2026-06-10 00:01:00|LOW|1|0|OVERDUE|22
+36|1|Mua sách|2026-06-10 00:00:00|LOW|1|1|DONE|22
+37|Học bài môn Toán||2026-06-15 00:00:00|HIGH|3|0|DONE|22
+
 

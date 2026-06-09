@@ -5,21 +5,37 @@ import model.dto.WeeklyStats;
 import model.entity.Task;
 import model.entity.TaskStatus;
 import model.entity.User;
+import model.repository.ITaskRepository;
+import model.repository.TaskRepositoryImpl;
 import service.StatisticsService;
 import view.StatisticsPanel;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class StatisticsController {
 	private StatisticsPanel view;
 	private StatisticsService service;
-
+	private ITaskRepository taskRepository;
+	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 	public StatisticsController(StatisticsPanel view) {
+		this.taskRepository = new TaskRepositoryImpl();
 		this.view = view;
-		this.service = new StatisticsService();
+		this.service = new StatisticsService(this.taskRepository);
+// KÍCH HOẠT SCHEDULER
+		scheduler.scheduleAtFixedRate(() -> {
+			// Kiểm tra nếu view vẫn tồn tại thì mới làm mới dữ liệu
+			if (view != null) {
+				taskRepository.refresh();
+			}
+		}, 0, 1, TimeUnit.MINUTES);
 	}
 	// Trong StatisticsController.java
 	public void loadDailyStats(User currentUser) {
+		// Luôn refresh trước khi tính toán để đảm bảo số liệu mới nhất
+		taskRepository.refresh();
 		if (currentUser == null) return;
 
 		// Sử dụng service hiện có, đảm bảo lấy lại dữ liệu mới nhất
@@ -27,7 +43,6 @@ public class StatisticsController {
 		List<Task> overdue = service.getOverdueTasks();
 		List<Task> upcoming = service.getUpcomingTodayTasks();
 		Map<TaskStatus, Integer> statsMap = service.getTodayTaskStatusStatistics(); // Đảm bảo hàm này trả về dữ liệu đúng
-
 
 		// Cập nhật lên View
 		view.displayDailyStudyTime(stats.getTodayFocusTime());
@@ -41,6 +56,8 @@ public class StatisticsController {
 
 
 	public void loadWeeklyStats(User currentUser) {
+		// Luôn refresh trước khi tính toán để đảm bảo số liệu mới nhất
+		taskRepository.refresh();
 		// Gọi Service
 		WeeklyStats weeklyStats = service.getWeeklyStatistics();
 		Map<TaskStatus, Integer> counts = service.getTaskStatusCounts();
