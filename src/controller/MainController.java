@@ -1,11 +1,14 @@
 package controller;
 
+import model.entity.Priority;
 import model.entity.Task;
+import model.entity.TaskStatus;
 import view.*;
 
 import model.entity.User;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Date;
 
 public class MainController {
     private MainFrame mainFrame;
@@ -34,7 +37,9 @@ public class MainController {
 
         // Sự kiện trên RegisterForm
         registerForm.getBtnLogin().addActionListener(e -> showLoginView());
-        registerForm.getBtnRegister().addActionListener(e -> handleRegisterAction());
+        registerForm.getBtnRegister().addActionListener(e -> {
+            handleRegisterAction();
+        });
     }
 
     public void showLoginView() {
@@ -62,6 +67,7 @@ public class MainController {
     }
 
     public void startMainApp() {
+        this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         // Khởi tạo Task
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
@@ -94,6 +100,9 @@ public class MainController {
                 System.exit(0);
             }
         });
+//        // 2. Gọi ReminderController quét danh sách task này (isAppOpen = true)
+        ReminderController reminderController = new ReminderController();
+        reminderController.startCheckingReminders(mainFrame);
 
         openFocusView();
         initEventListeners();
@@ -105,6 +114,7 @@ public class MainController {
         mainFrame.getBtnMucTieu().addActionListener(e -> openGoalTrackingView());
         mainFrame.getBtnThongKe().addActionListener(e -> openStatisticTrackingView());
         mainFrame.getBtnHoSo().addActionListener(e -> openProfileTrackingView());
+        taskController.addStartListener(e -> openFocusView());
     }
 
     public void openFocusView() {
