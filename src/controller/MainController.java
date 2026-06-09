@@ -114,7 +114,6 @@ public class MainController {
         mainFrame.getBtnMucTieu().addActionListener(e -> openGoalTrackingView());
         mainFrame.getBtnThongKe().addActionListener(e -> openStatisticTrackingView());
         mainFrame.getBtnHoSo().addActionListener(e -> openProfileTrackingView());
-        taskController.addStartListener(e -> openFocusView());
     }
 
     public void openFocusView() {
