@@ -1,6 +1,7 @@
 package controller;
 
 import model.entity.SessionType;
+import model.entity.Task;
 
 public interface IFocusController {
     void handleSelectTaskClick();

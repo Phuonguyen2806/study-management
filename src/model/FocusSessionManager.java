@@ -33,8 +33,10 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
     private Timer timer;
     private Task currentTask;
     private Date sessionStartTime; // đồng hồ phải tự nhớ lúc nó bắt đầu (lúc bấm nút) để đến khi hết giờ, nó mới tạo dữ liệu StudySession được.
+    private final IUserRepository userRepository; // inject thẳng
 
-    public FocusSessionManager() {
+
+    public FocusSessionManager(IUserRepository userRepository) {
         this.timeLeft = TIME_FOCUS;
         timer = new Timer(1000, e -> {
             if (timeLeft > 0) {
@@ -44,6 +46,7 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
                 handleTimeOver(); // Xử lý khi đồng hồ về 00:00
             }
         });
+        this.userRepository = userRepository;
     }
 
     // ==========================================
@@ -271,11 +274,9 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
      *
      * @param duration Thời gian thực tế đã sử dụng (giây).
      * @param status   Trạng thái kết thúc của phiên.
-     *
      */
     private StudySession createStudySessionRecord(int duration, SessionStatus status) { //Truyền vào 2 tham số này vì 2 thông số này luôn thay đổi. Nếu hoàn thành đủ 25 phút, duration là 25 và status là COMPLETED. Nhưng nếu đang làm 10 phút mà bấm dừng, duration chỉ là 10 và status phải là STOPPED_EARLY. Do đó phải truyền vào làm tham số để hàm nó biết mà tạo lịch sử cho đúng.
         Date endTime = new Date();
-        IUserRepository userRepository = new UserRepository();
         int loggedInId = userRepository.getLoggedInUserId();
         Integer taskId = (currentTask != null) ? currentTask.getTaskId() : null;
         int sessionId = (int) (System.currentTimeMillis() % 100000);

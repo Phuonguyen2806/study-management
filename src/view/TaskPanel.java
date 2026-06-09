@@ -121,6 +121,7 @@ public class TaskPanel extends JPanel {
         pnlRight.setOpaque(false);
 
         JButton btnStart = createActionBtn("Bắt đầu", COLOR_START);
+        btnStart.putClientProperty("taskId", taskId);
         btnStart.addActionListener(e -> startListener.actionPerformed(e));
         JButton btnEdit = createActionBtn("Sửa", Color.GRAY);
         btnEdit.putClientProperty("taskId", taskId); //Lưu lại taskId để biết sửa task nào

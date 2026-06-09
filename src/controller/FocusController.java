@@ -29,7 +29,7 @@ public class FocusController implements IFocusController {
         this.taskRepository = new TaskRepositoryImpl();
         this.taskRepository.init("data/tasks.txt");
         userRepository = new UserRepository();
-        this.sessionManager = new FocusSessionManager();
+        this.sessionManager = new FocusSessionManager(userRepository);
 
         // 1. Cắm ổ cắm History để ghi file khi kết thúc
         ProgressTrackingService progressService = new ProgressTrackingService(this.taskRepository);

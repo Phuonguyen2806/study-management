@@ -1,8 +1,8 @@
 package controller;
 
+import model.entity.User;
 import view.*;
 
-import model.entity.User;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
