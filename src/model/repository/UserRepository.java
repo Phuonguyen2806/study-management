@@ -6,7 +6,7 @@ import java.util.*;
 
 
 public class UserRepository  implements IUserRepository {
-    private final String FILE_PATH = "study-management/data/users.txt";
+    private final String FILE_PATH = "data/users.txt";
 
     public UserRepository() {
     }
@@ -28,7 +28,8 @@ public class UserRepository  implements IUserRepository {
                     String email = data[2];
                     String password = data[3];
                     boolean isLogin = Boolean.parseBoolean(data[4]);
-                    User user = new User(id, fullName, email, password, isLogin);
+                    User user = new User(id,fullName, email, password, isLogin);
+                    user.setUserID(id);
                     users.add(user);
                 }
             }
@@ -44,7 +45,7 @@ public class UserRepository  implements IUserRepository {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             int newID = getNextID();
             user.setUserID(newID);
-            bw.write(user.toString());
+            bw.write(formatUserToLine(user));
             bw.newLine();
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,7 +57,7 @@ public class UserRepository  implements IUserRepository {
         List<User> users = getAllUsers();
         boolean isUpdated = false;
         for (User user : users) {
-            if (user.checkEmail(email)) {
+            if (user.getEmail().equalsIgnoreCase(email)) {
                 user.setLogin(isLogin);
                 isUpdated = true;
                 break;
@@ -70,7 +71,7 @@ public class UserRepository  implements IUserRepository {
     public void saveAllUsers(List<User> users) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH, false))) { // 'false' để ghi đè
             for (User u : users) {
-                bw.write(u.toString());
+                bw.write(formatUserToLine(u));
                 bw.newLine();
             }
         } catch (Exception e) {
@@ -82,7 +83,7 @@ public class UserRepository  implements IUserRepository {
     public User findUserByEmail(String email) {
         List<User> users = getAllUsers();
         for (User user : users) {
-            if (user.checkEmail(email)) {
+            if (user.getEmail().equalsIgnoreCase(email)) {
                 return user;
             }
         }
@@ -93,7 +94,7 @@ public class UserRepository  implements IUserRepository {
         List<User> users = getAllUsers();
         int maxID = 0;
         for (User user : users) {
-            if (user.hasIdGreaterThan(maxID)) {
+            if (user.getUserID() > maxID) {
                 maxID = user.getUserID();
             }
         }
@@ -113,11 +114,24 @@ public class UserRepository  implements IUserRepository {
 
     public User getUserById(int userId) {
         for (User user : getAllUsers()) {
-            if (user.checkUserID(userId)) {
+            if (user.getUserID() == userId) {
                 return user;
             }
         }
         return null;
+    }
+
+    private String formatUserToLine(User u) {
+        return u.getUserID() + "|" + u.getFullName() + "|" + u.getEmail() + "|" + u.getPasswd() + "|" + u.isLogin();
+    }
+
+    @Override
+    public String getEmailByUserId(int userId) {
+        User user = getUserById(userId); // Sử dụng lại hàm đã có sẵn
+        if (user != null) {
+            return user.getEmail();
+        }
+        return null; // Trả về null nếu không tìm thấy user
     }
 
 }
