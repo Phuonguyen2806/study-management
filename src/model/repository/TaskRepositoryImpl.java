@@ -126,6 +126,7 @@ public class TaskRepositoryImpl implements ITaskRepository {
         }
     }
 
+
     @Override
     public void refresh() {
         init(FILE_PATH);

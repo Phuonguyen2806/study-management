@@ -28,6 +28,7 @@ public class StatisticsController {
 		List<Task> upcoming = service.getUpcomingTodayTasks();
 		Map<TaskStatus, Integer> statsMap = service.getTodayTaskStatusStatistics(); // Đảm bảo hàm này trả về dữ liệu đúng
 
+
 		// Cập nhật lên View
 		view.displayDailyStudyTime(stats.getTodayFocusTime());
 		view.displayPomodoroCount(stats.getPomodoroCount());

@@ -271,6 +271,7 @@ public Map<TaskStatus, Integer> getTaskStatusCounts() {
                 // 1. Xác định trạng thái thực tế
                 TaskStatus effectiveStatus = task.getStatus();
 
+
                 // 2. Logic ưu tiên: Nếu chưa xong (NOT DONE) mà quá hạn -> OVERDUE
                 if (effectiveStatus != TaskStatus.DONE && taskDeadline.isBefore(now)) {
                     effectiveStatus = TaskStatus.OVERDUE;

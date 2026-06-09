@@ -125,6 +125,7 @@ public class StatisticsPanel extends JPanel {
     }
 
 
+
     public void showTaskCompletionPieChart(double completionRate) {
         // 1. Cập nhật label (làm tròn để hiển thị cho đẹp)
         String text = String.format("%.1f%%", completionRate);
