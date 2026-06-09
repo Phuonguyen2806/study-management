@@ -15,6 +15,9 @@ public class TaskRepositoryImpl implements ITaskRepository {
     private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    public TaskRepositoryImpl() {
+        init(FILE_PATH);
+    }
 
     public List<Task> getAllTasks() {
         return new ArrayList<>(this.taskList);
@@ -121,5 +124,10 @@ public class TaskRepositoryImpl implements ITaskRepository {
             System.out.println("Lỗi ghi file: " + e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    public void refresh() {
+        init(FILE_PATH);
     }
 }

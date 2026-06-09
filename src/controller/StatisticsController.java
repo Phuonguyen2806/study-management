@@ -63,7 +63,6 @@ public class StatisticsController {
 		// Sửa dòng bị lỗi trong StatisticsController.java thành:
 		double completionRate = weeklyStats.getCompletionRate();
 		view.showTaskCompletionPieChart(completionRate);
-
 		view.refresh(); // Vẽ lại giao diện
 	}
 }

@@ -35,7 +35,6 @@ public class StatisticsService {
         }
         return userTasks;
     }
-
     private List<StudySession> getStudySessionsByUser() {
         List<StudySession> sessions = new ArrayList<>();
         String targetUserId = String.valueOf(getLoggedInId());

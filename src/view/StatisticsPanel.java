@@ -66,7 +66,6 @@ public class StatisticsPanel extends JPanel {
     }
 
     // --- CÁC PHƯƠNG THỨC HIỂN THỊ ĐỒNG BỘ DỮ LIỆU ---
-
     /**
      * THỐNG KÊ NGÀY
      */
