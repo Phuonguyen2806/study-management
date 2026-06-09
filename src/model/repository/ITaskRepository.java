@@ -12,6 +12,7 @@ public interface ITaskRepository {
     public List<Task> findTasksByUserId(int userId);
     public boolean save(Task task, int userId);//hàm thêm task hoặc lưu task
     public boolean update(Task updatedTask);
-    public boolean delete(int taskId, int userId);
+    public boolean delete(int taskId,int userId);
     public void refresh();
+
 }
