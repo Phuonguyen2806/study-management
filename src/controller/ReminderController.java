@@ -35,10 +35,4 @@ public class ReminderController {
             }
         }, 0, 1, TimeUnit.MINUTES);
     }
-
-    // Đừng quên stop khi đóng ứng dụng
-    public void stopScheduler() {
-        scheduler.shutdown();
-    }
-
 }
