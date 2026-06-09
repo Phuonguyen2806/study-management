@@ -35,7 +35,6 @@ public class AuthController {
     public void handleLogin(String email, String password) {
         try {
             User user = authManager.login(email, password);
-            JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
             mainController.setCurrentUser(user);
             mainController.getLoginForm().dispose();
             mainController.startMainApp();
@@ -47,6 +46,7 @@ public class AuthController {
     public void handleLogout() {
         try {
             authManager.logout();
+            mainController.setCurrentUser(null);
         } catch (Exception e) {
             System.out.println("Lỗi khi đăng xuất ở Model: " + e.getMessage());
         }

@@ -35,7 +35,6 @@ public class Task {
         this.estPomo = estPomo;
         this.compPomo = compPomo;
         this.status = status;
-
     }
     public int getTaskId() { return taskId; }
 
@@ -73,14 +72,6 @@ public class Task {
         this.priority = priority;
     }
 
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public void setEstPomo(int estPomo) {
         this.estPomo = estPomo;
     }
@@ -95,6 +86,36 @@ public class Task {
 
     public void incrementCompPomo() {
         this.compPomo++;
+    }
+
+    public boolean isUserTask(int userId) {
+        return this.userId == this.userId;
+    }
+    public boolean checkOverdue() {
+        if ((status == TaskStatus.PENDING  || status == TaskStatus.IN_PROGRESS) && deadline.before(new Date())) {
+            status = TaskStatus.OVERDUE;
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isOverdue() {
+       return status == TaskStatus.OVERDUE;
+    }
+
+    public boolean isDone() {
+        return status == TaskStatus.DONE;
+    }
+
+    public boolean isPriority(String priority) {
+        return this.priority.name()
+                .equalsIgnoreCase(priority);
+    }
+
+    @Override
+    public String toString() {
+        return "Task: " + title + " [" + status + "] - Priority: " + priority;
     }
 
 }

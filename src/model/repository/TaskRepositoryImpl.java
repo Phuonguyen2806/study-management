@@ -7,7 +7,6 @@ import model.entity.TaskStatus;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TaskRepositoryImpl implements ITaskRepository {
@@ -16,9 +15,6 @@ public class TaskRepositoryImpl implements ITaskRepository {
     private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public TaskRepositoryImpl() {
-        init(FILE_PATH);
-    }
 
     public List<Task> getAllTasks() {
         return new ArrayList<>(this.taskList);
@@ -67,20 +63,17 @@ public class TaskRepositoryImpl implements ITaskRepository {
         return result;
     }
 
-    public int getNextID() {
-        int maxID = 0;
+    public Task findTaskById(int taskId) {
         for (Task task : taskList) {
-            if (task.getTaskId() > maxID) {
-                maxID = task.getTaskId();
+            if (task.getTaskId() == taskId) {
+                return task;
             }
         }
-        return maxID + 1;
+        return null;
     }
 
     // hàm dùng để thêm task và lưu lại trong file
     public boolean save(Task task, int userId) {
-        task.setTaskId(getNextID());
-        task.setUserId(userId);
         taskList.add(task);
         return saveToFile();
     }
@@ -128,8 +121,5 @@ public class TaskRepositoryImpl implements ITaskRepository {
             System.out.println("Lỗi ghi file: " + e.getMessage());
             return false;
         }
-    }
-    public void refresh() {
-        this.init(this.FILE_PATH);
     }
 }
