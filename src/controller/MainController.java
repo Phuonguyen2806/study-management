@@ -74,7 +74,7 @@ public class MainController {
         // Khởi tạo Goal
         GoalPanel goalPanel = this.mainFrame.getGoalPanel();
         this.goalController = new GoalController();
-        this.goalController.initialize(goalPanel);
+        this.goalController.initialize(goalPanel,this.currentUser);
         // Khởi tạo Statistic
         StatisticsPanel statisticsPanel = this.mainFrame.getStatisticsPanel();
         this.statisticsController = new StatisticsController(mainFrame.getStatisticsPanel());

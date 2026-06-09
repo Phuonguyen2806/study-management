@@ -71,7 +71,7 @@ public class StatisticsService {
 	// Method getTodayTaskStatusStatistics(user): Lọc danh sách Task để đếm các
 	// trạng thái Done, Pending, Overdue và các Task có deadline gần nhất
 	// (getUpcomingTasks)
-	private Map<TaskStatus, Integer> getTodayTaskStatusStatistics(User user) {
+    public Map<TaskStatus, Integer> getTodayTaskStatusStatistics(User user) {
 		Map<TaskStatus, Integer> stats = new EnumMap<>(TaskStatus.class);
 		for (TaskStatus status : TaskStatus.values())
 			stats.put(status, 0);
