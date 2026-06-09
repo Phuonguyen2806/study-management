@@ -6,22 +6,16 @@ import java.util.List;
 public class User {
     private int userId;
     private String fullName;
-    private String userName; // Trong sơ đồ có userName
-    private String passwd;
     private String email;
     private String password;
-    private int userID;
     private boolean isLogin;
 
-    public User() {
-    }
     // tạo user
-    public User(String fullName, String email, String passwd) {
+
+    public User(String fullName, String email, String password) {
         this.fullName = fullName;
         this.email = email;
-        this.password = passwd;
-        this.userName = email;
-        this.isLogin = false;
+        this.password = password;
     }
 
     public User(int userId, String fullName, String email, String password) {
@@ -31,17 +25,15 @@ public class User {
         this.password = password;
     }
 
-    // đọc từ file
-    public User(String fullName, String email, String passwd, boolean isLogin) {
+    public User(int userId, String fullName, String email, String password, boolean isLogin) {
+        this.userId = userId;
         this.fullName = fullName;
         this.email = email;
-        this.password = passwd;
-        this.userName = email;
+        this.password = password;
         this.isLogin = isLogin;
-
     }
 
-    public int getUserId() {
+    public int getUserID() {
         return userId;
     }
 
@@ -49,16 +41,19 @@ public class User {
         return this.password.equals(pass);
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public boolean checkEmail(String email) {
+        return this.email.equals(email);
+    }
+    public boolean checkUserID(int userId) {
+        return this.userId == userId;
+    }
+
+    public boolean hasIdGreaterThan(int otherId) {
+        return this.userId > otherId;
     }
 
     public String getFullName() {
         return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
     }
 
     public String getEmail() {
@@ -73,18 +68,6 @@ public class User {
         return password;
     }
 
-    public int getUserID() {
-        return userID;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setUserID(int userID) {
-        this.userID = userID;
-    }
-
     public boolean isLogin() {
         return isLogin;
     }
@@ -95,7 +78,11 @@ public class User {
 
     @Override
     public String toString() {
-        return userId + "|" + fullName + "|" + email + "|" + password;}
+        return userId + "|" + fullName + "|" + email + "|" + password+ "|" + isLogin;}
+
+    public void setUserID(int newID) {
+        this.userId = newID;
+    }
 }
 
 

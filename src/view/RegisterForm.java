@@ -2,17 +2,13 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
 import javax.swing.*;
-
-import controller.AuthController;
 
 public class RegisterForm extends JFrame{
     private JTextField tFullName;
@@ -25,7 +21,6 @@ public class RegisterForm extends JFrame{
     private JLabel lconfiPW;
     private JButton btnRegister;
     private JButton btnLogin;
-    private AuthController authController;
 
     private final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 24);
     private final Font FONT_REGULAR = new Font("Segoe UI", Font.PLAIN, 14);

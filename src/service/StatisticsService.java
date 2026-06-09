@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 public class StatisticsService {
-	private final String SESSION_FILE_PATH = "data/studysessions.txt";
-	private final String TASK_FILE_PATH = "data/tasks.txt";
+	private final String SESSION_FILE_PATH = "study-management/data/studysessions.txt";
+	private final String TASK_FILE_PATH = "study-management/data/tasks.txt";
 	private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	public DailyStats getDailyStats(User user) {
@@ -43,7 +43,7 @@ public class StatisticsService {
 	private int countTodayPomodoroSessions(User user) {
 		int count = 0;
 		String todayStr = LocalDate.now().toString();
-		String targetUserId = String.valueOf(user.getUserId());
+		String targetUserId = String.valueOf(user.getUserID());
 
 		try (BufferedReader br = new BufferedReader(new FileReader(SESSION_FILE_PATH))) {
 			String line;
@@ -76,7 +76,7 @@ public class StatisticsService {
 		for (TaskStatus status : TaskStatus.values())
 			stats.put(status, 0);
 
-		int targetUserId = user.getUserId();
+		int targetUserId = user.getUserID();
 		LocalDate today = LocalDate.now(); // 2026-05-29
 
 		try (BufferedReader br = new BufferedReader(new FileReader(TASK_FILE_PATH))) {
@@ -113,7 +113,7 @@ public class StatisticsService {
 
 		// Tự động lấy ngày hôm nay (2026-05-29)
 		String todayStr = LocalDate.now().toString();
-		String targetUserId = String.valueOf(user.getUserId());
+		String targetUserId = String.valueOf(user.getUserID());
 
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			String line;
@@ -152,7 +152,7 @@ public class StatisticsService {
 			String line;
 			while ((line = br.readLine()) != null) {
 				Task task = parseTaskFromLine(line);
-				if (task != null && task.getUserId() == user.getUserId() && task.getStatus() != TaskStatus.DONE
+				if (task != null && task.getUserId() == user.getUserID() && task.getStatus() != TaskStatus.DONE
 						&& task.getDeadline() != null) {
 
 					// Chuyển Date sang LocalDateTime
@@ -179,7 +179,7 @@ public class StatisticsService {
 			String line;
 			while ((line = br.readLine()) != null) {
 				Task task = parseTaskFromLine(line);
-				if (task != null && task.getUserId() == user.getUserId() && task.getStatus() != TaskStatus.DONE
+				if (task != null && task.getUserId() == user.getUserID() && task.getStatus() != TaskStatus.DONE
 						&& task.getDeadline() != null) {
 
 					LocalDateTime taskDateTime = task.getDeadline().toInstant().atZone(ZoneId.systemDefault())
@@ -248,7 +248,7 @@ public class StatisticsService {
 				while ((line = br.readLine()) != null) {
 					String[] parts = line.split("\\|");
 					// Giả định cột 1: UserId, cột 3: startTime, cột 5: duration, cột 7: status
-					if (parts[1].trim().equals(String.valueOf(user.getUserId())) && parts[3].contains(date.toString())
+					if (parts[1].trim().equals(String.valueOf(user.getUserID())) && parts[3].contains(date.toString())
 							&& parts[7].trim().equalsIgnoreCase("COMPLETED")) {
 						totalHours += Double.parseDouble(parts[5].trim()) / 3600.0; // Giả định duration lưu bằng giây
 					}
@@ -278,7 +278,7 @@ public class StatisticsService {
 	        String line;
 	        while ((line = br.readLine()) != null) {
 	            Task task = parseTaskFromLine(line); // Hàm parse đã có
-	            if (task != null && task.getUserId() == user.getUserId() && task.getDeadline() != null) {
+	            if (task != null && task.getUserId() == user.getUserID() && task.getDeadline() != null) {
 	                LocalDate taskDate = task.getDeadline().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	                
 	                if (!taskDate.isBefore(sevenDaysAgo)) {
@@ -307,7 +307,7 @@ public class StatisticsService {
 	        String line;
 	        while ((line = br.readLine()) != null) {
 	            Task task = parseTaskFromLine(line);
-	            if (task != null && task.getUserId() == user.getUserId() && task.getDeadline() != null) {
+	            if (task != null && task.getUserId() == user.getUserID() && task.getDeadline() != null) {
 	                LocalDate taskDate = task.getDeadline().toInstant()
 	                                         .atZone(ZoneId.systemDefault()).toLocalDate();
 
