@@ -140,5 +140,4 @@ public class TaskRepositoryImpl implements ITaskRepository {
     public void refresh() {
         init(FILE_PATH);
     }
-
 }
