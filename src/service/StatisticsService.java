@@ -280,6 +280,7 @@ public Map<TaskStatus, Integer> getTaskStatusCounts() {
             }
         }
     }
+
         return counts;
     }
 }

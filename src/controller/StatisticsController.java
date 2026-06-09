@@ -38,6 +38,7 @@ public class StatisticsController {
 		view.refresh();
 	}
 
+
 	public void loadWeeklyStats(User currentUser) {
 		// Gọi Service
 		WeeklyStats weeklyStats = service.getWeeklyStatistics();
