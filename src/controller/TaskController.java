@@ -96,7 +96,7 @@ public class TaskController {
         }
     }
 
-    private void handleEditTask(int taskId) {
+    public void handleEditTask(int taskId) {
         Task task = taskManager.getTaskById(taskId);
         TaskForm form = new TaskForm(owner);
         form.loadForm(task);
@@ -105,7 +105,7 @@ public class TaskController {
 
     }
 
-    private void updateTask(TaskForm form, int taskId) {
+    public void updateTask(TaskForm form, int taskId) {
         try {
             taskManager.updateTask(
                     taskId,

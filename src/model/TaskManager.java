@@ -40,17 +40,19 @@ public class TaskManager {
     }
 
     public void deleteTask(int taskId) {
-        Task task = repository.findTaskById(taskId);
+        int userId = userRepository.getLoggedInUserId();
+        Task task = repository.findTaskById(taskId, userId);
         if(task == null){
             throw new IllegalArgumentException("Không tìm thấy công việc!");
         }
-        if(!repository.delete(taskId)){
+        if(!repository.delete(taskId, userId)){
             throw new IllegalStateException("Không thể xóa công việc!");
         }
     }
 
     public void updateTask(int taskId, String title, String description, String deadlineStr, String priority, String status) {
-        Task task = repository.findTaskById(taskId);
+        int userId = userRepository.getLoggedInUserId();
+        Task task = repository.findTaskById(taskId, userId);
         if(task == null){
             throw new IllegalArgumentException("Không tìm thấy công việc!");
         }
@@ -99,7 +101,6 @@ public class TaskManager {
     }
 
     private Date parseDate(String dateStr) {
-
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             sdf.setLenient(false);
@@ -110,7 +111,8 @@ public class TaskManager {
     }
 
     public Task getTaskById(int taskId) {
-        Task task = repository.findTaskById(taskId);
+        int userId = userRepository.getLoggedInUserId();
+        Task task = repository.findTaskById(taskId, userId);
         if(task == null){
             throw new IllegalArgumentException("Không tìm thấy công việc!");
         }
