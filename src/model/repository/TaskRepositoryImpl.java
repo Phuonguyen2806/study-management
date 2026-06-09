@@ -29,8 +29,6 @@ public class TaskRepositoryImpl implements ITaskRepository {
         this.filePath = filePath;
         this.taskList.clear();
         File file = new File(filePath);
-        System.out.println("Path = " + file.getAbsolutePath());
-        System.out.println("Exists = " + file.exists());
         if (!file.exists()) return;
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
