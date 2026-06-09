@@ -15,6 +15,9 @@ public class TaskRepositoryImpl implements ITaskRepository {
     private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    public TaskRepositoryImpl() {
+        init(FILE_PATH);
+    }
 
     public List<Task> getAllTasks() {
 
@@ -133,4 +136,11 @@ public class TaskRepositoryImpl implements ITaskRepository {
             return false;
         }
     }
+
+
+    @Override
+    public void refresh() {
+        init(FILE_PATH);
+    }
+
 }
