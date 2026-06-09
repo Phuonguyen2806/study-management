@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskRepositoryImpl implements ITaskRepository {
-    private final String FILE_PATH = "data/tasks.txt";
+    private final String FILE_PATH = "study-management/data/tasks.txt";
     private String filePath;
     private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -20,7 +20,6 @@ public class TaskRepositoryImpl implements ITaskRepository {
     }
 
     public List<Task> getAllTasks() {
-
         return new ArrayList<>(this.taskList);
     }
 
@@ -30,6 +29,8 @@ public class TaskRepositoryImpl implements ITaskRepository {
         this.filePath = filePath;
         this.taskList.clear();
         File file = new File(filePath);
+        System.out.println("Path = " + file.getAbsolutePath());
+        System.out.println("Exists = " + file.exists());
         if (!file.exists()) return;
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
@@ -136,7 +137,6 @@ public class TaskRepositoryImpl implements ITaskRepository {
             return false;
         }
     }
-
 
     @Override
     public void refresh() {

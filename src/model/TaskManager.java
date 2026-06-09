@@ -90,7 +90,7 @@ public class TaskManager {
         }
     }
 
-    private int generateNextTaskId() {
+    public int generateNextTaskId() {
         int maxId = 0;
         for(Task task : repository.getAllTasks()) {
             if(task.getTaskId() > maxId) {

@@ -125,8 +125,7 @@ public class Task {
     }
 
     public boolean isPriority(String priority) {
-        return this.priority.name()
-                .equalsIgnoreCase(priority);
+        return this.priority.name().equalsIgnoreCase(priority);
     }
 
     @Override
