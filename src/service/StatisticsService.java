@@ -275,7 +275,6 @@ public Map<TaskStatus, Integer> getTaskStatusCounts() {
                 if (effectiveStatus != TaskStatus.DONE && taskDeadline.isBefore(now)) {
                     effectiveStatus = TaskStatus.OVERDUE;
                 }
-
                 // 3. Cập nhật vào map (IN_PROGRESS, TODO, DONE, hoặc OVERDUE đều nằm ở đây)
                 counts.put(effectiveStatus, counts.getOrDefault(effectiveStatus, 0) + 1);
             }

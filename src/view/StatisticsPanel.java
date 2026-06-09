@@ -76,7 +76,6 @@ public class StatisticsPanel extends JPanel {
     public void displayPomodoroCount(int count) {
         lblPomodoroCount.setText(String.valueOf(count));
     }
-
     public void displayTaskStatus(Map<TaskStatus, Integer> stats) {
         int pending = stats.getOrDefault(TaskStatus.PENDING, 0);
         int inProgress = stats.getOrDefault(TaskStatus.IN_PROGRESS, 0);

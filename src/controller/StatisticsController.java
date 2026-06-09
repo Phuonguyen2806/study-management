@@ -6,10 +6,7 @@ import model.entity.Task;
 import model.entity.TaskStatus;
 import model.entity.User;
 import service.StatisticsService;
-import view.MainFrame;
 import view.StatisticsPanel;
-import view.TaskPanel;
-
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +18,6 @@ public class StatisticsController {
 		this.view = view;
 		this.service = new StatisticsService();
 	}
-
 	// Trong StatisticsController.java
 	public void loadDailyStats(User currentUser) {
 		if (currentUser == null) return;
