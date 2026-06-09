@@ -1,5 +1,7 @@
 package view;
 
+import model.entity.Task;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -17,6 +19,9 @@ public class TaskForm extends JDialog {
     private JTextArea txtDescription;
     private JButton btnAdd, btnCancel;
 
+    private JLabel lblHeader;
+    private JLabel lblSubHeader;
+
 
     public TaskForm(Frame owner) {
         super(owner, "Thêm công việc mới", true);
@@ -32,13 +37,13 @@ public class TaskForm extends JDialog {
         pnlContent.setBorder(new EmptyBorder(25, 40, 25, 40));
 
         // Tiêu đề form
-        JLabel lblHeader = new JLabel("Thêm công việc mới");
+        lblHeader = new JLabel("Thêm công việc mới");
         lblHeader.setFont(FONT_TITLE);
         pnlContent.add(lblHeader);
 
         pnlContent.add(Box.createVerticalStrut(5)); // Khoảng cách nhỏ
 
-        JLabel lblSubHeader = new JLabel("Điền thông tin công việc và nhấn lưu");
+        lblSubHeader = new JLabel("Điền thông tin công việc và nhấn lưu");
         lblSubHeader.setFont(FONT_STATUS);
         lblSubHeader.setForeground(Color.GRAY);
         pnlContent.add(lblSubHeader);
@@ -70,7 +75,7 @@ public class TaskForm extends JDialog {
 
         // 3. Ưu tiên & Trạng thái
         pnlContent.add(createFieldGroup("Mức độ ưu tiên", cbPriority = new JComboBox<>(new String[]{"HIGH", "MEDIUM", "LOW"})));
-        pnlContent.add(createFieldGroup("Trạng thái", cbStatus = new JComboBox<>(new String[]{"PENDING", "IN_PROGRESS", "DONE"})));
+        pnlContent.add(createFieldGroup("Trạng thái", cbStatus = new JComboBox<>(new String[]{"PENDING", "IN_PROGRESS"})));
         //khoảng cách giữa các thành phần
         pnlContent.add(Box.createVerticalStrut(15));
 
@@ -93,7 +98,7 @@ public class TaskForm extends JDialog {
         btnCancel.setFont(FONT_BOLD);
         btnCancel.addActionListener(e -> dispose());
 
-        btnAdd = new JButton("Thêm");
+        btnAdd = new JButton("Lưu");
         btnAdd.setFont(FONT_BOLD);
         btnAdd.setBackground(new Color(13, 15, 28));
         btnAdd.setForeground(Color.WHITE);
@@ -166,6 +171,17 @@ public class TaskForm extends JDialog {
         }
     }
 
+    public void loadForm(Task task) {
+        setTitle("Chỉnh sửa công việc");
+        lblHeader.setText("Chỉnh sửa công việc");
+        lblSubHeader.setText("Cập nhật thông tin công việc");
+        setTitleInput(task.getTitle());
+        setDescriptionInput(task.getDescription());
+        setPriorityInput(task.getPriority().name());setStatusInput(task.getStatus().name());
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+        setDeadlineInput(sdf.format(task.getDeadline()));
+    }
+
     public String getTitleInput() {
         return txtTitle.getText().trim();
     }
@@ -188,10 +204,6 @@ public class TaskForm extends JDialog {
 
     public JButton getBtnAdd() {
         return btnAdd;
-    }
-
-    public JButton getBtnCancel() {
-        return btnCancel;
     }
 
     public void setTitleInput(String title) {

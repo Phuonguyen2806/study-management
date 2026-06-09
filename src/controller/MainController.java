@@ -1,10 +1,14 @@
 package controller;
 
+import model.entity.Priority;
+import model.entity.Task;
+import model.entity.TaskStatus;
 import view.*;
 
 import model.entity.User;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Date;
 
 public class MainController {
     private MainFrame mainFrame;
@@ -96,6 +100,9 @@ public class MainController {
                 System.exit(0);
             }
         });
+//        // 2. Gọi ReminderController quét danh sách task này (isAppOpen = true)
+        ReminderController reminderController = new ReminderController();
+        reminderController.startCheckingReminders(mainFrame);
 
         openFocusView();
         initEventListeners();

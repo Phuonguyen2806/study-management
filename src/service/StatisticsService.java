@@ -68,13 +68,12 @@ public class StatisticsService {
 		return count;
 	}
 
-	// Method getTodayTaskStatusStatistics(user): Lọc danh sách Task để đếm các
-	// trạng thái Done, Pending, Overdue và các Task có deadline gần nhất
-	// (getUpcomingTasks)
-    public Map<TaskStatus, Integer> getTodayTaskStatusStatistics(User user) {
-		Map<TaskStatus, Integer> stats = new EnumMap<>(TaskStatus.class);
-		for (TaskStatus status : TaskStatus.values())
-			stats.put(status, 0);
+    // Method getTodayTaskStatusStatistics(user): Lọc danh sách Task để đếm các
+    // trạng thái Done, Pending, Overdue và các Task có deadline gần nhất
+    // (getUpcomingTasks)
+    public Map<TaskStatus, Integer> getTodayTaskStatusStatistics() {
+        Map<TaskStatus, Integer> stats = new EnumMap<>(TaskStatus.class);
+        for (TaskStatus status : TaskStatus.values()) stats.put(status, 0);
 
 		int targetUserId = user.getUserId();
 		LocalDate today = LocalDate.now(); // 2026-05-29
