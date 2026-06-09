@@ -6,10 +6,7 @@ import model.entity.Task;
 import model.entity.TaskStatus;
 import model.entity.User;
 import service.StatisticsService;
-import view.MainFrame;
 import view.StatisticsPanel;
-import view.TaskPanel;
-
 import java.util.List;
 import java.util.Map;
 
@@ -21,34 +18,41 @@ public class StatisticsController {
 		this.view = view;
 		this.service = new StatisticsService();
 	}
-
+	// Trong StatisticsController.java
 	public void loadDailyStats(User currentUser) {
-		// Gọi Service lấy đối tượng DTO hoàn chỉnh
-		DailyStats stats = service.getDailyStats(currentUser);
-		List<Task> overdue = service.getOverdueTasks(currentUser);
-		List<Task> upcoming = service.getUpcomingTodayTasks(currentUser);
+		if (currentUser == null) return;
 
-		// Cập nhật lên View (Các phương thức hiển thị)
+		// Sử dụng service hiện có, đảm bảo lấy lại dữ liệu mới nhất
+		DailyStats stats = service.getDailyStats();
+		List<Task> overdue = service.getOverdueTasks();
+		List<Task> upcoming = service.getUpcomingTodayTasks();
+		Map<TaskStatus, Integer> statsMap = service.getTodayTaskStatusStatistics(); // Đảm bảo hàm này trả về dữ liệu đúng
+
+
+		// Cập nhật lên View
 		view.displayDailyStudyTime(stats.getTodayFocusTime());
 		view.displayPomodoroCount(stats.getPomodoroCount());
-		view.displayTaskStatus(stats.getTaskStatusMap());
+//		view.displayTaskStatus(stats.getTaskStatusMap());
 		view.displayDailyTables(overdue, upcoming);
-		// Refresh giao diện để vẽ lại kết quả
+		view.displayTaskStatus(statsMap);
+
 		view.refresh();
 	}
 
+
 	public void loadWeeklyStats(User currentUser) {
 		// Gọi Service
-		WeeklyStats weeklyStats = service.getWeeklyStatistics(currentUser);
-		Map<TaskStatus, Integer> counts = service.getTaskStatusCounts(currentUser);
-	    int total = counts.values().stream().mapToInt(Integer::intValue).sum();
-	    
+		WeeklyStats weeklyStats = service.getWeeklyStatistics();
+		Map<TaskStatus, Integer> counts = service.getTaskStatusCounts();
+		double total = counts.values().stream().mapToInt(Integer::intValue).sum();
+
 	    if (total > 0) {
-	        int done = (counts.getOrDefault(TaskStatus.DONE, 0) * 100) / total;
-	        int prog = (counts.getOrDefault(TaskStatus.IN_PROGRESS, 0) * 100) / total;
-	        int over = 100 - done - prog;
-	        
-	        view.updatePieChartData(done, prog, over);
+			double done = (counts.getOrDefault(TaskStatus.DONE, 0) * 100) / total;
+			double prog = (counts.getOrDefault(TaskStatus.IN_PROGRESS, 0) * 100) / total;
+			double pend = (counts.getOrDefault(TaskStatus.PENDING, 0) * 100) / total;
+			double over = Math.max(0, 100 - done - prog - pend);
+
+					view.updatePieChartData(done, prog, over, pend);
 	    }
 		// Giai đoạn 4: Hiển thị lên UI
 		double avgTime = weeklyStats.getAverageFocusTime();
@@ -57,7 +61,6 @@ public class StatisticsController {
 		// Sửa dòng bị lỗi trong StatisticsController.java thành:
 		double completionRate = weeklyStats.getCompletionRate();
 		view.showTaskCompletionPieChart(completionRate);
-
 		view.refresh(); // Vẽ lại giao diện
 	}
 }

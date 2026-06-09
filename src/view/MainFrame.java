@@ -91,6 +91,7 @@ public class MainFrame extends JFrame {
         focusPanel = new FocusPanel();
         taskPanel = new TaskPanel();
         goalPanel = new GoalPanel();
+
         statisticsPanel = new StatisticsPanel();
 
         // Thêm các lá (Leaf Nodes) vào CardLayout Composite

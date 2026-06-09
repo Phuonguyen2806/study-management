@@ -18,4 +18,6 @@ public interface IUserRepository {
     public int getLoggedInUserId();
 
     public User getUserById(int userId);
+
+    public String getEmailByUserId(int userId);
 }
