@@ -8,19 +8,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
-/**
- * VIEW: ProfilePopupView
- *
- * Popup nổi hiển thị khi nhấn nút "Hồ sơ" trên sidebar.
- * Khớp chính xác với mockup:
- *
- *   ┌──────────────────────────────────┐
- *   │  Nguyễn Văn A      │  ← email xám
- *      email
- *   ├──────────────────────────────────┤
- *   │  →  Đăng xuất                   │  ← hover xám nhạt
- *   └──────────────────────────────────┘
- */
 public class ProfilePopupView extends JWindow {
 
     // ── Màu sắc ───────────────────────────────────────────────────────────────
@@ -55,9 +42,7 @@ public class ProfilePopupView extends JWindow {
         registerAutoClose();
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
     //  XÂY DỰNG UI
-    // ═════════════════════════════════════════════════════════════════════════
     private void buildUI() {
         // Root panel vẽ bóng + bo góc
         JPanel root = new JPanel(new BorderLayout()) {
@@ -180,7 +165,23 @@ public class ProfilePopupView extends JWindow {
             }
             @Override public void mouseClicked(MouseEvent e) {
                 setVisible(false);
-                if (onLogoutClicked != null) onLogoutClicked.run();
+                UIManager.put("OptionPane.yesButtonText", "Có");
+                UIManager.put("OptionPane.noButtonText", "Không");
+                int confirm = JOptionPane.showConfirmDialog(
+                        ProfilePopupView.this,
+                        "Bạn có chắc chắn muốn đăng xuất không?",
+                        "Xác nhận đăng xuất",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
+
+                // 3. Nếu người dùng chọn "Có" (YES_OPTION)
+                if (confirm == JOptionPane.YES_OPTION) {
+                    if (onLogoutClicked != null) {
+                        onLogoutClicked.run(); // Chạy callback để xử lý đăng xuất
+
+                    }
+                }
             }
         });
         JPanel wrapper = new JPanel(new BorderLayout());

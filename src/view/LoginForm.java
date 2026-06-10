@@ -85,5 +85,9 @@ public class LoginForm extends JFrame {
     public JButton getBtnRegister() {
         return btnRegister;
     }
-
+    // Thêm hàm này vào cuối file LoginForm.java để xóa chữ khi đăng xuất
+    public void clearInputs() {
+        tEmail.setText("");
+        pass.setText("");
+    }
 }
