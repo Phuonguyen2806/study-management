@@ -20,11 +20,11 @@ public class TaskController {
     private Frame owner;
     private TaskManager taskManager;
 
-    public TaskController(TaskPanel view, Frame owner) {
+    public TaskController(TaskPanel view, Frame owner,ITaskRepository repository,
+                          IUserRepository userRepository) {
         this.view = view;
         this.owner = owner;
-        ITaskRepository repository = new TaskRepositoryImpl();
-        this.userRepository = new UserRepository();
+        this.userRepository = userRepository;
         repository.init(AppConstants.FILE_TASKS);
         taskManager = new TaskManager(repository, userRepository);
         initEvents();
