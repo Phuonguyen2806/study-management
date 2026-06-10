@@ -24,7 +24,7 @@ public class TaskController {
         this.owner = owner;
         ITaskRepository repository = new TaskRepositoryImpl();
         this.userRepository = new UserRepository();
-        repository.init("data/tasks.txt");
+        repository.init("study-management/data/tasks.txt");
         taskManager = new TaskManager(repository, userRepository);
         initEvents();
         refreshView();
@@ -96,7 +96,7 @@ public class TaskController {
         }
     }
 
-    private void handleEditTask(int taskId) {
+    public void handleEditTask(int taskId) {
         Task task = taskManager.getTaskById(taskId);
         TaskForm form = new TaskForm(owner);
         form.loadForm(task);
@@ -105,7 +105,7 @@ public class TaskController {
 
     }
 
-    private void updateTask(TaskForm form, int taskId) {
+    public void updateTask(TaskForm form, int taskId) {
         try {
             taskManager.updateTask(
                     taskId,
