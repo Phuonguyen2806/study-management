@@ -6,7 +6,7 @@ import java.util.*;
 
 
 public class UserRepository  implements IUserRepository {
-    private final String FILE_PATH = "data/users.txt";
+    private final String FILE_PATH = "study-management/data/users.txt";
 
     public UserRepository() {
     }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskRepositoryImpl implements ITaskRepository {
-    private final String FILE_PATH = "data/tasks.txt";
+    private final String FILE_PATH = "study-management/data/tasks.txt";
     private String filePath;
     private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -56,19 +56,29 @@ public class TaskRepositoryImpl implements ITaskRepository {
     }
 
     @Override
-    public List<Task> findTasksByStatus(String status) {
+    public List<Task> findTasksByStatus(String status, int userID) {
         List<Task> result = new ArrayList<>();
         for (Task task : taskList) {
-            if (task.getStatus().name().equalsIgnoreCase(status)) {
+            if (task.isStatus(status)&& task.isUserTask(userID)) {
                 result.add(task);
             }
         }
         return result;
     }
 
-    public Task findTaskById(int taskId) {
+    public List<Task> findTasksByUserId(int userId) {
+        List<Task> result = new ArrayList<>();
         for (Task task : taskList) {
-            if (task.getTaskId() == taskId) {
+            if (task.isUserTask(userId)) {
+                result.add(task);
+            }
+        }
+        return result;
+    }
+
+    public Task findTaskById(int taskId,int userId) {
+        for (Task task : taskList) {
+            if (task.isTaskID(taskId) && task.isUserTask(userId)) {
                 return task;
             }
         }
@@ -81,9 +91,9 @@ public class TaskRepositoryImpl implements ITaskRepository {
         return saveToFile();
     }
 
-    public boolean delete(int taskId) {
+    public boolean delete(int taskId, int userId) {
         for (int i = 0; i < taskList.size(); i++) {
-            if (taskList.get(i).getTaskId() == taskId) {
+            if (taskList.get(i).isTaskID(taskId) && taskList.get(i).isUserTask(userId)) {
                 taskList.remove(i);
                 return saveToFile();
             }
@@ -94,7 +104,7 @@ public class TaskRepositoryImpl implements ITaskRepository {
     // 3. CẬP NHẬT CÔNG VIỆC VÀ GHI LẠI VÀO FILE
     public boolean update(Task updatedTask) {
         for (int i = 0; i < taskList.size(); i++) {
-            if (taskList.get(i).getTaskId() == updatedTask.getTaskId()) {
+            if (taskList.get(i).checkIDTask(updatedTask) && taskList.get(i).checkUserTask(updatedTask)) {
                 taskList.set(i, updatedTask);
                 return saveToFile();
             }
@@ -103,7 +113,7 @@ public class TaskRepositoryImpl implements ITaskRepository {
     }
 
     // HÀM HỖ TRỢ: GHI ĐÈ BỘ NHỚ XUỐNG FILE TXT
-    private boolean saveToFile() {
+    public boolean saveToFile() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, false))) {
             for (Task task : taskList) {
                 bw.write(
@@ -125,7 +135,6 @@ public class TaskRepositoryImpl implements ITaskRepository {
             return false;
         }
     }
-
 
     @Override
     public void refresh() {
