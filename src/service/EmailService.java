@@ -4,12 +4,7 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import model.repository.IUserRepository;
-
 import java.util.Properties;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
 public class EmailService {
     private IUserRepository userRepository;
     private final Session session;
