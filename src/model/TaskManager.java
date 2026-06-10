@@ -34,7 +34,7 @@ public class TaskManager {
         }
         int nextId = generateNextTaskId();
         Task task = new Task(nextId, title, description, deadline, Priority.valueOf(priority), 0, 0, TaskStatus.valueOf(status), userId);
-        if (!repository.save(task, userId)) {
+        if (!repository.save(task)) {
             throw new IllegalStateException("Không thể lưu công việc!");
         }
     }

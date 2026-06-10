@@ -10,7 +10,7 @@ public interface ITaskRepository {
     public List<Task> findTasksByStatus(String status, int userID); // Tìm công việc theo trạng thái
     public Task findTaskById(int taskId, int userId);
     public List<Task> findTasksByUserId(int userId);
-    public boolean save(Task task, int userId);//hàm thêm task hoặc lưu task
+    public boolean save(Task task);//hàm thêm task hoặc lưu task
     public boolean update(Task updatedTask);
     public boolean delete(int taskId,int userId);
     public void refresh();

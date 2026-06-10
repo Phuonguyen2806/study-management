@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskRepositoryImpl implements ITaskRepository {
-    private final String FILE_PATH = AppConstants.FILE_TASKS;
     private String filePath;
     private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public TaskRepositoryImpl() {
-        init(FILE_PATH);
+        init(AppConstants.FILE_TASKS);
     }
 
     public List<Task> getAllTasks() {
@@ -87,7 +86,7 @@ public class TaskRepositoryImpl implements ITaskRepository {
     }
 
     // hàm dùng để thêm task và lưu lại trong file
-    public boolean save(Task task, int userId) {
+    public boolean save(Task task) {
         taskList.add(task);
         return saveToFile();
     }
@@ -139,7 +138,7 @@ public class TaskRepositoryImpl implements ITaskRepository {
 
     @Override
     public void refresh() {
-        init(FILE_PATH);
+        init(AppConstants.FILE_TASKS);
     }
 
 }

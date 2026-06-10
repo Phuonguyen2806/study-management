@@ -78,7 +78,7 @@ public class MainController {
         MotivationService motivationService = new MotivationService();
         studySessionRepository = new StudySessionRepositoryImpl();
         // Khởi tạo Task
-        this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
+        this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame, taskRepository, userRepository);
         // Khởi tạo Focus
         FocusPanel focusPanel = this.mainFrame.getFocusPanel();
         this.focusController = new FocusController(focusPanel,taskRepository,userRepository, studySessionRepository);
@@ -123,7 +123,10 @@ public class MainController {
 
     private void initEventListeners() {
         mainFrame.getBtnTapTrung().addActionListener(e -> openFocusView());
-        mainFrame.getBtnQuanLyBaiTap().addActionListener(e -> openTaskManagementView());
+        mainFrame.getBtnQuanLyBaiTap().addActionListener(e -> {
+            openTaskManagementView();
+            taskController.refreshView();
+        });
         mainFrame.getBtnMucTieu().addActionListener(e -> openGoalTrackingView());
         mainFrame.getBtnThongKe().addActionListener(e -> openStatisticTrackingView());
         mainFrame.getBtnHoSo().addActionListener(e -> openProfileTrackingView());
