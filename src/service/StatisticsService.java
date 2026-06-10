@@ -4,8 +4,7 @@ import model.dto.DailyStats;
 import model.dto.WeeklyStats;
 import model.entity.*;
 import model.repository.ITaskRepository;
-import model.repository.UserRepository;
-
+import model.repository.IUserRepository;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -17,11 +16,12 @@ import java.util.*;
 
 public class StatisticsService {
     private final String SESSION_FILE_PATH = "data/studysessions.txt";
-    private final UserRepository userRepository = new UserRepository();
+    private final IUserRepository userRepository;
     private final ITaskRepository taskRepository;
 
-    public StatisticsService(ITaskRepository taskRepository) {
+    public StatisticsService(ITaskRepository taskRepository, IUserRepository userRepository) {
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
     private int getLoggedInId() {
@@ -240,9 +240,9 @@ public class StatisticsService {
     }
 
     private boolean isTaskCompletedTodayButNotDeadline(int taskId) {
+        int loggedInId = userRepository.getLoggedInUserId();
         LocalDate today = LocalDate.now();
-
-        Task task = taskRepository.findTaskById(taskId); // Gọi phương thức tìm Task theo ID
+        Task task = taskRepository.findTaskById(taskId, loggedInId); // Gọi phương thức tìm Task theo ID
         // Kiểm tra tính hợp lệ
         if (task == null || task.getDeadline() == null) {
             return false;

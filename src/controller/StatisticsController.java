@@ -6,6 +6,7 @@ import model.entity.Task;
 import model.entity.TaskStatus;
 import model.entity.User;
 import model.repository.ITaskRepository;
+import model.repository.IUserRepository;
 import model.repository.TaskRepositoryImpl;
 import service.StatisticsService;
 import view.StatisticsPanel;
@@ -19,11 +20,13 @@ public class StatisticsController {
 	private StatisticsPanel view;
 	private StatisticsService service;
 	private ITaskRepository taskRepository;
+	private IUserRepository userRepository;
 	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-	public StatisticsController(StatisticsPanel view) {
-		this.taskRepository = new TaskRepositoryImpl();
+	public StatisticsController(StatisticsPanel view, ITaskRepository taskRepo, IUserRepository userRepo) {
 		this.view = view;
-		this.service = new StatisticsService(this.taskRepository);
+		this.taskRepository = taskRepo;
+		this.userRepository = userRepo;
+		this.service = new StatisticsService(this.taskRepository, this.userRepository);
 // KÍCH HOẠT SCHEDULER
 		scheduler.scheduleAtFixedRate(() -> {
 			// Kiểm tra nếu view vẫn tồn tại thì mới làm mới dữ liệu

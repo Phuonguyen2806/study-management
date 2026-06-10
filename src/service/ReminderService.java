@@ -3,9 +3,7 @@ package service;
 import model.entity.ReminderLog;
 import model.entity.Task;
 import model.entity.TaskStatus;
-import model.repository.IReminderRepository;
-import model.repository.TaskRepositoryImpl;
-import model.repository.UserRepository;
+import model.repository.*;
 import model.strategy.EmailStrategy;
 import model.strategy.NotificationStrategy;
 import model.strategy.PushStrategy;
@@ -15,15 +13,19 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class ReminderService {
-    private final MotivationService motivationService = new MotivationService();
-    private final UserRepository userRepository = new UserRepository();
-    private final TaskRepositoryImpl taskRepository = new TaskRepositoryImpl();
+    private final MotivationService motivationService;
+    private final IUserRepository userRepository;
+    private final ITaskRepository taskRepository;
     private final IReminderRepository reminderRepository;
     private static final long REMINDER_THRESHOLD_MINUTES = 120;
     private static final Set<Integer> notifiedTaskIds = new HashSet<>();
     private final java.util.concurrent.ExecutorService emailExecutor = java.util.concurrent.Executors.newCachedThreadPool();
     // Constructor Injection: Khởi tạo repository khi tạo Service
-    public ReminderService(IReminderRepository reminderRepository) {
+    public ReminderService(MotivationService motivationService,IUserRepository userRepository,
+                           ITaskRepository taskRepository, IReminderRepository reminderRepository) {
+        this.motivationService = motivationService;
+        this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
         this.reminderRepository = reminderRepository;
         // TỰ ĐỘNG LOAD LẠI CÁC TASK ĐÃ NHẮC NHỞ KHI KHỞI TẠO
         loadNotifiedTasks();

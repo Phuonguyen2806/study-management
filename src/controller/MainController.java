@@ -3,6 +3,9 @@ package controller;
 import model.entity.Priority;
 import model.entity.Task;
 import model.entity.TaskStatus;
+import model.repository.*;
+import service.MotivationService;
+import service.ReminderService;
 import view.*;
 
 import model.entity.User;
@@ -69,6 +72,11 @@ public class MainController {
     public void startMainApp() {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
+        //Khởi tạo repo
+        ITaskRepository taskRepo = new TaskRepositoryImpl();
+        IReminderRepository reminderRepo = new ReminderRepository();
+        IUserRepository userRepo = new UserRepository();
+        MotivationService motivationService = new MotivationService();
         // Khởi tạo Task
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
         // Khởi tạo Focus
@@ -81,7 +89,7 @@ public class MainController {
         this.goalController.initialize(goalPanel);
         // Khởi tạo Statistic
         StatisticsPanel statisticsPanel = this.mainFrame.getStatisticsPanel();
-        this.statisticsController = new StatisticsController(mainFrame.getStatisticsPanel());
+        this.statisticsController = new StatisticsController(mainFrame.getStatisticsPanel(),taskRepo, userRepo );
         // Bơm dữ liệu User vào cho Popup Hồ sơ
         this.mainFrame.getProfilePopupView().fillUser(this.currentUser);
 
@@ -100,8 +108,12 @@ public class MainController {
                 System.exit(0);
             }
         });
+        ReminderService reminderService = new ReminderService(motivationService,
+                userRepo,
+                taskRepo,
+                reminderRepo);
+        ReminderController reminderController = new ReminderController(taskRepo, reminderService);
 //        // 2. Gọi ReminderController quét danh sách task này (isAppOpen = true)
-        ReminderController reminderController = new ReminderController();
         reminderController.startCheckingReminders(mainFrame);
 
         openFocusView();

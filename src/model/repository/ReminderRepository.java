@@ -9,7 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReminderRepository implements IReminderRepository {
+    private final String FILE_PATH = "data/reminders.txt";
     private String filePath;
+
+    public ReminderRepository() {
+        init(FILE_PATH);
+    }
 
     @Override
     public void init(String filePath) {
