@@ -55,17 +55,6 @@ public class TaskRepositoryImpl implements ITaskRepository {
         }
     }
 
-    @Override
-    public List<Task> findTasksByStatus(String status, int userID) {
-        List<Task> result = new ArrayList<>();
-        for (Task task : taskList) {
-            if (task.isStatus(status)&& task.isUserTask(userID)) {
-                result.add(task);
-            }
-        }
-        return result;
-    }
-
     public List<Task> findTasksByUserId(int userId) {
         List<Task> result = new ArrayList<>();
         for (Task task : taskList) {
