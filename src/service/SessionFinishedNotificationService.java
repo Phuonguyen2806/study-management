@@ -29,7 +29,7 @@ public class SessionFinishedNotificationService implements FocusSessionObserver 
             // 2. Xác định nội dung thông báo
             String message = (event.getStudySession().getSessionType() == SessionType.FOCUS)
                     ? "Phiên học đã hoàn thành. Hãy nghỉ ngơi một chút nhé!"
-                    : "Thời gian nghỉ đã hết. Hãy bắt đầu phiên học tiếp theo";
+                    : "Thời gian nghỉ đã hết. Hãy bắt đầu phiên học tiếp theo!";
 
             // 3. Hiện thông báo trên màn hình
             SwingUtilities.invokeLater(() -> {
