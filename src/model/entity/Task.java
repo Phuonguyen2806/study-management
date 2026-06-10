@@ -89,7 +89,7 @@ public class Task {
     }
 
     public boolean isUserTask(int userId) {
-        return this.userId == this.userId;
+        return this.userId == userId;
     }
     public boolean checkOverdue() {
         if ((status == TaskStatus.PENDING  || status == TaskStatus.IN_PROGRESS) && deadline.before(new Date())) {
@@ -98,6 +98,22 @@ public class Task {
         }
 
         return false;
+    }
+
+    public boolean isTaskID(int taskId) {
+        return this.taskId == taskId;
+    }
+
+    public boolean checkIDTask(Task task) {
+        return this.taskId == task.getTaskId();
+    }
+
+    public boolean checkUserTask(Task task) {
+        return this.userId == task.getUserId();
+    }
+
+    public boolean isStatus(String status) {
+        return this.status.name().equalsIgnoreCase(status);
     }
 
     public boolean isOverdue() {
@@ -109,15 +125,12 @@ public class Task {
     }
 
     public boolean isPriority(String priority) {
-        return this.priority.name()
-                .equalsIgnoreCase(priority);
+        return this.priority.name().equalsIgnoreCase(priority);
     }
-
     @Override
     public String toString() {
         return "Task: " + title + " [" + status + "] - Priority: " + priority;
     }
-
 }
 
 
