@@ -144,8 +144,16 @@ public class StatisticsService {
 
     // Method getTodayFocusTime(user): Truy vấn tổng thời gian từ các StudySession
     // có ngày trùng với hôm nay.
-
+    // 2. Phương thức cũ (giữ nguyên để tránh lỗi ở các phần khác trong app)
     public double getTodayFocusTime() {
+        return Math.round(calculateRawTodayFocusTime() * 10.0) / 10.0;
+    }
+
+    // 3. Phương thức mới (không làm tròn)
+    public double getTodayTime() {
+        return calculateRawTodayFocusTime();
+    }
+    public double calculateRawTodayFocusTime() {
         double totalSeconds = 0;
         LocalDate today = LocalDate.now();
         for (StudySession session : getStudySessionsByUser()) {
