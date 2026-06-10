@@ -164,8 +164,6 @@ public class StatisticsService {
         }
         return Math.round((totalSeconds / 3600.0) * 10.0) / 10.0;
     }
-
-
     public List<Task> getOverdueTasks() {
         List<Task> tasks = getCurrentUserTasks();
         List<Task> overdueTasks = new ArrayList<>();
