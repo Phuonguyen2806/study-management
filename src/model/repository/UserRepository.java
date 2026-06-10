@@ -120,14 +120,6 @@ public class UserRepository  implements IUserRepository {
         }
         return null;
     }
-    @Override
-    public String getEmailByUserId(int userId) {
-        User user = getUserById(userId); // Sử dụng lại hàm đã có sẵn
-        if (user != null) {
-            return user.getEmail();
-        }
-        return null; // Trả về null nếu không tìm thấy user
-    }
 
     private String formatUserToLine(User u) {
         return u.getUserID() + "|" + u.getFullName() + "|" + u.getEmail() + "|" + u.getPasswd() + "|" + u.isLogin();

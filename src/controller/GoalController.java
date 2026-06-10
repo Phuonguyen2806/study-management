@@ -5,6 +5,8 @@ import model.entity.Goal;
 import model.entity.GoalStatus;
 import model.entity.TaskStatus;
 import model.entity.User;
+import model.repository.ITaskRepository;
+import model.repository.IUserRepository;
 import service.GoalService;
 import service.StatisticsService;
 import view.GoalPanel;
@@ -23,11 +25,13 @@ public class GoalController {
     private User currentUser; // ĐÃ BỔ SUNG: Biến toàn cục lưu trữ User đăng nhập
 
 
-    public GoalController() {
+    public GoalController(ITaskRepository taskRepository, IUserRepository userRepository) {
         this.goalService = new GoalService();
-        this.statisticsService = new StatisticsService(); // Khởi tạo service thống kê
+        // Truyền các repository bắt buộc vào đây
+        this.statisticsService = new StatisticsService(taskRepository, userRepository);
         this.selectedDate = LocalDate.now();
     }
+
 
 
     public void setGoalPanel(GoalPanel panel) {
@@ -64,7 +68,7 @@ public class GoalController {
 
         // 1. Thực hiện đồng bộ số liệu THƯỚC (Nếu là ngày hôm nay)
         if (selectedDate.equals(LocalDate.now())) {
-            double hoursToday = statisticsService.getTodayFocusTime();
+            double hoursToday = statisticsService.getTodayTime();
             Map<TaskStatus, Integer> taskStats = statisticsService.getTodayTaskStatusStatistics();
             int tasksDoneToday = taskStats.getOrDefault(TaskStatus.DONE, 0);
 
