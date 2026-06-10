@@ -16,9 +16,7 @@ import java.io.File;
  */
 
 public class SessionFinishedNotificationService implements FocusSessionObserver {
-
-    public SessionFinishedNotificationService() {
-    }
+    private final String soundPath = AppConstants.FILE_ALARM;
 
     @Override
     public void onSessionCompleted(FocusSessionEvent event) {
@@ -50,9 +48,9 @@ public class SessionFinishedNotificationService implements FocusSessionObserver 
 
     private void playLongAlarm() {
         try {
-            File audioFile = new File(AppConstants.FILE_ALARM);
+            File audioFile = new File(soundPath);
             if (!audioFile.exists()) {
-                System.err.println("Không tìm thấy file chuông tại: " + AppConstants.FILE_ALARM);
+                System.err.println("Không tìm thấy file chuông tại: " + soundPath);
                 return;
             }
 

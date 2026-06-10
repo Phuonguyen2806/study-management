@@ -1,5 +1,6 @@
 package model.repository;
 
+import config.AppConstants;
 import model.entity.ReminderLog;
 import model.entity.Task;
 
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReminderRepository implements IReminderRepository {
-    private final String FILE_PATH = "data/reminders.txt";
+    private final String FILE_PATH = AppConstants.FILE_REMINDERS;
     private String filePath;
 
     public ReminderRepository() {

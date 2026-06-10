@@ -1,5 +1,6 @@
 package service;
 
+import config.AppConstants;
 import model.dto.DailyStats;
 import model.dto.WeeklyStats;
 import model.entity.*;
@@ -15,7 +16,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 public class StatisticsService {
-    private final String SESSION_FILE_PATH = "data/studysessions.txt";
+    private final String SESSION_FILE_PATH = AppConstants.FILE_STUDY_SESSIONS;
     private final IUserRepository userRepository;
     private final ITaskRepository taskRepository;
 

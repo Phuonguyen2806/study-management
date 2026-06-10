@@ -91,7 +91,6 @@ public class MainFrame extends JFrame {
         focusPanel = new FocusPanel();
         taskPanel = new TaskPanel();
         goalPanel = new GoalPanel();
-
         statisticsPanel = new StatisticsPanel();
 
         // Thêm các lá (Leaf Nodes) vào CardLayout Composite
@@ -100,9 +99,6 @@ public class MainFrame extends JFrame {
         contentPanel.add(goalPanel, "MucTieu");
         contentPanel.add(statisticsPanel, "ThongKe");
 
-        profilePopupView = new ProfilePopupView(this); // Truyền 'this' (MainFrame) làm owner Window
-        User mockUser = new User("Nguyễn Văn A", "24130689@st.hcmuaf.edu.vn",  "123");
-        profilePopupView.fillUser(mockUser);
         add(contentPanel, BorderLayout.CENTER);
         // Nút "Hồ sơ" bật popup nhỏ bên cạnh !
         btnHoSo.addActionListener(e -> {
@@ -128,6 +124,7 @@ public class MainFrame extends JFrame {
             public void mouseEntered(MouseEvent evt) {
                 if (btn != currentActiveButton) btn.setBackground(new Color(245, 245, 245));
             }
+
             public void mouseExited(MouseEvent evt) {
                 if (btn != currentActiveButton) btn.setBackground(Color.WHITE);
             }
@@ -156,22 +153,47 @@ public class MainFrame extends JFrame {
         return panel;
     }
 
-    public JButton getBtnTapTrung() { return btnTapTrung; }
-    public JButton getBtnQuanLyBaiTap() { return btnQuanLyBaiTap; }
-    public JButton getBtnMucTieu() { return btnMucTieu; }
-    public JButton getBtnThongKe() { return btnThongKe; }
-    public JButton getBtnHoSo() { return btnHoSo; }
+    public JButton getBtnTapTrung() {
+        return btnTapTrung;
+    }
+
+    public JButton getBtnQuanLyBaiTap() {
+        return btnQuanLyBaiTap;
+    }
+
+    public JButton getBtnMucTieu() {
+        return btnMucTieu;
+    }
+
+    public JButton getBtnThongKe() {
+        return btnThongKe;
+    }
+
+    public JButton getBtnHoSo() {
+        return btnHoSo;
+    }
 
     public void switchCard(String cardName) {
         cardLayout.show(contentPanel, cardName);
     }
 
-    public FocusPanel getFocusPanel() { return focusPanel; }
-    public TaskPanel getTaskPanel() { return taskPanel; }
-    public GoalPanel getGoalPanel() { return goalPanel; }
-    public ProfilePopupView getProfilePopupView() { return profilePopupView; }
+    public FocusPanel getFocusPanel() {
+        return focusPanel;
+    }
 
-	public StatisticsPanel getStatisticsPanel() {
-		return statisticsPanel;
-	}
+    public TaskPanel getTaskPanel() {
+        return taskPanel;
+    }
+
+    public GoalPanel getGoalPanel() {
+        return goalPanel;
+    }
+
+    public ProfilePopupView getProfilePopupView() {
+        return profilePopupView;
+    }
+
+    public StatisticsPanel getStatisticsPanel() {
+        return statisticsPanel;
+    }
 }

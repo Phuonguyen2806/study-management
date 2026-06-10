@@ -1,5 +1,7 @@
 package service;
 
+import config.AppConstants;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -8,7 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 public class MotivationService {
-    private final String QUOTES_FILE = "data/quotes.txt";
+    private final String QUOTES_FILE = AppConstants.FILE_QUOTES;
     private List<String> quotes;
     private Random random;
 

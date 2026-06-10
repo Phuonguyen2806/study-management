@@ -6,10 +6,7 @@ import model.entity.FocusStatus;
 import model.entity.SessionType;
 import model.entity.Task;
 import model.entity.TaskStatus;
-import model.repository.ITaskRepository;
-import model.repository.IUserRepository;
-import model.repository.TaskRepositoryImpl;
-import model.repository.UserRepository;
+import model.repository.*;
 import service.ProgressTrackingService;
 import service.SessionFinishedNotificationService;
 import view.FocusPanel;
@@ -22,16 +19,18 @@ public class FocusController implements IFocusController {
     private FocusSessionManager sessionManager;
     private ITaskRepository taskRepository;
     private IUserRepository userRepository;
+    private IStudySessionRepository studySessionRepository;
 
     // Hàm khởi tạo: Kết nối View, nạp file dữ liệu và cắm các bộ lắng nghe (Observer)
-    public FocusController(FocusPanel view,ITaskRepository taskRepository, IUserRepository userRepository) {
+    public FocusController(FocusPanel view,ITaskRepository taskRepository, IUserRepository userRepository,IStudySessionRepository studySessionRepository) {
         this.view = view;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.studySessionRepository = studySessionRepository;
         this.sessionManager = new FocusSessionManager(userRepository);
 
         // 1. Cắm ổ cắm History để ghi file khi kết thúc
-        ProgressTrackingService progressService = new ProgressTrackingService(this.taskRepository);
+        ProgressTrackingService progressService = new ProgressTrackingService(this.taskRepository, this.studySessionRepository);
         this.sessionManager.addFocusSessionObserver(progressService);
 
         // 2. Cắm ổ cắm View để giao diện tự động nhảy số theo thời gian thực
@@ -46,16 +45,17 @@ public class FocusController implements IFocusController {
     @Override
     public void handleSelectTaskClick() {
         this.taskRepository.init(AppConstants.FILE_TASKS);
-        List<Task> allTasks = taskRepository.getAllTasks();
-
-        List<Task> userTasks = new ArrayList<>();
         int loggedInId = userRepository.getLoggedInUserId();
-        for (Task task : allTasks) {
-            if (task.getUserId() == loggedInId && task.getStatus() != TaskStatus.DONE) {
-                userTasks.add(task);
+        // 1. Dùng hàm findTasksByUserId của Repository để lấy danh sách Task của user hiện tại
+        List<Task> userTasks = taskRepository.findTasksByUserId(loggedInId);
+        // 2. Lọc bỏ các Task đã hoàn thành (DONE) trước khi đưa lên View
+        List<Task> pendingTasks = new ArrayList<>();
+        for (Task task : userTasks) {
+            if (task.getStatus() != TaskStatus.DONE) {
+                pendingTasks.add(task);
             }
         }
-        Task selectedTask = view.showTaskSelectionDialog(userTasks);
+        Task selectedTask = view.showTaskSelectionDialog(pendingTasks);
         if (selectedTask != null) {
             int est;
 
