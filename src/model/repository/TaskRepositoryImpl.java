@@ -1,5 +1,6 @@
 package model.repository;
 
+import config.AppConstants;
 import model.entity.Priority;
 import model.entity.Task;
 import model.entity.TaskStatus;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskRepositoryImpl implements ITaskRepository {
-    private final String FILE_PATH = "study-management/data/tasks.txt";
+    private final String FILE_PATH = AppConstants.FILE_TASKS;
     private String filePath;
     private final List<Task> taskList = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

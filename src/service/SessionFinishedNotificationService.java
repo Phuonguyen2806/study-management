@@ -1,5 +1,6 @@
 package service;
 
+import config.AppConstants;
 import model.entity.SessionStatus;
 import model.observer.FocusSessionEvent;
 import model.entity.SessionType;
@@ -15,7 +16,9 @@ import java.io.File;
  */
 
 public class SessionFinishedNotificationService implements FocusSessionObserver {
-    private final String soundPath = "data/alarm.wav";
+
+    public SessionFinishedNotificationService() {
+    }
 
     @Override
     public void onSessionCompleted(FocusSessionEvent event) {
@@ -28,7 +31,7 @@ public class SessionFinishedNotificationService implements FocusSessionObserver 
             // 2. Xác định nội dung thông báo
             String message = (event.getStudySession().getSessionType() == SessionType.FOCUS)
                     ? "Phiên học đã hoàn thành. Hãy nghỉ ngơi một chút nhé!"
-                    : "Thời gian nghỉ đã hết. Hãy bắt đầu phiên học...";
+                    : "Thời gian nghỉ đã hết. Hãy bắt đầu phiên học tiếp theo";
 
             // 3. Hiện thông báo trên màn hình
             SwingUtilities.invokeLater(() -> {
@@ -47,9 +50,9 @@ public class SessionFinishedNotificationService implements FocusSessionObserver 
 
     private void playLongAlarm() {
         try {
-            File audioFile = new File(soundPath);
+            File audioFile = new File(AppConstants.FILE_ALARM);
             if (!audioFile.exists()) {
-                System.err.println("Không tìm thấy file chuông tại: " + soundPath);
+                System.err.println("Không tìm thấy file chuông tại: " + AppConstants.FILE_ALARM);
                 return;
             }
 

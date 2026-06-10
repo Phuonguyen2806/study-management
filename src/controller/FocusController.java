@@ -1,5 +1,6 @@
 package controller;
 
+import config.AppConstants;
 import model.FocusSessionManager;
 import model.entity.FocusStatus;
 import model.entity.SessionType;
@@ -13,7 +14,6 @@ import service.ProgressTrackingService;
 import service.SessionFinishedNotificationService;
 import view.FocusPanel;
 
-import javax.swing.JOptionPane;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +24,10 @@ public class FocusController implements IFocusController {
     private IUserRepository userRepository;
 
     // Hàm khởi tạo: Kết nối View, nạp file dữ liệu và cắm các bộ lắng nghe (Observer)
-    public FocusController(FocusPanel view) {
+    public FocusController(FocusPanel view,ITaskRepository taskRepository, IUserRepository userRepository) {
         this.view = view;
-        this.taskRepository = new TaskRepositoryImpl();
-        this.taskRepository.init("data/tasks.txt");
-        userRepository = new UserRepository();
+        this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
         this.sessionManager = new FocusSessionManager(userRepository);
 
         // 1. Cắm ổ cắm History để ghi file khi kết thúc
@@ -39,13 +38,14 @@ public class FocusController implements IFocusController {
         this.sessionManager.addViewObserver(this.view);
 
         // 3. Cắm ổ cắm Âm thanh để đánh chuông khi hết giờ
-        this.sessionManager.addFocusSessionObserver(new SessionFinishedNotificationService());
+        SessionFinishedNotificationService sessionFinishedNotificationService =new SessionFinishedNotificationService();
+        this.sessionManager.addFocusSessionObserver(sessionFinishedNotificationService);
     }
 
     // Nút [Chọn công việc]: Lọc file và chỉ hiển thị task của riêng user đang đăng nhập
     @Override
     public void handleSelectTaskClick() {
-        this.taskRepository.init("data/tasks.txt");
+        this.taskRepository.init(AppConstants.FILE_TASKS);
         List<Task> allTasks = taskRepository.getAllTasks();
 
         List<Task> userTasks = new ArrayList<>();
@@ -104,15 +104,8 @@ public class FocusController implements IFocusController {
         // Kiểm tra nếu đang trong phiên học (FOCUS)
         if (sessionManager.getCurrentSessionType() == SessionType.FOCUS) {
             // Nếu chưa học đủ 10 giây -> Hiện cảnh báo không ghi nhận lịch sử
-            if (sessionManager.getElapsedTime() < 10) {
-                int choice = JOptionPane.showConfirmDialog(
-                        null,
-                        "Bạn chưa học đủ 10 giây. Nếu dừng lại lúc này, phiên học sẽ KHÔNG ĐƯỢC GHI NHẬN!\nBạn có chắc chắn muốn dừng không?",
-                        "Cảnh báo dừng quá sớm",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE
-                );
-                confirm = (choice == JOptionPane.YES_OPTION);
+            if (!sessionManager.isSessionValidForRecord()) {
+                confirm = view.showConfirmStopTooEarlyDialog();
             } else {
                 // Nếu đã học trên 10 giây -> Hiện hộp thoại hỏi dừng sớm bình thường
                 confirm = view.showConfirmStopDialog();
@@ -142,14 +135,9 @@ public class FocusController implements IFocusController {
     @Override
     public void handleCompleteEarlyClick() {
         // Chặn không cho bấm hoàn thành nếu phiên học chưa chạy được 10 giây
-        if (sessionManager.getElapsedTime() < 10) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Phiên học chưa đủ 10 giây. Bạn không thể hoàn thành công việc lúc này!",
-                    "Thông báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
-            return; // Dừng lại, không thực hiện tiếp
+        if (!sessionManager.isSessionValidForRecord()) {
+            view.showWarningSessionTooShort();
+            return;
         }
 
         // Nếu đủ 10 giây mới tiếp tục
@@ -169,7 +157,7 @@ public class FocusController implements IFocusController {
             sessionManager.stopSession(true);
             sessionManager.clearTask();
 
-            JOptionPane.showMessageDialog(null, "Chúc mừng bạn đã hoàn thành công việc!");
+            view.showCompletionSuccess();
         } else {
             sessionManager.resumeTimer();
         }

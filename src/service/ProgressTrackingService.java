@@ -1,5 +1,6 @@
 package service;
 
+import config.AppConstants;
 import model.entity.SessionType;
 import model.entity.StudySession;
 import model.observer.FocusSessionEvent;
@@ -14,7 +15,6 @@ import java.text.SimpleDateFormat;
 // Dịch vụ chạy ngầm: Lắng nghe sự kiện hết giờ để lưu lịch sử và cập nhật số phiên của Task
 public class ProgressTrackingService implements FocusSessionObserver {
     private ITaskRepository taskRepository;
-    private final String SESSION_FILE_PATH = "data/studysessions.txt"; // Đường dẫn lưu lịch sử
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // Truyền repository vào để có thể cập nhật Task
@@ -39,7 +39,7 @@ public class ProgressTrackingService implements FocusSessionObserver {
 
     // Hàm bổ trợ: Chuyển thông tin đối tượng Session thành một dòng chữ văn bản và ghi nối vào cuối file
     private void saveSessionToFile(StudySession session) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(SESSION_FILE_PATH, true))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(AppConstants.FILE_STUDY_SESSIONS, true))) {
             String startTimeStr = (session.getStartTime() != null) ? dateFormat.format(session.getStartTime()) : "";
             String endTimeStr = (session.getEndTime() != null) ? dateFormat.format(session.getEndTime()) : "";
             String taskIdStr = (session.getTaskId() != null) ? String.valueOf(session.getTaskId()) : "";
