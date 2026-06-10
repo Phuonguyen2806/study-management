@@ -1,12 +1,11 @@
 package service;
 
+import config.AppConstants;
 import model.dto.DailyStats;
 import model.dto.WeeklyStats;
 import model.entity.*;
 import model.repository.ITaskRepository;
 import model.repository.IUserRepository;
-import model.repository.TaskRepositoryImpl;
-import model.repository.UserRepository;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -17,11 +16,14 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 public class StatisticsService {
-    private final String SESSION_FILE_PATH = "data/studysessions.txt";
-    private final String TASK_FILE_PATH = "data/tasks.txt";
-    private final UserRepository userRepository = new UserRepository();
-    private final TaskRepositoryImpl taskRepository = new TaskRepositoryImpl();
+    private final String SESSION_FILE_PATH = AppConstants.FILE_STUDY_SESSIONS;
+    private final IUserRepository userRepository;
+    private final ITaskRepository taskRepository;
 
+    public StatisticsService(ITaskRepository taskRepository, IUserRepository userRepository) {
+        this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
+    }
 
     private int getLoggedInId() {
         return userRepository.getLoggedInUserId();
@@ -38,6 +40,7 @@ public class StatisticsService {
         }
         return userTasks;
     }
+
     private List<StudySession> getStudySessionsByUser() {
         List<StudySession> sessions = new ArrayList<>();
         String targetUserId = String.valueOf(getLoggedInId());
@@ -97,40 +100,48 @@ public class StatisticsService {
     }
 
     // Method getTodayTaskStatusStatistics(user): Lọc danh sách Task để đếm các
-    // trạng thái Done, Pending, Overdue và các Task có deadline gần nhất
-    // (getUpcomingTasks)
+    // trạng thái Done, Pending, Overdue, progress
     public Map<TaskStatus, Integer> getTodayTaskStatusStatistics() {
-        Map<TaskStatus, Integer> stats = new EnumMap<>(TaskStatus.class);
-        for (TaskStatus status : TaskStatus.values()) stats.put(status, 0);
+                        Map<TaskStatus, Integer> stats = new EnumMap<>(TaskStatus.class);
+                        for (TaskStatus status : TaskStatus.values()) stats.put(status, 0);
 
-        // 1. Lấy danh sách task ĐÃ ĐƯỢC LỌC theo user hiện tại từ Service
-        List<Task> tasks = getCurrentUserTasks();
-        LocalDate today = LocalDate.now();
-
-        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+                        // 1. Lấy danh sách task ĐÃ ĐƯỢC LỌC theo user hiện tại từ Service
+                        int targetUserId = getLoggedInId();
+                        List<Task> tasks = getCurrentUserTasks();
+                        LocalDate today = LocalDate.now();
 
 
-        for (Task task : tasks) {
-            if (task.getDeadline() != null) {
-                LocalDate taskDate = task.getDeadline().toInstant()
-                        .atZone(ZoneId.systemDefault()).toLocalDate();
+                        for (Task task : tasks) {
+                            if (task != null && task.getUserId() == targetUserId && task.getDeadline() != null) {
+                                LocalDate taskDeadline = task.getDeadline().toInstant()
+                                        .atZone(ZoneId.systemDefault()).toLocalDate();
 
 
-                // Logic đếm: Nếu muốn đếm task của hôm nay
-                if (!taskDate.isBefore(startOfWeek) && !taskDate.isAfter(endOfWeek)) {
-                    TaskStatus status = task.getStatus();
-                    stats.put(status, stats.getOrDefault(status, 0) + 1);
+                                // Logic đếm: Nếu muốn đếm task của hôm nay
+                                if (taskDeadline.equals(today)) {
+                                    TaskStatus effectiveStatus = task.getStatus();
+                                    if (effectiveStatus != TaskStatus.DONE && taskDeadline.isBefore(today)) {
+                        effectiveStatus = TaskStatus.OVERDUE;
+                    }
+                    stats.put(effectiveStatus, stats.getOrDefault(effectiveStatus, 0) + 1);
                 }
             }
         }
+        // Duyệt qua danh sách task để kiểm tra điều kiện "Hoàn thành hôm nay nhưng không phải deadline"
+        int extraDoneCount = 0;
+        for (Task task : tasks) {
+            if (task != null && task.getUserId() == targetUserId) {
+                if (isTaskCompletedTodayButNotDeadline(task.getTaskId())) {
+                    extraDoneCount++;
+//                    TaskStatus status = task.getStatus();
+//                    stats.put(status, stats.getOrDefault(status, 0) + 1);
+                }
+            }
+        }
+        int currentDone = stats.getOrDefault(TaskStatus.DONE, 0);
+        stats.put(TaskStatus.DONE, currentDone + extraDoneCount);
         return stats;
-
     }
-
-    // Method getTodayFocusTime(user): Truy vấn tổng thời gian từ các StudySession
-    // có ngày trùng với hôm nay.
-
     public double getTodayFocusTime() {
         double totalSeconds = 0;
         LocalDate today = LocalDate.now();
@@ -142,8 +153,6 @@ public class StatisticsService {
         }
         return Math.round((totalSeconds / 3600.0) * 10.0) / 10.0;
     }
-
-
     public List<Task> getOverdueTasks() {
         List<Task> tasks = getCurrentUserTasks();
         List<Task> overdueTasks = new ArrayList<>();
@@ -187,25 +196,6 @@ public class StatisticsService {
         return upcomingTodayTasks;
     }
 
-    private Task parseTaskFromLine(String line) {
-        try {
-            String[] parts = line.split("\\|");
-            int taskId = Integer.parseInt(parts[0]);
-            String title = parts[1];
-            String desc = parts[2];
-            Date deadline = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parts[3]);
-            Priority priority = Priority.valueOf(parts[4].trim().toUpperCase());
-            int estPomo = Integer.parseInt(parts[5]);
-            int compPomo = Integer.parseInt(parts[6]);
-            TaskStatus status = TaskStatus.valueOf(parts[7]);
-            int userId = Integer.parseInt(parts[8]);
-
-            return new Task(taskId, title, desc, deadline, priority, estPomo, compPomo, status, userId);
-        } catch (Exception e) {
-            return null; // Bỏ qua các dòng lỗi
-        }
-    }
-
     // == METHOD WEEKLY
     // Gọi phương thức chính để lấy đối tượng báo cáo
     public WeeklyStats getWeeklyStatistics() {
@@ -231,60 +221,92 @@ public class StatisticsService {
         }
         return studyTimeMap;
     }
-    public double calculateAverageFocusTime(User user) {
-        Map<LocalDate, Double> map = getStudyTimeByDay();
-        return map.values().stream()
-                .mapToDouble(d -> d)
-                .average()
-                .orElse(0.0);
+
+    public double calculateTaskCompletionRate() {
+        // 1. Tái sử dụng logic lấy dữ liệu tuần
+        Map<TaskStatus, Integer> stats = getTaskStatusCounts();
+
+        // 2. Tính tổng số task trong Map
+        int done = stats.getOrDefault(TaskStatus.DONE, 0);
+        int total = stats.values().stream().mapToInt(Integer::intValue).sum();
+
+        // 3. Tính tỷ lệ (Tránh lỗi chia 0)
+        return (total == 0) ? 0.0 : ((double) done / total) * 100;
     }
-public double calculateTaskCompletionRate() {
-    // 1. Tái sử dụng logic lấy dữ liệu tuần
-    Map<TaskStatus, Integer> stats = getTodayTaskStatusStatistics();
 
-    // 2. Tính tổng số task trong Map
-    int done = stats.getOrDefault(TaskStatus.DONE, 0);
-    int total = stats.values().stream().mapToInt(Integer::intValue).sum();
+    private boolean isTaskCompletedTodayButNotDeadline(int taskId) {
+        int loggedInId = userRepository.getLoggedInUserId();
+        LocalDate today = LocalDate.now();
+        Task task = taskRepository.findTaskById(taskId, loggedInId); // Gọi phương thức tìm Task theo ID
+        // Kiểm tra tính hợp lệ
+        if (task == null || task.getDeadline() == null) {
+            return false;
+        }
+// Nếu bạn vẫn muốn kiểm tra xem Task đó có thuộc về User hiện tại hay không:
+        if (task.getUserId() != getLoggedInId()) {
+            return false;
+        }
+        LocalDate deadline = task.getDeadline().toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDate();
+        for (StudySession session : getStudySessionsByUser()) {
+            if (session.getTaskId() != null && session.getTaskId() == taskId
+                    && session.getStatus() == SessionStatus.COMPLETED) {
 
-    // 3. Tính tỷ lệ (Tránh lỗi chia 0)
-    return (total == 0) ? 0.0 : ((double) done / total) * 100;
-}
-public Map<TaskStatus, Integer> getTaskStatusCounts() {
+                LocalDate sessionDate = session.getStartTime().toInstant()
+                        .atZone(ZoneId.systemDefault()).toLocalDate();
+
+                // Kiểm tra: Hoàn thành hôm nay VÀ ngày đó khác với deadline
+                if (sessionDate.equals(today) && !sessionDate.equals(deadline)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public Map<TaskStatus, Integer> getTaskStatusCounts() {
         Map<TaskStatus, Integer> counts = new EnumMap<>(TaskStatus.class);
-    for (TaskStatus status : TaskStatus.values()) {
-        counts.put(status, 0);
-    }
-    // Sử dụng getCurrentUserTasks() đã được sửa để lấy dữ liệu đúng của user hiện tại
-    int targetUserId = getLoggedInId();
-    List<Task> tasks = getCurrentUserTasks();
-    LocalDateTime now = LocalDateTime.now();
+        for (TaskStatus status : TaskStatus.values()) {
+            counts.put(status, 0);
+        }
+        // Sử dụng getCurrentUserTasks() đã được sửa để lấy dữ liệu đúng của user hiện tại
+        int targetUserId = getLoggedInId();
+        List<Task> tasks = getCurrentUserTasks();
+        LocalDateTime now = LocalDateTime.now();
         LocalDate today = LocalDate.now();
         LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate sunday = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
-    for (Task task : tasks) {
-        if (task != null && task.getUserId() == targetUserId && task.getDeadline() != null) {
-            LocalDateTime taskDeadline = task.getDeadline().toInstant()
-                    .atZone(ZoneId.systemDefault()).toLocalDateTime();
+        for (Task task : tasks) {
+            if (task != null && task.getUserId() == targetUserId && task.getDeadline() != null) {
+                LocalDateTime taskDeadline = task.getDeadline().toInstant()
+                        .atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-            // Kiểm tra phạm vi thời gian (tuần này)
-            LocalDate taskDate = taskDeadline.toLocalDate();
-            if (!taskDate.isBefore(monday) && !taskDate.isAfter(sunday)) {
-
+                // Kiểm tra phạm vi thời gian (tuần này)
+                LocalDate taskDate = taskDeadline.toLocalDate();
+                if (!taskDate.isBefore(monday) && !taskDate.isAfter(sunday)) {
                 // 1. Xác định trạng thái thực tế
-                TaskStatus effectiveStatus = task.getStatus();
-
-
-                // 2. Logic ưu tiên: Nếu chưa xong (NOT DONE) mà quá hạn -> OVERDUE
-                if (effectiveStatus != TaskStatus.DONE && taskDeadline.isBefore(now)) {
-                    effectiveStatus = TaskStatus.OVERDUE;
+                    TaskStatus effectiveStatus = task.getStatus();
+                    // 2. Logic ưu tiên: Nếu chưa xong (NOT DONE) mà quá hạn -> OVERDUE
+                    if (effectiveStatus != TaskStatus.DONE && taskDeadline.isBefore(now)) {
+                        effectiveStatus = TaskStatus.OVERDUE;
+                    }
+                    // 3. Cập nhật vào map (IN_PROGRESS, TODO, DONE, hoặc OVERDUE đều nằm ở đây)
+                    counts.put(effectiveStatus, counts.getOrDefault(effectiveStatus, 0) + 1);
                 }
-                // 3. Cập nhật vào map (IN_PROGRESS, TODO, DONE, hoặc OVERDUE đều nằm ở đây)
-                counts.put(effectiveStatus, counts.getOrDefault(effectiveStatus, 0) + 1);
             }
         }
-    }
-
+        // Duyệt qua danh sách task để kiểm tra điều kiện "Hoàn thành hôm nay nhưng không phải deadline"
+        int extraDoneCount = 0;
+        for (Task task : tasks) {
+            if (task != null && task.getUserId() == targetUserId) {
+                if (isTaskCompletedTodayButNotDeadline(task.getTaskId())) {
+                    extraDoneCount++;
+                }
+            }
+        }
+        int currentDone = counts.getOrDefault(TaskStatus.DONE, 0);
+        counts.put(TaskStatus.DONE, currentDone + extraDoneCount);
         return counts;
     }
 }

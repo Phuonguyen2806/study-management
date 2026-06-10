@@ -1,5 +1,6 @@
 package controller;
 
+import config.AppConstants;
 import model.TaskManager;
 import model.entity.Task;
 import model.repository.ITaskRepository;
@@ -24,7 +25,7 @@ public class TaskController {
         this.owner = owner;
         ITaskRepository repository = new TaskRepositoryImpl();
         this.userRepository = new UserRepository();
-        repository.init("data/tasks.txt");
+        repository.init(AppConstants.FILE_TASKS);
         taskManager = new TaskManager(repository, userRepository);
         initEvents();
         refreshView();

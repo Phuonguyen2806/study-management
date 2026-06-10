@@ -1,17 +1,13 @@
 package controller;
 
-import model.entity.Priority;
-import model.entity.Task;
-import model.entity.TaskStatus;
+import model.entity.User;
 import model.repository.*;
 import service.MotivationService;
 import service.ReminderService;
 import view.*;
 
-import model.entity.User;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Date;
 
 public class MainController {
     private MainFrame mainFrame;
@@ -23,6 +19,9 @@ public class MainController {
     private RegisterForm registerForm;
     private User currentUser;
     private AuthController authController;
+    private ITaskRepository taskRepository;
+    private IUserRepository userRepository;
+    private IStudySessionRepository studySessionRepository ;
 
     public MainController(MainFrame view) {
         this.mainFrame = view;
@@ -73,15 +72,16 @@ public class MainController {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         //Khởi tạo repo
-        ITaskRepository taskRepo = new TaskRepositoryImpl();
+        taskRepository =  new TaskRepositoryImpl();
+        userRepository = new UserRepository();
         IReminderRepository reminderRepo = new ReminderRepository();
-        IUserRepository userRepo = new UserRepository();
         MotivationService motivationService = new MotivationService();
+        studySessionRepository = new StudySessionRepositoryImpl();
         // Khởi tạo Task
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame);
         // Khởi tạo Focus
         FocusPanel focusPanel = this.mainFrame.getFocusPanel();
-        this.focusController = new FocusController(focusPanel);
+        this.focusController = new FocusController(focusPanel,taskRepository,userRepository, studySessionRepository);
         focusPanel.setController(this.focusController);
         // Khởi tạo Goal
         GoalPanel goalPanel = this.mainFrame.getGoalPanel();
@@ -89,7 +89,7 @@ public class MainController {
         this.goalController.initialize(goalPanel,this.currentUser);
         // Khởi tạo Statistic
         StatisticsPanel statisticsPanel = this.mainFrame.getStatisticsPanel();
-        this.statisticsController = new StatisticsController(mainFrame.getStatisticsPanel(),taskRepo, userRepo );
+        this.statisticsController = new StatisticsController(statisticsPanel,taskRepository, userRepository );
         // Bơm dữ liệu User vào cho Popup Hồ sơ
         this.mainFrame.getProfilePopupView().fillUser(this.currentUser);
 
@@ -109,10 +109,10 @@ public class MainController {
             }
         });
         ReminderService reminderService = new ReminderService(motivationService,
-                userRepo,
-                taskRepo,
+                userRepository,
+                taskRepository,
                 reminderRepo);
-        ReminderController reminderController = new ReminderController(taskRepo, reminderService);
+        ReminderController reminderController = new ReminderController(taskRepository, reminderService);
 //        // 2. Gọi ReminderController quét danh sách task này (isAppOpen = true)
         reminderController.startCheckingReminders(mainFrame);
 
