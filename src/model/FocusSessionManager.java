@@ -1,5 +1,6 @@
 package model;
 
+import config.AppConstants;
 import model.entity.*;
 import model.observer.*;
 import model.repository.IUserRepository;
@@ -9,6 +10,7 @@ import javax.swing.Timer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Lớp quản lý logic cốt lõi của phiên làm việc (Model).
@@ -25,17 +27,15 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
     private SessionType currentSessionType = SessionType.FOCUS;
     private int sessionCount = 0; // Đếm số phiên tập trung để chuyển từ nghỉ ngắn sang nghỉ dài
 
-    private final int TIME_FOCUS = 1 * 60;
-    private final int TIME_SHORT_BREAK = 1 * 60;
-    private final int TIME_LONG_BREAK = 15 * 60;
-
     private int timeLeft;
     private Timer timer;
     private Task currentTask;
     private Date sessionStartTime; // đồng hồ phải tự nhớ lúc nó bắt đầu (lúc bấm nút) để đến khi hết giờ, nó mới tạo dữ liệu StudySession được.
+    private final IUserRepository userRepository; // inject thẳng
 
-    public FocusSessionManager() {
-        this.timeLeft = TIME_FOCUS;
+
+    public FocusSessionManager(IUserRepository userRepository) {
+        this.timeLeft = AppConstants.TIME_FOCUS;
         timer = new Timer(1000, e -> {
             if (timeLeft > 0) {
                 timeLeft--;
@@ -44,6 +44,7 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
                 handleTimeOver(); // Xử lý khi đồng hồ về 00:00
             }
         });
+        this.userRepository = userRepository;
     }
 
     // ==========================================
@@ -75,7 +76,6 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
         for (FocusViewObserver o : viewObservers) {
             o.updateState(currentState, currentSessionType, currentTask);
         }
-        notifyTimeChanged(); // Cập nhật lại số trên đồng hồ luôn
     }
 
     // ==========================================
@@ -124,6 +124,7 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
             this.currentSessionType = type;
             this.timeLeft = getPlannedTime(type);
             notifyStateChanged();
+            notifyTimeChanged();
         }
     }
 
@@ -214,11 +215,11 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
             currentState = FocusStatus.IDLE;
             if (sessionCount >= 4) {
                 currentSessionType = SessionType.LONG_BREAK;
-                timeLeft = TIME_LONG_BREAK;
+                timeLeft = AppConstants.TIME_LONG_BREAK;
                 sessionCount = 0;
             } else {
                 currentSessionType = SessionType.SHORT_BREAK;
-                timeLeft = TIME_SHORT_BREAK;
+                timeLeft = AppConstants.TIME_SHORT_BREAK;
             }
         } else {
             // Lưu lịch sử phiên nghỉ đã hoàn thành
@@ -227,6 +228,7 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
             resetToIdle();
         }
         notifyStateChanged();
+        notifyTimeChanged();
     }
 
     /**
@@ -271,14 +273,12 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
      *
      * @param duration Thời gian thực tế đã sử dụng (giây).
      * @param status   Trạng thái kết thúc của phiên.
-     *
      */
     private StudySession createStudySessionRecord(int duration, SessionStatus status) { //Truyền vào 2 tham số này vì 2 thông số này luôn thay đổi. Nếu hoàn thành đủ 25 phút, duration là 25 và status là COMPLETED. Nhưng nếu đang làm 10 phút mà bấm dừng, duration chỉ là 10 và status phải là STOPPED_EARLY. Do đó phải truyền vào làm tham số để hàm nó biết mà tạo lịch sử cho đúng.
         Date endTime = new Date();
-        IUserRepository userRepository = new UserRepository();
         int loggedInId = userRepository.getLoggedInUserId();
         Integer taskId = (currentTask != null) ? currentTask.getTaskId() : null;
-        int sessionId = (int) (System.currentTimeMillis() % 100000);
+        int sessionId = Math.abs(UUID.randomUUID().hashCode());
 
         return new StudySession(sessionId, loggedInId, taskId, sessionStartTime, endTime, duration, currentSessionType, status);
     }
@@ -289,17 +289,18 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
     private void resetToIdle() {
         currentState = FocusStatus.IDLE;
         currentSessionType = SessionType.FOCUS;
-        this.timeLeft = TIME_FOCUS;
+        this.timeLeft = AppConstants.TIME_FOCUS;
         notifyStateChanged();
+        notifyTimeChanged();
     }
 
     /**
      * Lấy thời gian quy định theo từng loại phiên.
      */
     private int getPlannedTime(SessionType type) {
-        if (type == SessionType.FOCUS) return TIME_FOCUS;
-        if (type == SessionType.SHORT_BREAK) return TIME_SHORT_BREAK;
-        return TIME_LONG_BREAK;
+        if (type == SessionType.FOCUS) return AppConstants.TIME_FOCUS;
+        if (type == SessionType.SHORT_BREAK) return AppConstants.TIME_SHORT_BREAK;
+        return AppConstants.TIME_LONG_BREAK;
     }
 
     public int getTimeLeft() {
@@ -324,5 +325,9 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
      */
     public int getElapsedTime() {
         return getPlannedTime(currentSessionType) - timeLeft;
+    }
+
+    public boolean isSessionValidForRecord() {
+        return getElapsedTime() >= 10;
     }
 }

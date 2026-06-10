@@ -1,4 +1,5 @@
 package model.repository;
+import config.AppConstants;
 import model.entity.User;
 
 import java.io.*;
@@ -6,7 +7,7 @@ import java.util.*;
 
 
 public class UserRepository  implements IUserRepository {
-    private final String FILE_PATH = "data/users.txt";
+    private final String FILE_PATH = AppConstants.FILE_USERS;
 
     public UserRepository() {
     }

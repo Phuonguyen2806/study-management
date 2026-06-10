@@ -295,4 +295,36 @@ public class FocusPanel extends JPanel implements FocusViewObserver {
             btnCompleteTask.setVisible(false);
         }
     }
+
+    // Cảnh báo khi dừng quá sớm (chưa đủ 10 giây) — trả về true nếu vẫn muốn dừng
+    public boolean showConfirmStopTooEarlyDialog() {
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                "Bạn chưa học đủ 10 giây. Nếu dừng lại lúc này, phiên học sẽ KHÔNG ĐƯỢC GHI NHẬN!\nBạn có chắc chắn muốn dừng không?",
+                "Cảnh báo dừng quá sớm",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+        return choice == JOptionPane.YES_OPTION;
+    }
+
+    // Thông báo chặn khi bấm hoàn thành quá sớm — không có lựa chọn, chỉ OK
+    public void showWarningSessionTooShort() {
+        JOptionPane.showMessageDialog(
+                this,
+                "Phiên học chưa đủ 10 giây. Bạn không thể hoàn thành công việc lúc này!",
+                "Thông báo",
+                JOptionPane.WARNING_MESSAGE
+        );
+    }
+
+    // Thông báo hoàn thành thành công
+    public void showCompletionSuccess() {
+        JOptionPane.showMessageDialog(
+                this,
+                "Chúc mừng bạn đã hoàn thành công việc!",
+                "Hoàn thành",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
 }
