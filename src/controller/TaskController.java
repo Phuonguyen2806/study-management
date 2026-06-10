@@ -5,8 +5,6 @@ import model.TaskManager;
 import model.entity.Task;
 import model.repository.ITaskRepository;
 import model.repository.IUserRepository;
-import model.repository.TaskRepositoryImpl;
-import model.repository.UserRepository;
 import view.TaskForm;
 import view.TaskPanel;
 
@@ -50,6 +48,9 @@ public class TaskController {
     private void showTaskForm() {
         TaskForm form = new TaskForm(owner);
         form.getBtnAdd().addActionListener(e -> {
+            if (!form.validateDate()) {
+                return;
+            }
             boolean success = handleAddTask(form);
             if (success) {
                 form.dispose(); // Đóng biểu mẫu nhập liệu
@@ -134,5 +135,6 @@ public class TaskController {
         String selectedPriority = (String) view.getCbGlobalPriority().getSelectedItem();
         view.renderTaskList(taskManager.getTasksByUserAndPriority(currentUserId, selectedPriority));
     }
+
 }
 

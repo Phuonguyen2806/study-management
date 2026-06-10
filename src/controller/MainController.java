@@ -123,10 +123,7 @@ public class MainController {
 
     private void initEventListeners() {
         mainFrame.getBtnTapTrung().addActionListener(e -> openFocusView());
-        mainFrame.getBtnQuanLyBaiTap().addActionListener(e -> {
-            openTaskManagementView();
-            taskController.refreshView();
-        });
+        mainFrame.getBtnQuanLyBaiTap().addActionListener(e -> openTaskManagementView());
         mainFrame.getBtnMucTieu().addActionListener(e -> openGoalTrackingView());
         mainFrame.getBtnThongKe().addActionListener(e -> openStatisticTrackingView());
         mainFrame.getBtnHoSo().addActionListener(e -> openProfileTrackingView());
