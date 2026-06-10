@@ -58,7 +58,6 @@ public class TaskForm extends JDialog {
         // 2. Deadline
         addLabelSimple("Hạn chót (dd/mm/yyyy) *", pnlContent);
         txtDeadline = new JTextField();
-        txtDeadline.setText("31/12/2026"); // Đặt mặc định hoặc để trống
         txtDeadline.setForeground(Color.GRAY); // Màu chữ mờ cho giống gợi ý
 
         // Thêm sự kiện để khi click vào thì tự xóa gợi ý (Optional)
@@ -153,6 +152,11 @@ public class TaskForm extends JDialog {
     //kiểm tra format deadline
     public boolean validateDate() {
         String dateStr = txtDeadline.getText().trim();
+        if (dateStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Hạn chót không được để trống!");
+            return false;
+        }
         // Kiểm tra định dạng bằng Regex (dd/mm/yyyy)
         if (!dateStr.matches("\\d{2}/\\d{2}/\\d{4}")) {
             JOptionPane.showMessageDialog(this, "Ngày tháng phải đúng định dạng dd/mm/yyyy (Ví dụ: 25/12/2026)");

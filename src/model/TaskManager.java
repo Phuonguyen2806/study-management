@@ -1,5 +1,6 @@
 package model;
 
+
 import model.entity.Priority;
 import model.entity.Task;
 import model.entity.TaskStatus;
@@ -24,7 +25,11 @@ public class TaskManager {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Tiêu đề không được để trống!");
         }
+        if (deadlineStr == null || deadlineStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("Hạn chót không được để trống!");
+        }
         Date deadline = parseDate(deadlineStr);
+
         if (deadline.before(new Date())) {
             throw new IllegalArgumentException("Không được chọn ngày trong quá khứ!");
         }
@@ -79,6 +84,15 @@ public class TaskManager {
                 }
             }
         }
+        result.sort((t1, t2) -> {
+            boolean done1 = t1.getStatus() == TaskStatus.DONE;
+            boolean done2 = t2.getStatus() == TaskStatus.DONE;
+
+            if (done1 && !done2) return 1;   // DONE xuống dưới
+            if (!done1 && done2) return -1;  // PENDING/IN_PROGRESS lên trên
+
+            return Integer.compare(t2.getTaskId(), t1.getTaskId());
+        });
         return result;
     }
 
