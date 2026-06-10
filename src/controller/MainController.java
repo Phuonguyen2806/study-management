@@ -85,8 +85,9 @@ public class MainController {
         focusPanel.setController(this.focusController);
         // Khởi tạo Goal
         GoalPanel goalPanel = this.mainFrame.getGoalPanel();
-        this.goalController = new GoalController();
-        this.goalController.initialize(goalPanel);
+        ITaskRepository taskRepo;
+        this.goalController = new GoalController(taskRepository, userRepository);
+        this.goalController.initialize(goalPanel,this.currentUser);
         // Khởi tạo Statistic
         StatisticsPanel statisticsPanel = this.mainFrame.getStatisticsPanel();
         this.statisticsController = new StatisticsController(statisticsPanel,taskRepository, userRepository );
@@ -146,7 +147,10 @@ public class MainController {
     public void openGoalTrackingView() {
         mainFrame.switchCard("MucTieu");
         mainFrame.setActiveButton(mainFrame.getBtnMucTieu());
-    }
+        if (this.goalController != null && this.currentUser != null) {
+            this.goalController.refreshView(this.currentUser);
+        }
+        }
 
     public void openStatisticTrackingView() {
         // 1. Chuyển đổi giao diện trước

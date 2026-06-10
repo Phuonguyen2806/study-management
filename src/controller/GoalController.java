@@ -2,87 +2,100 @@ package controller;
 
 import model.entity.Goal;
 import model.entity.GoalStatus;
+import model.entity.TaskStatus;
+import model.entity.User;
+import model.repository.ITaskRepository;
+import model.repository.IUserRepository;
 import service.GoalService;
+import service.StatisticsService;
 import view.GoalPanel;
-
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
-/**
- * GoalController — Controller (MVC)
- *
- * Cầu nối giữa GoalPanel (View) và GoalService (Model/Service).
- *
- * Luồng khởi động đúng:
- *   1. new GoalController(goalService)
- *   2. new GoalPanel(goalController)        ← View tạo sau
- *   3. goalController.setGoalPanel(panel)   ← Kết nối 2 chiều
- *   4. goalController.loadAndDisplay()      ← Gọi để hiển thị lần đầu
- */
+
 public class GoalController {
-
     private final GoalService goalService;
-    private GoalPanel         goalPanel;
+    private final StatisticsService statisticsService; // Service cung cấp số liệu thô
+    private GoalPanel goalPanel;
+    private LocalDate selectedDate;
+    private User currentUser;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    public GoalController() {
+
+    public GoalController(ITaskRepository taskRepository, IUserRepository userRepository) {
         this.goalService = new GoalService();
+        this.statisticsService = new StatisticsService(taskRepository, userRepository);
+        this.selectedDate = LocalDate.now();
     }
 
-    /** Được gọi sau khi GoalPanel đã được tạo */
     public void setGoalPanel(GoalPanel panel) {
         this.goalPanel = panel;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Load và hiển thị lần đầu — MainController gọi sau khi setup xong
-    // ─────────────────────────────────────────────────────────────────────────
-    /**
-     * Sequence diagram Giai đoạn 1:
-     *   MainController → handleEvaluateGoals() → GoalService.getGoals()
-     *   → GoalPanel.displayGoals()
-     */
-    public void loadAndDisplay() {
-        if (goalPanel == null) return;
-        List<Goal> goals = goalService.getAllGoals();
-        goalPanel.displayGoals(goals);
-    }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Xử lý +1 / -1 từ View
-    // ─────────────────────────────────────────────────────────────────────────
     /**
-     * Sequence diagram Giai đoạn 3:
-     *   GoalPanel (View) → GoalController → GoalService.updateGoalProgress()
-     *   → Goal.updateProgress() + Goal.updateStatus()
-     *   → GoalPanel.displayGoals() (Giai đoạn 4)
+     * Khởi tạo Module mục tiêu với giao diện Panel và đối tượng User hiện tại
      */
-    public void handleUpdateProgress(int goalId, int delta) {
-        goalService.updateGoalProgress(goalId, delta);
-        if (goalPanel != null) {
-            goalPanel.displayGoals(goalService.getAllGoals());
-        }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Lấy danh sách (dùng cho MainController khi cần)
-    // ─────────────────────────────────────────────────────────────────────────
-    public List<Goal> getGoals() {
-        return goalService.getAllGoals();
-    }
-    // hàm khởi tạo.
-    public void initialize(GoalPanel panel) {
-        if (panel != null) {
+    public void initialize(GoalPanel panel, User user) {
+        if (panel != null && user != null) {
             this.goalPanel = panel;
-
-            // 1. Kết nối ngược lại từ View về Controller này
             this.goalPanel.setController(this);
-
-            // 2. Kích hoạt hiển thị dữ liệu ngay lập tức
+            this.currentUser = user; // Gán user vào biến toàn cục để tái sử dụng
+            // Thiết lập ID người dùng cho GoalService để lọc chính xác file text goals.txt
+            this.goalService.setCurrentUser(String.valueOf(user.getUserID()));
             loadAndDisplay();
         }
     }
 
-    // ── Thống kê cho summary card ─────────────────────────────────────────────
-    public int  getTotalGoals()                     { return goalService.getTotalGoals(); }
-    public long getCountByStatus(GoalStatus status) { return goalService.countByStatus(status); }
+
+    /**
+     * Hàm điều phối chính: Lấy số đếm từ Stat, đẩy sang Goal so sánh và cập nhật giao diện
+     */
+    public void loadAndDisplay() {
+        if (goalPanel == null || currentUser == null) return;
+        if (selectedDate.equals(LocalDate.now())) {
+            double hoursToday = statisticsService.getTodayFocusTime();
+            Map<TaskStatus, Integer> taskStats = statisticsService.getTodayTaskStatusStatistics();
+            int tasksDoneToday = taskStats.getOrDefault(TaskStatus.DONE, 0);
+            goalService.syncGoalsWithStatistics(selectedDate, hoursToday, tasksDoneToday);
+        }
+        List<Goal> activeGoals = goalService.getActiveGoalsByDate(selectedDate);
+        goalPanel.displayGoals(activeGoals);
+    }
+
+
+    /**
+     * Thay đổi ngày xem mục tiêu (ví dụ xem lịch sử mục tiêu các ngày trước)
+     */
+    public void changeSelectedDate(LocalDate newDate) {
+        this.selectedDate = newDate;
+        loadAndDisplay();
+    }
+
+//      Lấy ngày đang được chọn trên giao diện
+    public LocalDate getSelectedDate() {
+        return selectedDate;
+    }
+
+
+    /**
+     * Các hàm bổ trợ để GoalPanel gọi lấy số liệu hiển thị lên "Bảng lịch sử thành tích"
+     */
+    public int getTotalGoals() {
+        return goalService.getGoalsByDate(selectedDate).size();
+    }
+
+    public long getCountByStatus(GoalStatus status) {
+        return goalService.countByStatusAndDate(status, selectedDate);
+    }
+    public void refreshView(model.entity.User currentUser) {
+        if (currentUser == null || this.goalPanel == null) {
+            return;
+        }
+        this.currentUser = currentUser;
+        this.loadAndDisplay();
+    }
 }
+
+
+
