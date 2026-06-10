@@ -14,11 +14,9 @@ public class ReminderController {
     private final ReminderService reminderService;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final ITaskRepository taskRepository;
-    public ReminderController() {
-        this.taskRepository = new TaskRepositoryImpl();
-        IReminderRepository repo = new ReminderRepository();
-        repo.init("data/reminders.txt");
-        this.reminderService = new ReminderService(repo);
+    public ReminderController(ITaskRepository taskRepository, ReminderService reminderService) {
+        this.taskRepository = taskRepository;
+        this.reminderService = reminderService;
     }
 
     public void startCheckingReminders(MainFrame mainFrame) {
