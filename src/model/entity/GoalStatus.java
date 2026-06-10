@@ -6,7 +6,6 @@ public enum GoalStatus {
     ACHIEVED("Hoàn thành"),
     FAILED("Thất bại");
 
-
     private final String displayName;
 
 

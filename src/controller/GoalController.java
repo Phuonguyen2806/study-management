@@ -85,7 +85,6 @@ public class GoalController {
         return goalService.getGoalsByDate(selectedDate).size();
     }
 
-
     public long getCountByStatus(GoalStatus status) {
         return goalService.countByStatusAndDate(status, selectedDate);
     }

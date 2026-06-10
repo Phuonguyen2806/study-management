@@ -179,7 +179,6 @@ public class GoalPanel extends JPanel {
                 pnlCardsContainer.add(card);
             }
         }
-
         pnlCardsContainer.revalidate();
         pnlCardsContainer.repaint();
     }

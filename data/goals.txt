@@ -1,9 +1,3 @@
-1 | 2026-06-05 | 1 | Học 30 phút mỗi ngày | 0.0 | 0.5 | hours | FAILED
-1 | 2026-06-05 | 2 | Hoàn thành 1 task mỗi ngày | 0.0 | 1.0 | tasks | FAILED
-1 | 2026-06-05 | 3 | Học 1 giờ mỗi ngày | 0.0 | 1.0 | hours | FAILED
-1 | 2026-06-05 | 4 | Hoàn thành 3 task mỗi ngày | 0.0 | 3.0 | tasks | FAILED
-1 | 2026-06-05 | 5 | Học 3 giờ mỗi ngày | 0.0 | 3.0 | hours | FAILED
-1 | 2026-06-05 | 6 | Hoàn thành 5 task mỗi ngày | 0.0 | 5.0 | tasks | FAILED
 2 | 2026-06-03 | 1 | Học 30 phút mỗi ngày | 0.0 | 0.5 | hours | IN_PROGRESS
 2 | 2026-06-03 | 2 | Hoàn thành 1 task mỗi ngày | 0.0 | 1.0 | tasks | IN_PROGRESS
 2 | 2026-06-03 | 3 | Học 1 giờ mỗi ngày | 0.0 | 1.0 | hours | IN_PROGRESS
@@ -22,8 +16,4 @@
 4 | 2026-06-03 | 4 | Hoàn thành 3 task mỗi ngày | 0.0 | 2.0 | tasks | IN_PROGRESS
 4 | 2026-06-03 | 5 | Học 3 giờ mỗi ngày | 0.0 | 3.0 | hours | IN_PROGRESS
 4 | 2026-06-03 | 6 | Hoàn thành 5 task mỗi ngày | 0.0 | 5.0 | tasks | IN_PROGRESS
-
-
-
-
 

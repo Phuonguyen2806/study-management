@@ -66,7 +66,6 @@ public class Goal {
         return cur + " / " + tgt + " " + (unit != null ? unit : "");
 
     }
-
     public int getGoalID() {
         return goalID;
     }

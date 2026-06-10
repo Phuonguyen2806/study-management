@@ -264,7 +264,6 @@ public class GoalService {
             }
         }
 
-
         if (isChanged) {
             saveToFile();
         }
