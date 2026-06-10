@@ -1,17 +1,11 @@
 package service;
 
-import config.AppConstants;
 import model.entity.SessionType;
 import model.entity.StudySession;
 import model.observer.FocusSessionEvent;
 import model.observer.FocusSessionObserver;
 import model.repository.IStudySessionRepository;
 import model.repository.ITaskRepository;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 // Dịch vụ chạy ngầm: Lắng nghe sự kiện hết giờ để lưu lịch sử và cập nhật số phiên của Task
 public class ProgressTrackingService implements FocusSessionObserver {

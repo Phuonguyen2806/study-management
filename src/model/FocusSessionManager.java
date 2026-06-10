@@ -4,9 +4,8 @@ import config.AppConstants;
 import model.entity.*;
 import model.observer.*;
 import model.repository.IUserRepository;
-import model.repository.UserRepository;
 
-import javax.swing.Timer;
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,8 +30,7 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
     private Timer timer;
     private Task currentTask;
     private Date sessionStartTime; // đồng hồ phải tự nhớ lúc nó bắt đầu (lúc bấm nút) để đến khi hết giờ, nó mới tạo dữ liệu StudySession được.
-    private final IUserRepository userRepository; // inject thẳng
-
+    private final IUserRepository userRepository;
 
     public FocusSessionManager(IUserRepository userRepository) {
         this.timeLeft = AppConstants.TIME_FOCUS;
@@ -180,7 +178,7 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
             SessionStatus status = SessionStatus.STOPPED_EARLY;
 
             // ĐIỀU KIỆN: Nếu thời gian thực tế chưa đủ 10 giây -> Đánh dấu là Bị hủy
-            if (duration < 10) {
+            if (!isSessionValidForRecord()) {
                 status = SessionStatus.CANCELED;
             }
 
@@ -213,7 +211,7 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
 
             // Chuyển giao diện sang chế độ nghỉ nhưng giữ ở trạng thái IDLE để chờ người dùng sẵn sàng
             currentState = FocusStatus.IDLE;
-            if (sessionCount >= 4) {
+            if (sessionCount >= AppConstants.SESSIONS_BEFORE_LONG_BREAK) {
                 currentSessionType = SessionType.LONG_BREAK;
                 timeLeft = AppConstants.TIME_LONG_BREAK;
                 sessionCount = 0;
@@ -246,7 +244,7 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
             SessionStatus status = SessionStatus.STOPPED_EARLY;
 
             // Bộ lọc bảo vệ: Nếu bấm bỏ qua quá sớm khi chưa đủ 10 giây -> Tính là Bị hủy (CANCELED)
-            if (duration < 10) {
+            if (!isSessionValidForRecord()) {
                 status = SessionStatus.CANCELED;
             }
 
@@ -328,6 +326,6 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
     }
 
     public boolean isSessionValidForRecord() {
-        return getElapsedTime() >= 10;
+        return getElapsedTime() >= AppConstants.MIN_VALID_SESSION_SECONDS;
     }
 }
