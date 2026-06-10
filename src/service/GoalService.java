@@ -35,7 +35,7 @@ public class GoalService {
     }
 
 
-    // --- INIT: Đọc file và TỰ ĐỘNG SINH mục tiêu nếu ngày hôm nay chưa có ---
+    // --- INIT: Đọc dữ liệu nguyên bản từ file, không tự ý ghi đè số của người dùng ---
     public void init() {
         goalList.clear();
         try {
@@ -44,38 +44,32 @@ public class GoalService {
                 Files.createDirectories(path.getParent());
             }
 
-
             if (Files.exists(path)) {
                 List<String> lines = Files.readAllLines(path);
                 int lineNumber = 0;
-
 
                 for (String line : lines) {
                     lineNumber++;
                     if (line.trim().isEmpty()) continue;
 
-
                     String[] parts = line.split("\\|");
                     if (parts.length >= 8) {
                         String fileUserId = parts[0].trim();
 
-
-                        // Nếu đúng userId của người đang đăng nhập, nạp vào RAM
                         if (fileUserId.equals(currentUserId)) {
                             try {
-                                LocalDate date = LocalDate.parse(parts[1].trim()); // Cột 2 (index 1): Ngày tháng
-                                int id = Integer.parseInt(parts[2].trim());       // Cột 3 (index 2): Goal ID
+                                LocalDate date = LocalDate.parse(parts[1].trim());
+                                int id = Integer.parseInt(parts[2].trim());
                                 String title = parts[3].trim();
                                 double currentValue = Double.parseDouble(parts[4].trim());
-                                double targetValue = Double.parseDouble(parts[5].trim());
+                                double targetValue = Double.parseDouble(parts[5].trim()); // Đọc chuẩn xác 0.0167
                                 String unit = parts[6].trim();
                                 GoalStatus status = GoalStatus.valueOf(parts[7].trim());
 
-
+                                // KHÔNG CHÈN CODE ÉP BUỘC TARGETVALUE Ở ĐÂY NỮA
                                 Goal goal = new Goal(id, title, date, targetValue, unit);
                                 goal.setCurrentValue(currentValue);
                                 goal.setStatus(status);
-
 
                                 goalList.add(goal);
                             } catch (Exception e) {
@@ -86,19 +80,15 @@ public class GoalService {
                 }
             }
 
-
-            // [TỰ ĐỘNG CUỐN CHIẾU]: Kiểm tra xem hôm nay User đã có mục tiêu nào chưa
+            // Tự động sinh mục tiêu mặc định nếu chưa có dữ liệu ngày hôm nay
             LocalDate today = LocalDate.now();
             boolean hasGoalsToday = goalList.stream().anyMatch(g -> g.getTargetDate().equals(today));
-
 
             if (!hasGoalsToday) {
                 System.out.println(">>> Phát hiện User [" + currentUserId + "] chưa có mục tiêu cho ngày " + today + ". Tự động khởi tạo 6 mục tiêu mặc định...");
                 generateDefaultGoalsForDate(today);
-                // Lưu ngay xuống file để tránh mất dữ liệu
                 saveToFile();
             }
-
 
             System.out.println("Init Goal: Đã nạp " + goalList.size() + " mục tiêu của User ID [" + currentUserId + "]");
         } catch (IOException e) {
@@ -109,7 +99,7 @@ public class GoalService {
 
     // Hàm phụ trợ: Tự động sinh 6 mục tiêu cho một ngày nhất định
     private void generateDefaultGoalsForDate(LocalDate date) {
-        goalList.add(new Goal(1, "Học 30 phút mỗi ngày", date, 0.5, "hours"));
+        goalList.add(new Goal(1, "Học 30 phút mỗi ngày", date, 0.0167, "hours"));
         goalList.add(new Goal(2, "Hoàn thành 1 task mỗi ngày", date, 1.0, "tasks"));
         goalList.add(new Goal(3, "Học 1 giờ mỗi ngày", date, 1.0, "hours"));
         goalList.add(new Goal(4, "Hoàn thành 3 task mỗi ngày", date, 3.0, "tasks")); // Đã sửa lại từ 2.0 thành 3.0 cho khớp tiêu đề của bạn
@@ -153,13 +143,13 @@ public class GoalService {
                 }
 
 
-                String line = String.format("%s | %s | %d | %s | %.1f | %.1f | %s | %s",
+                String line = String.format("%s | %s | %d | %s | %s | %s | %s | %s",
                         currentUserId,
                         g.getTargetDate().toString(),
                         g.getGoalID(),
                         g.getTitle(),
-                        g.getCurrentValue(),
-                        g.getTargetValue(),
+                        String.valueOf(g.getCurrentValue()),
+                        String.valueOf(g.getTargetValue()),
                         g.getUnit(),
                         g.getStatus().name()
                 );
@@ -186,7 +176,7 @@ public class GoalService {
         for (Goal g : goalList) {
             g.updateStatus();
         }
-        saveToFile();
+//        saveToFile();
 
 
         // Mục tiêu đã hoàn thành

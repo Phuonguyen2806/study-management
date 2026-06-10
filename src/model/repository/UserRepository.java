@@ -6,7 +6,7 @@ import java.util.*;
 
 
 public class UserRepository  implements IUserRepository {
-    private final String FILE_PATH = "study-management/data/users.txt";
+    private final String FILE_PATH = "data/users.txt";
 
     public UserRepository() {
     }
@@ -118,6 +118,14 @@ public class UserRepository  implements IUserRepository {
             }
         }
         return null;
+    }
+    @Override
+    public String getEmailByUserId(int userId) {
+        User user = getUserById(userId); // Sử dụng lại hàm đã có sẵn
+        if (user != null) {
+            return user.getEmail();
+        }
+        return null; // Trả về null nếu không tìm thấy user
     }
 
 }

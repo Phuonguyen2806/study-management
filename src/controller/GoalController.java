@@ -46,7 +46,7 @@ public class GoalController {
 
 
             // Thiết lập ID người dùng cho GoalService để lọc chính xác file text goals.txt
-            this.goalService.setCurrentUser(String.valueOf(user.getUserId()));
+            this.goalService.setCurrentUser(String.valueOf(user.getUserID()));
 
 
             // Tiến hành quét số liệu đồng bộ và hiển thị lên giao diện
@@ -64,8 +64,8 @@ public class GoalController {
 
         // 1. Thực hiện đồng bộ số liệu THƯỚC (Nếu là ngày hôm nay)
         if (selectedDate.equals(LocalDate.now())) {
-            double hoursToday = statisticsService.getTodayFocusTime(currentUser);
-            Map<TaskStatus, Integer> taskStats = statisticsService.getTodayTaskStatusStatistics(currentUser);
+            double hoursToday = statisticsService.getTodayFocusTime();
+            Map<TaskStatus, Integer> taskStats = statisticsService.getTodayTaskStatusStatistics();
             int tasksDoneToday = taskStats.getOrDefault(TaskStatus.DONE, 0);
 
 
@@ -78,10 +78,6 @@ public class GoalController {
         List<Goal> activeGoals = goalService.getActiveGoalsByDate(selectedDate);
         goalPanel.displayGoals(activeGoals);
     }
-
-
-
-
 
 
     /**
@@ -111,6 +107,20 @@ public class GoalController {
 
     public long getCountByStatus(GoalStatus status) {
         return goalService.countByStatusAndDate(status, selectedDate);
+    }
+    public void refreshView(model.entity.User currentUser) {
+        // 1. Kiểm tra điều kiện an toàn, nếu chưa đăng nhập hoặc goalPanel chưa khởi tạo thì bỏ qua
+        if (currentUser == null || this.goalPanel == null) {
+            return;
+        }
+
+        // 2. Cập nhật lại User hiện tại (nếu cần)
+        this.currentUser = currentUser;
+
+        // 3. Tận dụng chính hàm có sẵn để nạp số liệu thô từ Stat, đồng bộ và vẽ lại giao diện
+        this.loadAndDisplay();
+
+        System.out.println(">>> GoalController đã tự động làm mới tiến độ từ Thống kê!");
     }
 }
 

@@ -1,43 +1,38 @@
 package view;
 
-
 import model.entity.Goal;
 import model.entity.GoalStatus;
 import controller.GoalController;
 
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
 
 public class GoalPanel extends JPanel {
     private GoalController controller;
     private JPanel pnlCardsContainer;
-
 
     // Nhãn số liệu thống kê tổng quan
     private JLabel lblAchievedCount;
     private JLabel lblInProgressCount;
     private JLabel lblTotalCount;
 
-
     public GoalPanel() {
         initComponents();
     }
-
 
     public void setController(GoalController controller) {
         this.controller = controller;
     }
 
-
     private void initComponents() {
         setLayout(new BorderLayout());
         setBackground(new Color(245, 247, 250)); // Nền sáng hiện đại
         setBorder(new EmptyBorder(25, 25, 25, 25));
-
 
         // 1. TIÊU ĐỀ MODULE
         JPanel pnlHeader = new JPanel(new GridLayout(2, 1, 0, 5));
@@ -46,15 +41,12 @@ public class GoalPanel extends JPanel {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTitle.setForeground(new Color(33, 37, 41));
 
-
         JLabel lblSubTitle = new JLabel("Theo dõi tiến độ và duy trì động lực học tập mỗi ngày", SwingConstants.LEFT);
         lblSubTitle.setFont(new Font("Segoe UI", Font.ITALIC, 13));
         lblSubTitle.setForeground(new Color(108, 117, 125));
 
-
         pnlHeader.add(lblTitle);
         pnlHeader.add(lblSubTitle);
-
 
         // 2. BẢNG THỐNG KÊ LỊCH SỬ THÀNH TÍCH
         JPanel pnlSummaryCard = new JPanel(new BorderLayout());
@@ -64,17 +56,14 @@ public class GoalPanel extends JPanel {
                 new EmptyBorder(15, 20, 15, 20)
         ));
 
-
         JLabel lblSummaryTitle = new JLabel("Lịch sử thành tích hệ thống", SwingConstants.LEFT);
         lblSummaryTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblSummaryTitle.setForeground(new Color(33, 37, 41));
         lblSummaryTitle.setBorder(new EmptyBorder(0, 0, 10, 0));
         pnlSummaryCard.add(lblSummaryTitle, BorderLayout.NORTH);
 
-
         JPanel pnlSummaryGrid = new JPanel(new GridLayout(3, 2, 0, 8));
         pnlSummaryGrid.setOpaque(false);
-
 
         JLabel lblAchievedText = new JLabel("• Hoàn thành", SwingConstants.LEFT);
         lblAchievedText.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -83,14 +72,12 @@ public class GoalPanel extends JPanel {
         lblAchievedCount.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblAchievedCount.setForeground(new Color(40, 167, 69));
 
-
         JLabel lblInProgressText = new JLabel("• Đang thực hiện", SwingConstants.LEFT);
         lblInProgressText.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblInProgressText.setForeground(new Color(255, 152, 0));
         lblInProgressCount = new JLabel("0", SwingConstants.RIGHT);
         lblInProgressCount.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblInProgressCount.setForeground(new Color(255, 152, 0));
-
 
         JLabel lblTotalText = new JLabel("• Tổng số mục tiêu", SwingConstants.LEFT);
         lblTotalText.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -99,63 +86,49 @@ public class GoalPanel extends JPanel {
         lblTotalCount.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblTotalCount.setForeground(new Color(0, 123, 255));
 
-
         pnlSummaryGrid.add(lblAchievedText); pnlSummaryGrid.add(lblAchievedCount);
         pnlSummaryGrid.add(lblInProgressText); pnlSummaryGrid.add(lblInProgressCount);
         pnlSummaryGrid.add(lblTotalText); pnlSummaryGrid.add(lblTotalCount);
         pnlSummaryCard.add(pnlSummaryGrid, BorderLayout.CENTER);
-
 
         JPanel pnlNorthWrapper = new JPanel(new BorderLayout(0, 15));
         pnlNorthWrapper.setOpaque(false);
         pnlNorthWrapper.add(pnlHeader, BorderLayout.NORTH);
         pnlNorthWrapper.add(pnlSummaryCard, BorderLayout.CENTER);
 
-
         // 3. KHU VỰC HIỂN THỊ CÁC CARD CHI TIẾT (BỌC CUỘN)
         JPanel pnlCenterWrapper = new JPanel(new BorderLayout(0, 10));
         pnlCenterWrapper.setOpaque(false);
         pnlCenterWrapper.setBorder(new EmptyBorder(15, 0, 0, 0));
-
 
         JLabel lblDetailTitle = new JLabel("Trạng thái mục tiêu chi tiết", SwingConstants.LEFT);
         lblDetailTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblDetailTitle.setForeground(new Color(33, 37, 41));
         pnlCenterWrapper.add(lblDetailTitle, BorderLayout.NORTH);
 
-
-        // Gọi trực tiếp Inner Class ScrollablePanel và WrapLayout bên dưới
         pnlCardsContainer = new ScrollablePanel(new WrapLayout(FlowLayout.LEFT, 15, 15));
         pnlCardsContainer.setOpaque(false);
 
-
-        // Bọc Scroll nâng cấp trải nghiệm khi thu nhỏ màn hình
         JScrollPane scrollPane = new JScrollPane(pnlCardsContainer);
         scrollPane.setBorder(null);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
 
-
-        // Khóa cuộn ngang tuyệt đối, cho phép tự cuộn dọc linh hoạt
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Giúp lăn chuột mượt hơn
-
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         pnlCenterWrapper.add(scrollPane, BorderLayout.CENTER);
-
 
         add(pnlNorthWrapper, BorderLayout.NORTH);
         add(pnlCenterWrapper, BorderLayout.CENTER);
     }
-
 
     /**
      * Cập nhật và render danh sách mục tiêu dạng hình chữ nhật
      */
     public void displayGoals(List<Goal> activeGoals) {
         pnlCardsContainer.removeAll();
-
 
         // Nạp số liệu thống kê lên bảng trên
         if (controller != null) {
@@ -164,7 +137,6 @@ public class GoalPanel extends JPanel {
             lblInProgressCount.setText(String.valueOf(controller.getCountByStatus(GoalStatus.IN_PROGRESS)));
         }
 
-
         if (activeGoals == null || activeGoals.isEmpty()) {
             JLabel lblEmpty = new JLabel("Chưa có mục tiêu nào được thiết lập cho ngày này.", SwingConstants.CENTER);
             lblEmpty.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -172,21 +144,33 @@ public class GoalPanel extends JPanel {
             pnlCardsContainer.setLayout(new BorderLayout());
             pnlCardsContainer.add(lblEmpty, BorderLayout.CENTER);
         } else {
-            // Định hình lại bố cục WrapLayout khi có phần tử thực tế
             pnlCardsContainer.setLayout(new WrapLayout(FlowLayout.LEFT, 15, 15));
 
+            List<Goal> sortedGoals = new ArrayList<>(activeGoals);
 
-            for (Goal goal : activeGoals) {
+            // Thực hiện sắp xếp: Trạng thái IN_PROGRESS (Chưa hoàn thành) lên trước, ACHIEVED (Đã hoàn thành) ra sau
+            Collections.sort(sortedGoals, new Comparator<Goal>() {
+                @Override
+                public int compare(Goal g1, Goal g2) {
+                    if (g1.getStatus() != GoalStatus.ACHIEVED && g2.getStatus() == GoalStatus.ACHIEVED) {
+                        return -1; // g1 (chưa hoàn thành) lên trước
+                    } else if (g1.getStatus() == GoalStatus.ACHIEVED && g2.getStatus() != GoalStatus.ACHIEVED) {
+                        return 1;  // g2 (chưa hoàn thành) lên trước
+                    }
+                    return 0; // Giữ nguyên thứ tự nếu cùng trạng thái
+                }
+            });
+
+            // Tiến hành render danh sách đã sắp xếp đúng thứ tự yêu cầu
+            for (Goal goal : sortedGoals) {
                 JPanel card = createGoalCard(goal);
                 pnlCardsContainer.add(card);
             }
         }
 
-
         pnlCardsContainer.revalidate();
         pnlCardsContainer.repaint();
     }
-
 
     /**
      * Tạo Card hình chữ nhật nằm ngang chuẩn tỉ lệ UI, thu hẹp chiều cao tối đa
@@ -196,18 +180,14 @@ public class GoalPanel extends JPanel {
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBackground(Color.WHITE);
 
-
-        // KHÓA CỨNG KÍCH THƯỚC HÌNH CHỮ NHẬT: Rộng 260px, Cao 140px
         card.setPreferredSize(new Dimension(260, 140));
         card.setMinimumSize(new Dimension(260, 140));
         card.setMaximumSize(new Dimension(260, 140));
-
 
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 230, 235), 1),
                 new EmptyBorder(12, 15, 12, 15)
         ));
-
 
         // 1. Tiêu đề mục tiêu
         JLabel lblGoalTitle = new JLabel(goal.getTitle());
@@ -215,13 +195,11 @@ public class GoalPanel extends JPanel {
         lblGoalTitle.setForeground(new Color(33, 37, 41));
         lblGoalTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-
         // 2. Dòng hiển thị số tiến độ và phần trăm chữ nằm ngang hàng
         JPanel pnlProgressText = new JPanel(new BorderLayout());
         pnlProgressText.setOpaque(false);
         pnlProgressText.setAlignmentX(Component.LEFT_ALIGNMENT);
         pnlProgressText.setBorder(new EmptyBorder(8, 0, 4, 0));
-
 
         String progressStr = String.format("Tiến độ: %.1f/%.1f %s",
                 goal.getCurrentValue(), goal.getTargetValue(), goal.getUnit());
@@ -229,16 +207,21 @@ public class GoalPanel extends JPanel {
         lblProgressStr.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lblProgressStr.setForeground(new Color(108, 117, 125));
 
+        int percentage = 0;
+        boolean isAchieved = goal.getStatus() == GoalStatus.ACHIEVED;
 
-        int percentage = (int) Math.min(100, (goal.getCurrentValue() / goal.getTargetValue()) * 100);
+        if (isAchieved || goal.getTargetValue() <= 0) {
+            percentage = 100;
+        } else {
+            percentage = (int) Math.min(100, (goal.getCurrentValue() / goal.getTargetValue()) * 100);
+        }
+
         JLabel lblPercent = new JLabel(percentage + "%");
         lblPercent.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblPercent.setForeground(new Color(0, 123, 255));
 
-
         pnlProgressText.add(lblProgressStr, BorderLayout.WEST);
         pnlProgressText.add(lblPercent, BorderLayout.EAST);
-
 
         // 3. Thanh Progress Bar thanh thoát tinh chỉnh mỏng lại (Cao 6px)
         JProgressBar progressBar = new JProgressBar(0, 100);
@@ -250,65 +233,47 @@ public class GoalPanel extends JPanel {
         progressBar.setBackground(new Color(235, 240, 250));
         progressBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-
         // 4. Nhãn trạng thái chữ nằm sát lề dưới gọn gàng
-        boolean isAchieved = goal.getStatus() == GoalStatus.ACHIEVED;
         JLabel lblStatus = new JLabel(isAchieved ? "Đã hoàn thành" : "Đang thực hiện");
         lblStatus.setFont(new Font("Segoe UI", Font.BOLD, 11));
         lblStatus.setForeground(isAchieved ? new Color(40, 167, 69) : new Color(255, 152, 0));
         lblStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-
         lblStatus.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-
 
         card.add(lblGoalTitle);
         card.add(pnlProgressText);
         card.add(progressBar);
         card.add(lblStatus);
 
-
         return card;
     }
 
-
-    // ==========================================
     // NHÓM CLASS NỘI BỘ (STATIC NESTED CLASSES)
-    // ==========================================
 
-
-    /**
-     * Khóa cứng chiều rộng hiển thị bằng kích thước thật của cửa sổ phần mềm.
-     */
     private static class ScrollablePanel extends JPanel implements Scrollable {
         public ScrollablePanel(LayoutManager layout) {
             super(layout);
         }
-
 
         @Override
         public Dimension getPreferredScrollableViewportSize() {
             return getPreferredSize();
         }
 
-
         @Override
         public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
             return 16;
         }
-
 
         @Override
         public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
             return 50;
         }
 
-
         @Override
         public boolean getScrollableTracksViewportWidth() {
-            return true; // Ép các card con bẻ dòng xuống dưới
+            return true;
         }
-
 
         @Override
         public boolean getScrollableTracksViewportHeight() {
@@ -316,21 +281,15 @@ public class GoalPanel extends JPanel {
         }
     }
 
-
-    /**
-     * Tính toán chiều cao linh hoạt tự động tăng lên khi có phần tử nhảy dòng mới.
-     */
     private static class WrapLayout extends FlowLayout {
         public WrapLayout(int align, int hgap, int vgap) {
             super(align, hgap, vgap);
         }
 
-
         @Override
         public Dimension preferredLayoutSize(Container target) {
             return layoutSize(target, true);
         }
-
 
         @Override
         public Dimension minimumLayoutSize(Container target) {
@@ -339,14 +298,12 @@ public class GoalPanel extends JPanel {
             return minimum;
         }
 
-
         private Dimension layoutSize(Container target, boolean preferred) {
             synchronized (target.getTreeLock()) {
                 int targetWidth = target.getSize().width;
                 if (targetWidth == 0) {
                     targetWidth = Integer.MAX_VALUE;
                 }
-
 
                 int hgap = getHgap();
                 int vgap = getVgap();
@@ -356,7 +313,6 @@ public class GoalPanel extends JPanel {
                 int x = 0;
                 int y = insets.top + vgap;
                 int rowHeight = 0;
-
 
                 for (int i = 0; i < nmembers; i++) {
                     Component m = target.getComponent(i);
@@ -377,7 +333,7 @@ public class GoalPanel extends JPanel {
             }
         }
     }
+
+
+
 }
-
-
-

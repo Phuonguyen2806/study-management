@@ -1,4 +1,4 @@
-1|Nguyễn Ngọc Phương Uyên|uyen.nnp@nlu.edu.vn|password123|false
+1|Nguyễn Ngọc Phương Uyên|1|1|false
 2|Nguyễn Hà Quỳnh Anh|24130014@st.hcmuaf.edu.vn|password123|false
 3|Nguyễn Thị Khánh Huyền|huyen.ntk@nlu.edu.vn|password123|false
 4|Cao Phan Hoài Ngọc|hoaingoc.cp@nlu.edu.vn|password123|false

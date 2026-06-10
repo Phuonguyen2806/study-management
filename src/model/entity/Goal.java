@@ -42,7 +42,7 @@ public class Goal {
         this.targetValue = targetValue;
         this.unit = unit;
         this.status = GoalStatus.IN_PROGRESS;
-        this.currentValue = 0.0;
+        this.currentValue = 0.00000;
     }
 
 
@@ -94,9 +94,11 @@ public class Goal {
 
 
     public String getProgressLabel() {
-        String cur = (currentValue == (long) currentValue) ? String.valueOf((long) currentValue) : String.format("%.1f", currentValue);
-        String tgt = (targetValue == (long) targetValue) ? String.valueOf((long) targetValue) : String.format("%.1f", targetValue);
+        String cur = String.valueOf(currentValue);
+        String tgt = String.valueOf(targetValue);
+
         return cur + " / " + tgt + " " + (unit != null ? unit : "");
+
     }
 
 
