@@ -146,7 +146,10 @@ public class MainController {
     public void openGoalTrackingView() {
         mainFrame.switchCard("MucTieu");
         mainFrame.setActiveButton(mainFrame.getBtnMucTieu());
-    }
+        if (this.goalController != null && this.currentUser != null) {
+            this.goalController.refreshView(this.currentUser);
+        }
+        }
 
     public void openStatisticTrackingView() {
         // 1. Chuyển đổi giao diện trước

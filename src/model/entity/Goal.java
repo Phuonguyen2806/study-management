@@ -1,19 +1,8 @@
 package model.entity;
-
-
-
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-
-
-
 public class Goal {
-
-
-
-
     private int goalID;
     private String title;
     private LocalDate date;
@@ -23,16 +12,10 @@ public class Goal {
     private double currentValue;
     private LocalDateTime completedAt;
 
-
-
-
     public Goal() {
         this.status = GoalStatus.IN_PROGRESS;
         this.date = LocalDate.now();
     }
-
-
-
 
     public Goal(int goalID, String title, LocalDate date,
                 double targetValue, String unit) {
@@ -45,13 +28,8 @@ public class Goal {
         this.currentValue = 0.00000;
     }
 
-
-
-
     public void updateStatus() {
         LocalDate today = LocalDate.now();
-
-
         // 1. Nếu đã đạt hoặc vượt chỉ tiêu -> Chắc chắn là ACHIEVED
         if (currentValue >= targetValue) {
             if (this.status != GoalStatus.ACHIEVED) {
@@ -60,8 +38,6 @@ public class Goal {
             }
             return; // Dừng lại luôn
         }
-
-
         // 2. Nếu CHƯA đạt chỉ tiêu, kiểm tra mốc thời gian
         if (date.isBefore(today)) {
             // Đã qua ngày hôm đó rồi mà vẫn chưa đạt -> Thất bại
@@ -72,17 +48,11 @@ public class Goal {
         }
     }
 
-
-
-
-    /**
-     * Logic cốt lõi: Đánh giá và cập nhật tiến độ dựa trên số liệu từ StatisticsService
-     */
+    //Đánh giá và cập nhật tiến độ dựa trên số liệu từ StatisticsService
     public void evaluate(double newValue) {
         this.currentValue = newValue;
         this.updateStatus();
     }
-
 
     // Helpers hiển thị giao diện
     public int getProgressPercent() {
@@ -90,19 +60,12 @@ public class Goal {
         return (int) Math.min(100, (currentValue / targetValue) * 100);
     }
 
-
-
-
     public String getProgressLabel() {
         String cur = String.valueOf(currentValue);
         String tgt = String.valueOf(targetValue);
-
         return cur + " / " + tgt + " " + (unit != null ? unit : "");
 
     }
-
-
-
 
     public int getGoalID() {
         return goalID;

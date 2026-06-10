@@ -86,9 +86,12 @@ public class GoalPanel extends JPanel {
         lblTotalCount.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblTotalCount.setForeground(new Color(0, 123, 255));
 
-        pnlSummaryGrid.add(lblAchievedText); pnlSummaryGrid.add(lblAchievedCount);
-        pnlSummaryGrid.add(lblInProgressText); pnlSummaryGrid.add(lblInProgressCount);
-        pnlSummaryGrid.add(lblTotalText); pnlSummaryGrid.add(lblTotalCount);
+        pnlSummaryGrid.add(lblAchievedText);
+        pnlSummaryGrid.add(lblAchievedCount);
+        pnlSummaryGrid.add(lblInProgressText);
+        pnlSummaryGrid.add(lblInProgressCount);
+        pnlSummaryGrid.add(lblTotalText);
+        pnlSummaryGrid.add(lblTotalCount);
         pnlSummaryCard.add(pnlSummaryGrid, BorderLayout.CENTER);
 
         JPanel pnlNorthWrapper = new JPanel(new BorderLayout(0, 15));
@@ -124,9 +127,6 @@ public class GoalPanel extends JPanel {
         add(pnlCenterWrapper, BorderLayout.CENTER);
     }
 
-    /**
-     * Cập nhật và render danh sách mục tiêu dạng hình chữ nhật
-     */
     public void displayGoals(List<Goal> activeGoals) {
         pnlCardsContainer.removeAll();
 
@@ -148,20 +148,32 @@ public class GoalPanel extends JPanel {
 
             List<Goal> sortedGoals = new ArrayList<>(activeGoals);
 
-            // Thực hiện sắp xếp: Trạng thái IN_PROGRESS (Chưa hoàn thành) lên trước, ACHIEVED (Đã hoàn thành) ra sau
+            // THỰC HIỆN SẮP XẾP PHÂN LOẠI THEO NHÓM (GIỜ TRƯỚC - TASK SAU) VÀ CUỐN CHIẾU TRONG TỪNG NHÓM
             Collections.sort(sortedGoals, new Comparator<Goal>() {
                 @Override
                 public int compare(Goal g1, Goal g2) {
+                    // 1. Phân biệt loại mục tiêu: Đẩy nhóm "Hours" lên trước nhóm "Tasks"
+                    boolean isG1Hours = g1.getUnit().equalsIgnoreCase("hours") || g1.getTitle().toLowerCase().contains("học") || g1.getTitle().toLowerCase().contains("giờ");
+                    boolean isG2Hours = g2.getUnit().equalsIgnoreCase("hours") || g2.getTitle().toLowerCase().contains("học") || g2.getTitle().toLowerCase().contains("giờ");
+
+                    if (isG1Hours && !isG2Hours) return -1; // g1 là Giờ học -> lên trước
+                    if (!isG1Hours && isG2Hours) return 1;  // g2 là Giờ học -> lên trước
+
+                    // 2. Nếu CÙNG LOẠI mục tiêu (Cùng là Giờ học hoặc cùng là Task), xét trạng thái HOÀN THÀNH
+                    // Mục tiêu nào CHƯA HOÀN THÀNH (IN_PROGRESS) phải đứng trước để cuốn chiếu lên
                     if (g1.getStatus() != GoalStatus.ACHIEVED && g2.getStatus() == GoalStatus.ACHIEVED) {
-                        return -1; // g1 (chưa hoàn thành) lên trước
-                    } else if (g1.getStatus() == GoalStatus.ACHIEVED && g2.getStatus() != GoalStatus.ACHIEVED) {
-                        return 1;  // g2 (chưa hoàn thành) lên trước
+                        return -1;
                     }
-                    return 0; // Giữ nguyên thứ tự nếu cùng trạng thái
+                    if (g1.getStatus() == GoalStatus.ACHIEVED && g2.getStatus() != GoalStatus.ACHIEVED) {
+                        return 1;
+                    }
+
+                    // 3. Nếu cùng loại và cùng trạng thái, sắp xếp theo ID tăng dần (Nhỏ làm trước, lớn làm sau)
+                    return Integer.compare(g1.getGoalID(), g2.getGoalID());
                 }
             });
 
-            // Tiến hành render danh sách đã sắp xếp đúng thứ tự yêu cầu
+            // Tiến hành render danh sách đã sắp xếp đúng nhóm và cuốn chiếu
             for (Goal goal : sortedGoals) {
                 JPanel card = createGoalCard(goal);
                 pnlCardsContainer.add(card);
@@ -333,7 +345,6 @@ public class GoalPanel extends JPanel {
             }
         }
     }
-
 
 
 }

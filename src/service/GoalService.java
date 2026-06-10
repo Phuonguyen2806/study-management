@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,10 +21,7 @@ public class GoalService {
 
 
     public GoalService() {
-
-
     }
-
 
     public void setCurrentUser(String userId) {
         // Nếu ID truyền vào trùng với ID hiện tại đang chạy thì bỏ qua, không nạp lại
@@ -99,10 +97,10 @@ public class GoalService {
 
     // Hàm phụ trợ: Tự động sinh 6 mục tiêu cho một ngày nhất định
     private void generateDefaultGoalsForDate(LocalDate date) {
-        goalList.add(new Goal(1, "Học 30 phút mỗi ngày", date, 0.0167, "hours"));
+        goalList.add(new Goal(1, "Học 30 phút mỗi ngày", date, 0.5, "hours"));
         goalList.add(new Goal(2, "Hoàn thành 1 task mỗi ngày", date, 1.0, "tasks"));
         goalList.add(new Goal(3, "Học 1 giờ mỗi ngày", date, 1.0, "hours"));
-        goalList.add(new Goal(4, "Hoàn thành 3 task mỗi ngày", date, 3.0, "tasks")); // Đã sửa lại từ 2.0 thành 3.0 cho khớp tiêu đề của bạn
+        goalList.add(new Goal(4, "Hoàn thành 3 task mỗi ngày", date, 3.0, "tasks"));
         goalList.add(new Goal(5, "Học 3 giờ mỗi ngày", date, 3.0, "hours"));
         goalList.add(new Goal(6, "Hoàn thành 5 task mỗi ngày", date, 5.0, "tasks"));
     }
@@ -166,47 +164,53 @@ public class GoalService {
             System.err.println("Lỗi lưu file Goal: " + e.getMessage());
         }
     }
-
-
     public List<Goal> getActiveGoalsByDate(LocalDate date) {
         List<Goal> activeGoals = new ArrayList<>();
 
-
-        // Cập nhật trạng thái một loạt trước
+        // 1. Cập nhật trạng thái một loạt trước
         for (Goal g : goalList) {
             g.updateStatus();
         }
-//        saveToFile();
 
-
-        // Mục tiêu đã hoàn thành
+        // 2. Gom tất cả các mục tiêu đã HOÀN THÀNH hoặc THẤT BẠI của ngày đó lên trước
         for (Goal g : goalList) {
-            if (g.getTargetDate().equals(date) && g.getStatus() == GoalStatus.ACHIEVED) {
-                activeGoals.add(g);
-            }
-        }
-        // Mục tiêu thất bại
-        for (Goal g : goalList) {
-            if (g.getTargetDate().equals(date) && g.getStatus() == GoalStatus.FAILED) {
+            if (g.getTargetDate().equals(date) &&
+                    (g.getStatus() == GoalStatus.ACHIEVED || g.getStatus() == GoalStatus.FAILED)) {
                 activeGoals.add(g);
             }
         }
 
+        // 3. XỬ LÝ PHÂN LUỒNG CUỐN CHIẾU RIÊNG BIỆT CHO "IN_PROGRESS"
 
-        // Mục tiêu dở dang (tối đa 2)
-        int inProgressCount = 0;
-        for (Goal g : goalList) {
-            if (g.getTargetDate().equals(date) && g.getStatus() == GoalStatus.IN_PROGRESS) {
-                activeGoals.add(g);
-                inProgressCount++;
-                if (inProgressCount == 2) {
-                    break;
-                }
-            }
+        // Lọc riêng danh sách các mục tiêu đang dở dang (IN_PROGRESS) của ngày được chọn
+        List<Goal> inProgressGoals = goalList.stream()
+                .filter(g -> g.getTargetDate().equals(date) && g.getStatus() == GoalStatus.IN_PROGRESS)
+                .collect(Collectors.toList());
+
+        // Nhánh 1: Tìm mục tiêu "hours" (Học) ở cấp độ thấp nhất đang cần làm
+        Goal nextHoursGoal = inProgressGoals.stream()
+                .filter(g -> g.getUnit().equalsIgnoreCase("hours") || g.getTitle().toLowerCase().contains("học"))
+                .min(Comparator.comparingInt(Goal::getGoalID)) // Lấy ID nhỏ nhất (cấp thấp nhất)
+                .orElse(null);
+
+        // Nhánh 2: Tìm mục tiêu "tasks" (Task) ở cấp độ thấp nhất đang cần làm
+        Goal nextTasksGoal = inProgressGoals.stream()
+                .filter(g -> g.getUnit().equalsIgnoreCase("tasks") || g.getTitle().toLowerCase().contains("task"))
+                .min(Comparator.comparingInt(Goal::getGoalID)) // Lấy ID nhỏ nhất (cấp thấp nhất)
+                .orElse(null);
+
+        // Đẩy mục tiêu hours tiếp theo vào danh sách hiển thị (nếu có)
+        if (nextHoursGoal != null) {
+            activeGoals.add(nextHoursGoal);
         }
+
+        // Đẩy mục tiêu tasks tiếp theo vào danh sách hiển thị (nếu có)
+        if (nextTasksGoal != null) {
+            activeGoals.add(nextTasksGoal);
+        }
+
         return activeGoals;
     }
-
 
     public void autoUpdateProgressFromStatistics(double totalHoursToday, double totalTasksToday) {
         LocalDate today = LocalDate.now();
@@ -253,8 +257,7 @@ public class GoalService {
                 if (titleLower.contains("học") || titleLower.contains("giờ") || titleLower.contains("phút") || g.getUnit().equalsIgnoreCase("hours")) {
                     g.evaluate(totalHoursToday);
                     isChanged = true;
-                }
-                else if (titleLower.contains("task") || titleLower.contains("bài tập") || titleLower.contains("việc") || g.getUnit().equalsIgnoreCase("tasks")) {
+                } else if (titleLower.contains("task") || titleLower.contains("bài tập") || titleLower.contains("việc") || g.getUnit().equalsIgnoreCase("tasks")) {
                     g.evaluate(totalTasksDoneToday);
                     isChanged = true;
                 }

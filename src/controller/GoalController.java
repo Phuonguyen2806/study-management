@@ -1,6 +1,5 @@
 package controller;
 
-
 import model.entity.Goal;
 import model.entity.GoalStatus;
 import model.entity.TaskStatus;
@@ -10,8 +9,6 @@ import model.repository.IUserRepository;
 import service.GoalService;
 import service.StatisticsService;
 import view.GoalPanel;
-
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -22,17 +19,14 @@ public class GoalController {
     private final StatisticsService statisticsService; // Service cung cấp số liệu thô
     private GoalPanel goalPanel;
     private LocalDate selectedDate;
-    private User currentUser; // ĐÃ BỔ SUNG: Biến toàn cục lưu trữ User đăng nhập
+    private User currentUser;
 
 
     public GoalController(ITaskRepository taskRepository, IUserRepository userRepository) {
         this.goalService = new GoalService();
-        // Truyền các repository bắt buộc vào đây
         this.statisticsService = new StatisticsService(taskRepository, userRepository);
         this.selectedDate = LocalDate.now();
     }
-
-
 
     public void setGoalPanel(GoalPanel panel) {
         this.goalPanel = panel;
@@ -47,13 +41,8 @@ public class GoalController {
             this.goalPanel = panel;
             this.goalPanel.setController(this);
             this.currentUser = user; // Gán user vào biến toàn cục để tái sử dụng
-
-
             // Thiết lập ID người dùng cho GoalService để lọc chính xác file text goals.txt
             this.goalService.setCurrentUser(String.valueOf(user.getUserID()));
-
-
-            // Tiến hành quét số liệu đồng bộ và hiển thị lên giao diện
             loadAndDisplay();
         }
     }
@@ -64,21 +53,12 @@ public class GoalController {
      */
     public void loadAndDisplay() {
         if (goalPanel == null || currentUser == null) return;
-
-
-        // 1. Thực hiện đồng bộ số liệu THƯỚC (Nếu là ngày hôm nay)
         if (selectedDate.equals(LocalDate.now())) {
-            double hoursToday = statisticsService.getTodayTime();
+            double hoursToday = statisticsService.getTodayFocusTime();
             Map<TaskStatus, Integer> taskStats = statisticsService.getTodayTaskStatusStatistics();
             int tasksDoneToday = taskStats.getOrDefault(TaskStatus.DONE, 0);
-
-
-            // Đẩy số liệu mới cập nhật vào RAM và ghi xuống file luôn
             goalService.syncGoalsWithStatistics(selectedDate, hoursToday, tasksDoneToday);
         }
-
-
-        // 2. Sau khi đã đồng bộ dữ liệu chuẩn vào file/RAM -> Mới lấy ra để hiển thị lên UI
         List<Goal> activeGoals = goalService.getActiveGoalsByDate(selectedDate);
         goalPanel.displayGoals(activeGoals);
     }
@@ -92,10 +72,7 @@ public class GoalController {
         loadAndDisplay();
     }
 
-
-    /**
-     * Lấy ngày đang được chọn trên giao diện
-     */
+//      Lấy ngày đang được chọn trên giao diện
     public LocalDate getSelectedDate() {
         return selectedDate;
     }
@@ -113,18 +90,11 @@ public class GoalController {
         return goalService.countByStatusAndDate(status, selectedDate);
     }
     public void refreshView(model.entity.User currentUser) {
-        // 1. Kiểm tra điều kiện an toàn, nếu chưa đăng nhập hoặc goalPanel chưa khởi tạo thì bỏ qua
         if (currentUser == null || this.goalPanel == null) {
             return;
         }
-
-        // 2. Cập nhật lại User hiện tại (nếu cần)
         this.currentUser = currentUser;
-
-        // 3. Tận dụng chính hàm có sẵn để nạp số liệu thô từ Stat, đồng bộ và vẽ lại giao diện
         this.loadAndDisplay();
-
-        System.out.println(">>> GoalController đã tự động làm mới tiến độ từ Thống kê!");
     }
 }
 
