@@ -58,7 +58,7 @@ public class UserRepository  implements IUserRepository {
         List<User> users = getAllUsers();
         boolean isUpdated = false;
         for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(email)) {
+            if (user.checkEmail(email)) {
                 user.setLogin(isLogin);
                 isUpdated = true;
                 break;
@@ -84,7 +84,7 @@ public class UserRepository  implements IUserRepository {
     public User findUserByEmail(String email) {
         List<User> users = getAllUsers();
         for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(email)) {
+            if (user.checkEmail(email)) {
                 return user;
             }
         }
@@ -95,7 +95,7 @@ public class UserRepository  implements IUserRepository {
         List<User> users = getAllUsers();
         int maxID = 0;
         for (User user : users) {
-            if (user.getUserID() > maxID) {
+            if (user.hasIdGreaterThan(maxID)) {
                 maxID = user.getUserID();
             }
         }
@@ -115,7 +115,7 @@ public class UserRepository  implements IUserRepository {
 
     public User getUserById(int userId) {
         for (User user : getAllUsers()) {
-            if (user.getUserID() == userId) {
+            if (user.checkUserID(userId)) {
                 return user;
             }
         }
