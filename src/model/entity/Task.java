@@ -76,10 +76,6 @@ public class Task {
         this.estPomo = estPomo;
     }
 
-    public void setCompPomo(int compPomo) {
-        this.compPomo = compPomo;
-    }
-
     public void setStatus(TaskStatus status) {
         this.status = status;
     }
@@ -110,14 +106,6 @@ public class Task {
 
     public boolean checkUserTask(Task task) {
         return this.userId == task.getUserId();
-    }
-
-    public boolean isStatus(String status) {
-        return this.status.name().equalsIgnoreCase(status);
-    }
-
-    public boolean isOverdue() {
-       return status == TaskStatus.OVERDUE;
     }
 
     public boolean isDone() {

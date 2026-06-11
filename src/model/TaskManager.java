@@ -30,7 +30,7 @@ public class TaskManager {
         }
         Date deadline = parseDate(deadlineStr);
 
-        if (deadline.before(new Date())) {
+        if (deadline.before(getToday())) {
             throw new IllegalArgumentException("Không được chọn ngày trong quá khứ!");
         }
         int userId = userRepository.getLoggedInUserId();
@@ -132,6 +132,13 @@ public class TaskManager {
         }
         return task;
     }
-
+    private Date getToday() {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            return sdf.parse(sdf.format(new Date()));
+        } catch (Exception e) {
+            return new Date();
+        }
+    }
 
 }
