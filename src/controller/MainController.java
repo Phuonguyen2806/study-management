@@ -91,15 +91,21 @@ public class MainController {
         // Khởi tạo Statistic
         StatisticsPanel statisticsPanel = this.mainFrame.getStatisticsPanel();
         this.statisticsController = new StatisticsController(statisticsPanel,taskRepository, userRepository );
+
         // Bơm dữ liệu User vào cho Popup Hồ sơ
         this.mainFrame.getProfilePopupView().fillUser(this.currentUser);
-
         // Xử lý sự kiện khi nhấn nút "Đăng xuất" trên Popup
         this.mainFrame.getProfilePopupView().setOnLogoutClicked(() -> {
             authController.handleLogout();
+            // 1. Reset trắng các ô nhập liệu trên form Đăng nhập
+            if (loginForm != null) {
+                loginForm.clearInputs();
+            }
             mainFrame.dispose(); // Đóng màn hình chính
             showLoginView(); // Quay lại màn hình đăng nhập
+
         });
+
 
         mainFrame.addWindowListener(new WindowAdapter() {
             @Override
