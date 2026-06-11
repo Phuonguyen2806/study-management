@@ -44,7 +44,6 @@ public class FocusController implements IFocusController {
     // Nút [Chọn công việc]: Lọc file và chỉ hiển thị task của riêng user đang đăng nhập
     @Override
     public void handleSelectTaskClick() {
-        this.taskRepository.init(AppConstants.FILE_TASKS);
         int loggedInId = userRepository.getLoggedInUserId();
         // 1. Dùng hàm findTasksByUserId của Repository để lấy danh sách Task của user hiện tại
         List<Task> userTasks = taskRepository.findTasksByUserId(loggedInId);

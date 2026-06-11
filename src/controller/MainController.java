@@ -85,7 +85,6 @@ public class MainController {
         focusPanel.setController(this.focusController);
         // Khởi tạo Goal
         GoalPanel goalPanel = this.mainFrame.getGoalPanel();
-        ITaskRepository taskRepo;
         this.goalController = new GoalController(taskRepository, userRepository);
         this.goalController.initialize(goalPanel,this.currentUser);
         // Khởi tạo Statistic
