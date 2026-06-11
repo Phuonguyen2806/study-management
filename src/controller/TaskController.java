@@ -90,7 +90,6 @@ public class TaskController {
                     form.getPriorityInput(),
                     form.getStatusInput()
             );
-            refreshView();
             return true;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(form, e.getMessage());
