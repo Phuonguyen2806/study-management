@@ -15,12 +15,14 @@ public class MainController {
     private IFocusController focusController;
     private GoalController goalController;
     private StatisticsController statisticsController;
+    private ReminderController reminderController;
     private LoginForm loginForm;
     private RegisterForm registerForm;
     private User currentUser;
     private AuthController authController;
     private ITaskRepository taskRepository;
     private IUserRepository userRepository;
+    private IReminderRepository reminderRepository;
     private IStudySessionRepository studySessionRepository ;
 
     public MainController(MainFrame view) {
@@ -74,7 +76,7 @@ public class MainController {
         //Khởi tạo repo
         taskRepository =  new TaskRepositoryImpl();
         userRepository = new UserRepository();
-        IReminderRepository reminderRepo = new ReminderRepository();
+        reminderRepository = new ReminderRepository();
         MotivationService motivationService = new MotivationService();
         studySessionRepository = new StudySessionRepositoryImpl();
         // Khởi tạo Task
@@ -85,7 +87,6 @@ public class MainController {
         focusPanel.setController(this.focusController);
         // Khởi tạo Goal
         GoalPanel goalPanel = this.mainFrame.getGoalPanel();
-        ITaskRepository taskRepo;
         this.goalController = new GoalController(taskRepository, userRepository);
         this.goalController.initialize(goalPanel,this.currentUser);
         // Khởi tạo Statistic
@@ -118,8 +119,8 @@ public class MainController {
         ReminderService reminderService = new ReminderService(motivationService,
                 userRepository,
                 taskRepository,
-                reminderRepo);
-        ReminderController reminderController = new ReminderController(taskRepository, reminderService);
+                reminderRepository);
+        reminderController = new ReminderController(taskRepository, reminderService);
 //        // 2. Gọi ReminderController quét danh sách task này (isAppOpen = true)
         reminderController.startCheckingReminders(mainFrame);
 
