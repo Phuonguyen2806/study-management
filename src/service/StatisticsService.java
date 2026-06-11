@@ -292,25 +292,6 @@ public class StatisticsService {
                 counts.put(effectiveStatus, counts.getOrDefault(effectiveStatus, 0) + 1);
             }
         }
-//            // 1. Kiểm tra ưu tiên: Nếu hôm nay có phiên học hoàn thành task này -> Chốt là DONE
-//            if (isTaskCompletedToday(task.getTaskId())) {
-//                effectiveStatus = TaskStatus.DONE;
-//            }
-//            // 2. Nếu không phải DONE, kiểm tra OVERDUE (chỉ tính nếu có deadline và chưa xong)
-//            else if (task.getDeadline() != null &&
-//                    effectiveStatus != TaskStatus.DONE &&
-//                    task.getDeadline().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().isBefore(now)) {
-//                effectiveStatus = TaskStatus.OVERDUE;
-//            }
-//
-//            // 3. Chỉ thêm vào thống kê nếu task thuộc tuần này
-//            if (task.getDeadline() != null) {
-//                LocalDate taskDate = task.getDeadline().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//                if (!taskDate.isBefore(monday) && !taskDate.isAfter(sunday)) {
-//                    counts.put(effectiveStatus, counts.getOrDefault(effectiveStatus, 0) + 1);
-//                }
-//            }
-//        }
         return counts;
     }
 }
