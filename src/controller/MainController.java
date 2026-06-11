@@ -165,8 +165,8 @@ public class MainController {
         mainFrame.setActiveButton(mainFrame.getBtnThongKe());
         // 2. Gọi Controller để load dữ liệu
         if (this.statisticsController != null && this.currentUser != null) {
-            this.statisticsController.loadDailyStats(this.currentUser);
-            this.statisticsController.loadWeeklyStats(this.currentUser);
+            this.statisticsController.loadDailyStats();
+            this.statisticsController.loadWeeklyStats();
         }
     }
 
