@@ -12,10 +12,6 @@ public class Goal {
     private double currentValue;
     private LocalDateTime completedAt;
 
-    public Goal() {
-        this.status = GoalStatus.IN_PROGRESS;
-        this.date = LocalDate.now();
-    }
 
     public Goal(int goalID, String title, LocalDate date,
                 double targetValue, String unit) {

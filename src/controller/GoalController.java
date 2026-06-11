@@ -22,9 +22,10 @@ public class GoalController {
     private User currentUser;
 
 
-    public GoalController(ITaskRepository taskRepository, IUserRepository userRepository) {
-        this.goalService = new GoalService();
-        this.statisticsService = new StatisticsService(taskRepository, userRepository);
+    // Truyền thẳng các Service cần thiết vào từ hàm main/bộ khởi chạy ứng dụng
+    public GoalController(GoalService goalService, StatisticsService statisticsService) {
+        this.goalService = goalService;
+        this.statisticsService = statisticsService;
         this.selectedDate = LocalDate.now();
     }
 
@@ -53,41 +54,18 @@ public class GoalController {
      */
     public void loadAndDisplay() {
         if (goalPanel == null || currentUser == null) return;
-        if (selectedDate.equals(LocalDate.now())) {
-            double hoursToday = statisticsService.getTodayFocusTime();
-            Map<TaskStatus, Integer> taskStats = statisticsService.getTodayTaskStatusStatistics();
-            int tasksDoneToday = taskStats.getOrDefault(TaskStatus.DONE, 0);
-            goalService.syncGoalsWithStatistics(selectedDate, hoursToday, tasksDoneToday);
-        }
-        List<Goal> activeGoals = goalService.getActiveGoalsByDate(selectedDate);
-        goalPanel.displayGoals(activeGoals);
+
+        // Lấy danh sách đã ĐỒNG BỘ và SẮP XẾP TỪNG NHÓM từ Service
+        List<Goal> sortedActiveGoals = goalService.getSortedActiveGoals(selectedDate, statisticsService);
+
+        // Tính toán trước các số liệu thống kê
+        int totalCount = goalService.getGoalsByDate(selectedDate).size();
+        long achievedCount = goalService.countByStatusAndDate(GoalStatus.ACHIEVED, selectedDate);
+        long inProgressCount = goalService.countByStatusAndDate(GoalStatus.IN_PROGRESS, selectedDate);
+
+        goalPanel.displayGoals(sortedActiveGoals, totalCount, achievedCount, inProgressCount);
     }
 
-
-    /**
-     * Thay đổi ngày xem mục tiêu (ví dụ xem lịch sử mục tiêu các ngày trước)
-     */
-    public void changeSelectedDate(LocalDate newDate) {
-        this.selectedDate = newDate;
-        loadAndDisplay();
-    }
-
-//      Lấy ngày đang được chọn trên giao diện
-    public LocalDate getSelectedDate() {
-        return selectedDate;
-    }
-
-
-    /**
-     * Các hàm bổ trợ để GoalPanel gọi lấy số liệu hiển thị lên "Bảng lịch sử thành tích"
-     */
-    public int getTotalGoals() {
-        return goalService.getGoalsByDate(selectedDate).size();
-    }
-
-    public long getCountByStatus(GoalStatus status) {
-        return goalService.countByStatusAndDate(status, selectedDate);
-    }
     public void refreshView(model.entity.User currentUser) {
         if (currentUser == null || this.goalPanel == null) {
             return;

@@ -3,24 +3,26 @@ package service;
 
 import model.entity.Goal;
 import model.entity.GoalStatus;
-
+import model.entity.TaskStatus;
+import model.repository.IGoalRepository;
+import model.repository.GoalRepositoryImpl;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 public class GoalService {
-    private final String FILE_PATH = "data/goals.txt";
     private final List<Goal> goalList = new ArrayList<>();
     private String currentUserId = "1";
-
-
-    public GoalService() {
+    private final IGoalRepository goalRepository;
+    public GoalService(IGoalRepository goalRepository) {
+        this.goalRepository = goalRepository;
     }
 
     public void setCurrentUser(String userId) {
@@ -32,70 +34,52 @@ public class GoalService {
         init();
     }
 
+    public List<Goal> syncAndGetActiveGoals(LocalDate date, StatisticsService statisticsService) {
+        if (date.equals(LocalDate.now()) && statisticsService != null) {
 
-    // --- INIT: Đọc dữ liệu nguyên bản từ file, không tự ý ghi đè số của người dùng ---
-    public void init() {
-        goalList.clear();
-        try {
-            Path path = Paths.get(FILE_PATH);
-            if (path.getParent() != null && !Files.exists(path.getParent())) {
-                Files.createDirectories(path.getParent());
-            }
+            // Tầng Service tự đi lấy giờ học thô
+            double hoursToday = statisticsService.getTodayFocusTime();
 
-            if (Files.exists(path)) {
-                List<String> lines = Files.readAllLines(path);
-                int lineNumber = 0;
+            // Tầng Service tự đi lấy số task đã xong
+            java.util.Map<model.entity.TaskStatus, Integer> taskStats =
+                    statisticsService.getTodayTaskStatusStatistics();
+            int tasksDoneToday = taskStats.getOrDefault(model.entity.TaskStatus.DONE, 0);
 
-                for (String line : lines) {
-                    lineNumber++;
-                    if (line.trim().isEmpty()) continue;
-
-                    String[] parts = line.split("\\|");
-                    if (parts.length >= 8) {
-                        String fileUserId = parts[0].trim();
-
-                        if (fileUserId.equals(currentUserId)) {
-                            try {
-                                LocalDate date = LocalDate.parse(parts[1].trim());
-                                int id = Integer.parseInt(parts[2].trim());
-                                String title = parts[3].trim();
-                                double currentValue = Double.parseDouble(parts[4].trim());
-                                double targetValue = Double.parseDouble(parts[5].trim()); // Đọc chuẩn xác 0.0167
-                                String unit = parts[6].trim();
-                                GoalStatus status = GoalStatus.valueOf(parts[7].trim());
-
-                                // KHÔNG CHÈN CODE ÉP BUỘC TARGETVALUE Ở ĐÂY NỮA
-                                Goal goal = new Goal(id, title, date, targetValue, unit);
-                                goal.setCurrentValue(currentValue);
-                                goal.setStatus(status);
-
-                                goalList.add(goal);
-                            } catch (Exception e) {
-                                System.err.println(">>> [Lỗi định dạng] Dòng " + lineNumber + ": " + e.getMessage());
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Tự động sinh mục tiêu mặc định nếu chưa có dữ liệu ngày hôm nay
-            LocalDate today = LocalDate.now();
-            boolean hasGoalsToday = goalList.stream().anyMatch(g -> g.getTargetDate().equals(today));
-
-            if (!hasGoalsToday) {
-                System.out.println(">>> Phát hiện User [" + currentUserId + "] chưa có mục tiêu cho ngày " + today + ". Tự động khởi tạo 6 mục tiêu mặc định...");
-                generateDefaultGoalsForDate(today);
-                saveToFile();
-            }
-
-            System.out.println("Init Goal: Đã nạp " + goalList.size() + " mục tiêu của User ID [" + currentUserId + "]");
-        } catch (IOException e) {
-            System.err.println("Lỗi Init Goal: " + e.getMessage());
+            // Tầng Service tự gọi hàm đồng bộ nội bộ của nó
+            this.syncGoalsWithStatistics(date, hoursToday, tasksDoneToday);
         }
+
+        // 2. Trả về kết quả sau khi đã xử lý nghiệp vụ xong xuôi
+        return this.getActiveGoalsByDate(date);
     }
 
+    public void init() {
 
-    // Hàm phụ trợ: Tự động sinh 6 mục tiêu cho một ngày nhất định
+        goalList.clear();
+
+        goalList.addAll(
+                goalRepository.loadGoalsByUserId(
+                        currentUserId
+                )
+        );
+
+        LocalDate today =
+                LocalDate.now();
+
+        boolean hasGoalsToday =
+                goalList.stream()
+                        .anyMatch(
+                                g -> g.getTargetDate()
+                                        .equals(today)
+                        );
+
+        if (!hasGoalsToday) {
+
+            generateDefaultGoalsForDate(today);
+
+            saveToFile();
+        }
+    }
     private void generateDefaultGoalsForDate(LocalDate date) {
         goalList.add(new Goal(1, "Học 30 phút mỗi ngày", date, 0.5, "hours"));
         goalList.add(new Goal(2, "Hoàn thành 1 task mỗi ngày", date, 1.0, "tasks"));
@@ -108,62 +92,25 @@ public class GoalService {
 
     // --- SAVE TO FILE: Bảo vệ dữ liệu tuyệt đối của User khác ---
     public void saveToFile() {
-        try {
-            Path path = Paths.get(FILE_PATH);
-            List<String> allLinesToSave = new ArrayList<>();
 
+        for (Goal g : goalList) {
 
-            // 1. ĐỌC FILE CŨ ĐỂ GIỮ LẠI DỮ LIỆU CỦA USER KHÁC
-            if (Files.exists(path)) {
-                List<String> currentFileLines = Files.readAllLines(path);
-                for (String line : currentFileLines) {
-                    if (line.trim().isEmpty()) continue;
-                    String[] parts = line.split("\\|");
-                    if (parts.length >= 8) {
-                        String fileUserId = parts[0].trim();
+            if (g.getStatus() != GoalStatus.ACHIEVED
+                    && g.getStatus() != GoalStatus.FAILED) {
 
-
-                        // SỬA LỖI CHÍNH: Chỉ giữ lại dòng của USER KHÁC.
-                        // Toàn bộ dữ liệu (cũ + mới) của USER HIỆN TẠI sẽ được ghi lại từ goalList ở bước 2.
-                        if (!fileUserId.equals(currentUserId)) {
-                            allLinesToSave.add(line);
-                        }
-                    }
-                }
+                g.updateStatus();
             }
-
-
-            // 2. GHI TOÀN BỘ DỮ LIỆU CỦA USER HIỆN TẠI (BAO GỒM CẢ CÁC NGÀY TRƯỚC VÀ NGÀY NAY)
-            for (Goal g : goalList) {
-                // Đảm bảo trạng thái luôn được cập nhật trước khi ghi file
-                if (g.getStatus() != GoalStatus.ACHIEVED && g.getStatus() != GoalStatus.FAILED) {
-                    g.updateStatus();
-                }
-
-
-                String line = String.format("%s | %s | %d | %s | %s | %s | %s | %s",
-                        currentUserId,
-                        g.getTargetDate().toString(),
-                        g.getGoalID(),
-                        g.getTitle(),
-                        String.valueOf(g.getCurrentValue()),
-                        String.valueOf(g.getTargetValue()),
-                        g.getUnit(),
-                        g.getStatus().name()
-                );
-                allLinesToSave.add(line);
-            }
-
-
-            // 3. GHI ĐÈ LẠI FILE
-            Files.write(path, allLinesToSave, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            System.out.println(">>> Đã đồng bộ dữ liệu của User ID [" + currentUserId + "] vào file goals.txt");
-
-
-        } catch (IOException e) {
-            System.err.println("Lỗi lưu file Goal: " + e.getMessage());
         }
+
+        goalRepository.saveGoalsByUserId(
+                currentUserId,
+                goalList
+        );
     }
+
+
+
+
     public List<Goal> getActiveGoalsByDate(LocalDate date) {
         List<Goal> activeGoals = new ArrayList<>();
 
@@ -187,13 +134,13 @@ public class GoalService {
                 .filter(g -> g.getTargetDate().equals(date) && g.getStatus() == GoalStatus.IN_PROGRESS)
                 .collect(Collectors.toList());
 
-        // Nhánh 1: Tìm mục tiêu "hours" (Học) ở cấp độ thấp nhất đang cần làm
+        // Nhánh 1: Tìm mục tiêu "hours"  ở cấp độ thấp nhất đang cần làm
         Goal nextHoursGoal = inProgressGoals.stream()
                 .filter(g -> g.getUnit().equalsIgnoreCase("hours") || g.getTitle().toLowerCase().contains("học"))
                 .min(Comparator.comparingInt(Goal::getGoalID)) // Lấy ID nhỏ nhất (cấp thấp nhất)
                 .orElse(null);
 
-        // Nhánh 2: Tìm mục tiêu "tasks" (Task) ở cấp độ thấp nhất đang cần làm
+        // Nhánh 2: Tìm mục tiêu "tasks"  ở cấp độ thấp nhất đang cần làm
         Goal nextTasksGoal = inProgressGoals.stream()
                 .filter(g -> g.getUnit().equalsIgnoreCase("tasks") || g.getTitle().toLowerCase().contains("task"))
                 .min(Comparator.comparingInt(Goal::getGoalID)) // Lấy ID nhỏ nhất (cấp thấp nhất)
@@ -210,24 +157,6 @@ public class GoalService {
         }
 
         return activeGoals;
-    }
-
-    public void autoUpdateProgressFromStatistics(double totalHoursToday, double totalTasksToday) {
-        LocalDate today = LocalDate.now();
-        boolean isUpdated = false;
-
-
-        for (Goal g : getGoalsByDate(today)) {
-            String titleLower = g.getTitle().toLowerCase();
-            if (titleLower.contains("học") || titleLower.contains("giờ") || titleLower.contains("phút")) {
-                g.evaluate(totalHoursToday);
-                isUpdated = true;
-            } else if (titleLower.contains("task") || titleLower.contains("bài tập") || titleLower.contains("việc")) {
-                g.evaluate(totalTasksToday);
-                isUpdated = true;
-            }
-        }
-        if (isUpdated) saveToFile();
     }
 
 
@@ -247,13 +176,9 @@ public class GoalService {
 
     public void syncGoalsWithStatistics(LocalDate date, double totalHoursToday, int totalTasksDoneToday) {
         boolean isChanged = false;
-
-
         for (Goal g : goalList) {
             if (g.getTargetDate().equals(date)) {
                 String titleLower = g.getTitle().toLowerCase();
-
-
                 if (titleLower.contains("học") || titleLower.contains("giờ") || titleLower.contains("phút") || g.getUnit().equalsIgnoreCase("hours")) {
                     g.evaluate(totalHoursToday);
                     isChanged = true;
@@ -263,10 +188,37 @@ public class GoalService {
                 }
             }
         }
-
         if (isChanged) {
             saveToFile();
         }
+
+
+    }
+    // Thêm hàm này vào GoalService.java
+    public List<Goal> getSortedActiveGoals(LocalDate date, StatisticsService statisticsService) {
+        // 1. Lấy danh sách mục tiêu hoạt động đã đồng bộ (logic cũ của bạn)
+        List<Goal> activeGoals = syncAndGetActiveGoals(date, statisticsService);
+
+        // 2. Tiến hành sắp xếp phân loại ngay tại tầng Service (Cắt từ View sang)
+        List<Goal> sortedGoals = new ArrayList<>(activeGoals);
+        Collections.sort(sortedGoals, new Comparator<Goal>() {
+            @Override
+            public int compare(Goal g1, Goal g2) {
+                // Giữ nguyên logic so sánh thông minh của bạn ở đây
+                boolean isG1Hours = g1.getUnit().equalsIgnoreCase("hours") || g1.getTitle().toLowerCase().contains("học") || g1.getTitle().toLowerCase().contains("giờ");
+                boolean isG2Hours = g2.getUnit().equalsIgnoreCase("hours") || g2.getTitle().toLowerCase().contains("học") || g2.getTitle().toLowerCase().contains("giờ");
+
+                if (isG1Hours && !isG2Hours) return -1;
+                if (!isG1Hours && isG2Hours) return 1;
+
+                if (g1.getStatus() != GoalStatus.ACHIEVED && g2.getStatus() == GoalStatus.ACHIEVED) return -1;
+                if (g1.getStatus() == GoalStatus.ACHIEVED && g2.getStatus() != GoalStatus.ACHIEVED) return 1;
+
+                return Integer.compare(g1.getGoalID(), g2.getGoalID());
+            }
+        });
+
+        return sortedGoals;
     }
 }
 
