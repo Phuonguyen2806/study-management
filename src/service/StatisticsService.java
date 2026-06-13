@@ -81,7 +81,7 @@ public class StatisticsService {
         }
     }
 
-
+    //Service khởi tạo DTO để truyền dữ liệu
     public DailyStats getDailyStats() {
         return new DailyStats(getTodayFocusTime(), countTodayPomodoroSessions(), getTodayTaskStatusStatistics());
     }
@@ -144,13 +144,16 @@ public class StatisticsService {
         }
         return stats;
     }
-
+    //Model tự xử lý dữ liệu, logic không có sự can thiệp từ View
     public double getTodayFocusTime() {
         double totalSeconds = 0;
+        //1. Xác định dữ liệu được lấy ngày hôm nay
         LocalDate today = LocalDate.now();
         for (StudySession session : getStudySessionsByUser()) {
             LocalDate sessionDate = session.getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            if (sessionDate.equals(today) && session.getSessionType() == SessionType.FOCUS && session.getStatus() == SessionStatus.COMPLETED) {
+            //2. Chỉ cộng dồn thời gian nếu phiên học thỏa mãn đồng thời 3 điều kiện
+            if (sessionDate.equals(today) && session.getSessionType() == SessionType.FOCUS
+                    && (session.getStatus() == SessionStatus.COMPLETED || session.getStatus() == SessionStatus.STOPPED_EARLY)) {
                 totalSeconds += session.getDuration();
             }
         }

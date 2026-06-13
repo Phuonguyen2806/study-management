@@ -20,7 +20,7 @@ public class ReminderService {
     private static final long REMINDER_THRESHOLD_MINUTES = 120;
     private static final Set<Integer> notifiedTaskIds = new HashSet<>();
     private final java.util.concurrent.ExecutorService emailExecutor = java.util.concurrent.Executors.newCachedThreadPool();
-    // Constructor Injection: Khởi tạo repository khi tạo Service
+
     public ReminderService(MotivationService motivationService,IUserRepository userRepository,
                            ITaskRepository taskRepository, IReminderRepository reminderRepository) {
         this.motivationService = motivationService;
@@ -87,7 +87,7 @@ private void runReminderCheck(List<Task> allTasks, boolean isMainAppActive) {
     }
 
     private void processAndSendReminder(Task task, boolean isUserActive) {
-        // 2. Lấy quote và làm sạch (phòng trường hợp quote chứa dấu |)
+        // 2. Lấy quote
         String rawQuote = motivationService.getRandomQuote();
         String cleanQuote = rawQuote.contains("|") ? rawQuote.split("\\|")[1] : rawQuote;
         String message = "Nhắc nhở: " + task.getTitle() + "\n" + cleanQuote;

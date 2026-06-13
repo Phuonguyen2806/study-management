@@ -222,6 +222,7 @@ public class StatisticsPanel extends JPanel {
         // 2. Center: Biểu đồ - SỬ DỤNG GRIDLAYOUT
         JPanel chartPanel = new JPanel(new GridLayout(1, 2, 20, 0));
         chartPanel.setOpaque(false);
+
         // Tăng chiều cao tối thiểu cho khu vực biểu đồ để hình tròn không bị dẹt
         chartPanel.setPreferredSize(new Dimension(0, 300));
 

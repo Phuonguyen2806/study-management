@@ -35,23 +35,20 @@ public class StatisticsController {
             }
         }, 0, 1, TimeUnit.MINUTES);
     }
-
+    //Controller nhận dữ liệu từ Model gọi View cập nhật dữ liệu
     public void loadDailyStats() {
-        // Luôn refresh trước khi tính toán để đảm bảo số liệu mới nhất
+        // 1. Làm dữ liệu luôn luôn mới nhât
         taskRepository.refresh();
-
-        // Sử dụng service hiện có, đảm bảo lấy lại dữ liệu mới nhất
+        // 2. Gom tất cả dữ liệu được tính toán từ Model
         DailyStats stats = service.getDailyStats();
         List<Task> overdue = service.getOverdueTasks();
         List<Task> upcoming = service.getUpcomingTodayTasks();
         Map<TaskStatus, Integer> statsMap = service.getTodayTaskStatusStatistics(); // Đảm bảo hàm này trả về dữ liệu đúng
-
-        // Cập nhật lên View
+        // 3. Gọi View để cập nhật dữ liệu
         view.displayDailyStudyTime(stats.getTodayFocusTime());
         view.displayPomodoroCount(stats.getPomodoroCount());
         view.displayDailyTables(overdue, upcoming);
         view.displayTaskStatus(statsMap);
-
         view.refresh();
     }
 

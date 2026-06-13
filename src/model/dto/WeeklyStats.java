@@ -19,13 +19,10 @@ public class WeeklyStats {
 	public double getAverageFocusTime() {
 		return averageFocusTime;
 	}
-
 	public Map<LocalDate, Double> getStudyTimeByDay() {
 		return studyTimeByDay;
 	}
-
 	public double getCompletionRate() {
 		return completionRate;
 	}
-
 }
