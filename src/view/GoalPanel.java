@@ -127,17 +127,17 @@ public class GoalPanel extends JPanel {
         add(pnlCenterWrapper, BorderLayout.CENTER);
     }
 
-    public void displayGoals(List<Goal> activeGoals) {
+    // Sửa lại danh sách tham số đầu vào của hàm
+    public void displayGoals(List<Goal> sortedGoals, int totalCount, long achievedCount, long inProgressCount) {
         pnlCardsContainer.removeAll();
 
-        // Nạp số liệu thống kê lên bảng trên
-        if (controller != null) {
-            lblTotalCount.setText(String.valueOf(controller.getTotalGoals()));
-            lblAchievedCount.setText(String.valueOf(controller.getCountByStatus(GoalStatus.ACHIEVED)));
-            lblInProgressCount.setText(String.valueOf(controller.getCountByStatus(GoalStatus.IN_PROGRESS)));
-        }
+        // 1. Gán trực tiếp số liệu từ tham số truyền vào (Không gọi qua controller nữa)
+        lblTotalCount.setText(String.valueOf(totalCount));
+        lblAchievedCount.setText(String.valueOf(achievedCount));
+        lblInProgressCount.setText(String.valueOf(inProgressCount));
 
-        if (activeGoals == null || activeGoals.isEmpty()) {
+        // 2. Vẽ giao diện danh sách Card
+        if (sortedGoals == null || sortedGoals.isEmpty()) {
             JLabel lblEmpty = new JLabel("Chưa có mục tiêu nào được thiết lập cho ngày này.", SwingConstants.CENTER);
             lblEmpty.setFont(new Font("Segoe UI", Font.PLAIN, 13));
             lblEmpty.setForeground(Color.GRAY);
@@ -146,41 +146,17 @@ public class GoalPanel extends JPanel {
         } else {
             pnlCardsContainer.setLayout(new WrapLayout(FlowLayout.LEFT, 15, 15));
 
-            List<Goal> sortedGoals = new ArrayList<>(activeGoals);
-
-            // THỰC HIỆN SẮP XẾP PHÂN LOẠI THEO NHÓM (GIỜ TRƯỚC - TASK SAU) VÀ CUỐN CHIẾU TRONG TỪNG NHÓM
-            Collections.sort(sortedGoals, new Comparator<Goal>() {
-                @Override
-                public int compare(Goal g1, Goal g2) {
-                    // 1. Phân biệt loại mục tiêu: Đẩy nhóm "Hours" lên trước nhóm "Tasks"
-                    boolean isG1Hours = g1.getUnit().equalsIgnoreCase("hours") || g1.getTitle().toLowerCase().contains("học") || g1.getTitle().toLowerCase().contains("giờ");
-                    boolean isG2Hours = g2.getUnit().equalsIgnoreCase("hours") || g2.getTitle().toLowerCase().contains("học") || g2.getTitle().toLowerCase().contains("giờ");
-
-                    if (isG1Hours && !isG2Hours) return -1; // g1 là Giờ học -> lên trước
-                    if (!isG1Hours && isG2Hours) return 1;  // g2 là Giờ học -> lên trước
-
-                    // 2. Nếu CÙNG LOẠI mục tiêu (Cùng là Giờ học hoặc cùng là Task), xét trạng thái HOÀN THÀNH
-                    // Mục tiêu nào CHƯA HOÀN THÀNH (IN_PROGRESS) phải đứng trước để cuốn chiếu lên
-                    if (g1.getStatus() != GoalStatus.ACHIEVED && g2.getStatus() == GoalStatus.ACHIEVED) {
-                        return -1;
-                    }
-                    if (g1.getStatus() == GoalStatus.ACHIEVED && g2.getStatus() != GoalStatus.ACHIEVED) {
-                        return 1;
-                    }
-
-                    // 3. Nếu cùng loại và cùng trạng thái, sắp xếp theo ID tăng dần (Nhỏ làm trước, lớn làm sau)
-                    return Integer.compare(g1.getGoalID(), g2.getGoalID());
-                }
-            });
-
-            // Tiến hành render danh sách đã sắp xếp đúng nhóm và cuốn chiếu
+            // Nhận list đã được Service sắp xếp sẵn từ trước, chỉ việc lặp và tạo Card giao diện
             for (Goal goal : sortedGoals) {
                 JPanel card = createGoalCard(goal);
                 pnlCardsContainer.add(card);
             }
         }
+
         pnlCardsContainer.revalidate();
         pnlCardsContainer.repaint();
+
+
     }
 
     /**
@@ -212,20 +188,13 @@ public class GoalPanel extends JPanel {
         pnlProgressText.setAlignmentX(Component.LEFT_ALIGNMENT);
         pnlProgressText.setBorder(new EmptyBorder(8, 0, 4, 0));
 
-        String progressStr = String.format("Tiến độ: %.1f/%.1f %s",
-                goal.getCurrentValue(), goal.getTargetValue(), goal.getUnit());
-        JLabel lblProgressStr = new JLabel(progressStr);
+        // Gọi trực tiếp Model xử lý nhãn hiển thị dữ liệu
+        JLabel lblProgressStr = new JLabel("Tiến độ: " + goal.getProgressLabel());
         lblProgressStr.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lblProgressStr.setForeground(new Color(108, 117, 125));
 
-        int percentage = 0;
-        boolean isAchieved = goal.getStatus() == GoalStatus.ACHIEVED;
-
-        if (isAchieved || goal.getTargetValue() <= 0) {
-            percentage = 100;
-        } else {
-            percentage = (int) Math.min(100, (goal.getCurrentValue() / goal.getTargetValue()) * 100);
-        }
+// Gọi trực tiếp Model xử lý tính toán phần trăm số liệu
+        int percentage = goal.getProgressPercent();
 
         JLabel lblPercent = new JLabel(percentage + "%");
         lblPercent.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -245,9 +214,13 @@ public class GoalPanel extends JPanel {
         progressBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // 4. Nhãn trạng thái chữ nằm sát lề dưới gọn gàng
-        JLabel lblStatus = new JLabel(isAchieved ? "Đã hoàn thành" : "Đang thực hiện");
+        // 4. Nhãn trạng thái chữ nằm sát lề dưới gọn gàng (Chuẩn MVC)
+// Thay vì dùng biến trung gian, ta hỏi trực tiếp trạng thái từ Model goal
+        boolean checkingAchieved = (goal.getStatus() == model.entity.GoalStatus.ACHIEVED);
+
+        JLabel lblStatus = new JLabel(checkingAchieved ? "Đã hoàn thành" : "Đang thực hiện");
         lblStatus.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        lblStatus.setForeground(isAchieved ? new Color(40, 167, 69) : new Color(255, 152, 0));
+        lblStatus.setForeground(checkingAchieved ? new Color(40, 167, 69) : new Color(255, 152, 0));
         lblStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
         lblStatus.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
@@ -343,7 +316,7 @@ public class GoalPanel extends JPanel {
                 return new Dimension(targetWidth, y + rowHeight + vgap + insets.bottom);
             }
         }
+
+
     }
-
-
 }

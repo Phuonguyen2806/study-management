@@ -87,8 +87,11 @@ public class MainController {
         focusPanel.setController(this.focusController);
         // Khởi tạo Goal
         GoalPanel goalPanel = this.mainFrame.getGoalPanel();
-        this.goalController = new GoalController(taskRepository, userRepository);
-        this.goalController.initialize(goalPanel,this.currentUser);
+        model.repository.IGoalRepository goalRepository = new model.repository.GoalRepositoryImpl();
+        service.GoalService goalService = new service.GoalService(goalRepository);
+        service.StatisticsService goalStatsService = new service.StatisticsService(this.taskRepository, this.userRepository);
+        this.goalController = new controller.GoalController(goalService, goalStatsService);
+        this.goalController.initialize(goalPanel, this.currentUser);
         // Khởi tạo Statistic
         StatisticsPanel statisticsPanel = this.mainFrame.getStatisticsPanel();
         this.statisticsController = new StatisticsController(statisticsPanel,taskRepository, userRepository );

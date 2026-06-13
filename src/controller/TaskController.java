@@ -75,7 +75,6 @@ public class TaskController {
         try {
             taskManager.deleteTask(taskId);
             JOptionPane.showMessageDialog(owner, "Xóa công việc thành công!");
-            refreshView();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(owner, e.getMessage());
         }
@@ -90,7 +89,6 @@ public class TaskController {
                     form.getPriorityInput(),
                     form.getStatusInput()
             );
-            refreshView();
             return true;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(form, e.getMessage());
@@ -119,7 +117,6 @@ public class TaskController {
             );
             form.dispose();
             JOptionPane.showMessageDialog(owner, "Cập nhật công việc thành công!");
-            refreshView();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(form, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
