@@ -182,6 +182,14 @@ public class FocusSessionManager implements FocusViewSubject, FocusSessionSubjec
                 status = SessionStatus.CANCELED;
             }
 
+            // Nếu là phiên TẬP TRUNG và trạng thái đạt chuẩn STOPPED_EARLY (không phải CANCELED)
+            if (currentSessionType == SessionType.FOCUS && status == SessionStatus.STOPPED_EARLY) {
+                if (currentTask != null) {
+                    currentTask.incrementCompPomo(); // Cộng 1 phiên đã làm trên RAM
+                    System.out.println(">>> [Model] Dừng sớm hợp lệ, đã cộng 1 phiên đã làm cho Task.");
+                }
+            }
+
             // Ghi nhận lịch sử (Vẫn lưu file nhưng trạng thái là CANCELED)
             StudySession sessionRecord = createStudySessionRecord(duration, status);
             notifyFocusSessionObservers(new FocusSessionEvent(currentTask, sessionRecord));
