@@ -25,32 +25,16 @@ public class ReminderLog {
         return reminderId;
     }
 
-    public void setReminderId(int reminderId) {
-        this.reminderId = reminderId;
-    }
-
     public Date getTimeSent() {
         return timeSent;
-    }
-
-    public void setTimeSent(Date timeSent) {
-        this.timeSent = timeSent;
     }
 
     public String getMethod() {
         return method;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
     public int getIsSent() {
         return isSent;
-    }
-
-    public void setIsSent(int isSent) {
-        this.isSent = isSent;
     }
 
     public int getTaskId() {

@@ -42,10 +42,7 @@ public class ReminderRepository implements IReminderRepository {
         );
         System.out.println(line);
 
-        //       Sử dụng 'true' để ghi tiếp (append),
-        // và đảm bảo luôn thêm System.lineSeparator() ở ĐẦU hoặc CUỐI
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-            // Kiểm tra nếu file không trống thì xuống dòng trước khi ghi
             File file = new File(filePath);
             if (file.length() > 0) {
                 writer.newLine(); // Đảm bảo bắt đầu bằng một dòng mới
@@ -53,7 +50,6 @@ public class ReminderRepository implements IReminderRepository {
             writer.write(line);
             writer.flush();
         } catch (IOException e) {
-            // Xử lý lỗi theo Variation #3
         }
     }
 

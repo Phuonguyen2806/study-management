@@ -16,16 +16,13 @@ public class StatisticsPanel extends JPanel {
     private final Color COLOR_BG = new Color(245, 247, 251);
     private double doneP = 0, pendP = 0, overdueP = 0, progP = 0;
     // Thành phần Thống kê Ngày
-    private JLabel lblDailyStudyTime, lblPomodoroCount, lblPendingTasks, lblInProgressTasks, lblDoneTasks,
-            lblOverdueTasks, lblTotalTasks;
+    private JLabel lblDailyStudyTime, lblPomodoroCount, lblDoneTasks, lblTotalTasks;
     private JTable overdueTable, upcomingTable;
     private DefaultTableModel overdueModel, upcomingModel;
 
     // Thành phần Thống kê Tuần
     private JLabel lblWeeklyAvgTime, lblWeeklyCompletionRate;
     private JPanel pnlBarChart, pnlPieChart;
-    private JTable tblUpcomingTasks;
-    private DefaultTableModel tableModel;
 
     // Biến lưu trữ dữ liệu thực tế để vẽ đồ thị động lên paintComponent
     private Map<LocalDate, Double> studyTimeData;
@@ -49,17 +46,6 @@ public class StatisticsPanel extends JPanel {
         add(tabPane, BorderLayout.CENTER);
 
     }
-
-    public void showNoDataMessage() {
-        JOptionPane.showMessageDialog(this,
-                "Bạn chưa có dữ liệu học tập trong khoảng thời gian này. Hãy bắt đầu phiên Pomodoro đầu tiên!",
-                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public void showError(String message) {
-        JOptionPane.showMessageDialog(this, "Lỗi: " + message, "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
-    }
-
     public void refresh() {
         revalidate();
         repaint();
@@ -136,21 +122,6 @@ public class StatisticsPanel extends JPanel {
 
         // 3. Logic repaint
         pnlPieChart.repaint();
-    }
-
-    // Sửa tham số từ List<Object[]> thành List<Task>
-    public void displayUpcomingWeekTasks(List<Task> upcomingWeekTasks) {
-        if (this.tableModel != null) {
-            tableModel.setRowCount(0); // Xóa dữ liệu cũ
-            for (Task task : upcomingWeekTasks) {
-                String deadlineStr = (task.getDeadline() != null) ? tableDateFormat.format(task.getDeadline()) : "Không có";
-                tableModel.addRow(new Object[]{
-                        task.getTitle(),
-                        deadlineStr,
-                        task.getPriority()
-                });
-            }
-        }
     }
 
     // --- GIAO DIỆN CHI TIẾT ---
@@ -234,17 +205,6 @@ public class StatisticsPanel extends JPanel {
         return panel;
     }
 
-    // Thêm hàm này để Test hoặc gọi từ Controller
-    public void updateDailyTables(List<Object[]> overdueData, List<Object[]> upcomingData) {
-        overdueModel.setRowCount(0);
-        for (Object[] row : overdueData)
-            overdueModel.addRow(row);
-
-        upcomingModel.setRowCount(0);
-        for (Object[] row : upcomingData)
-            upcomingModel.addRow(row);
-    }
-
     private JPanel createWeeklyView() {
         JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
         mainPanel.setBackground(COLOR_BG);
@@ -262,6 +222,7 @@ public class StatisticsPanel extends JPanel {
         // 2. Center: Biểu đồ - SỬ DỤNG GRIDLAYOUT
         JPanel chartPanel = new JPanel(new GridLayout(1, 2, 20, 0));
         chartPanel.setOpaque(false);
+
         // Tăng chiều cao tối thiểu cho khu vực biểu đồ để hình tròn không bị dẹt
         chartPanel.setPreferredSize(new Dimension(0, 300));
 
