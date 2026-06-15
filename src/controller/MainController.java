@@ -23,7 +23,7 @@ public class MainController {
     private ITaskRepository taskRepository;
     private IUserRepository userRepository;
     private IReminderRepository reminderRepository;
-    private IStudySessionRepository studySessionRepository ;
+    private IStudySessionRepository studySessionRepository;
 
     public MainController(MainFrame view) {
         this.mainFrame = view;
@@ -74,7 +74,7 @@ public class MainController {
         this.mainFrame = new MainFrame();
         mainFrame.setVisible(true);
         //Khởi tạo repo
-        taskRepository =  new TaskRepositoryImpl();
+        taskRepository = new TaskRepositoryImpl();
         userRepository = new UserRepository();
         reminderRepository = new ReminderRepository();
         MotivationService motivationService = new MotivationService();
@@ -83,7 +83,7 @@ public class MainController {
         this.taskController = new TaskController(mainFrame.getTaskPanel(), mainFrame, taskRepository, userRepository);
         // Khởi tạo Focus
         FocusPanel focusPanel = this.mainFrame.getFocusPanel();
-        this.focusController = new FocusController(focusPanel,taskRepository,userRepository, studySessionRepository);
+        this.focusController = new FocusController(focusPanel, taskRepository, userRepository, studySessionRepository);
         focusPanel.setController(this.focusController);
         // Khởi tạo Goal
         GoalPanel goalPanel = this.mainFrame.getGoalPanel();
@@ -94,7 +94,7 @@ public class MainController {
         this.goalController.initialize(goalPanel, this.currentUser);
         // Khởi tạo Statistic
         StatisticsPanel statisticsPanel = this.mainFrame.getStatisticsPanel();
-        this.statisticsController = new StatisticsController(statisticsPanel,taskRepository, userRepository );
+        this.statisticsController = new StatisticsController(statisticsPanel, taskRepository, userRepository);
 
         // Bơm dữ liệu User vào cho Popup Hồ sơ
         this.mainFrame.getProfilePopupView().fillUser(this.currentUser);
@@ -124,7 +124,7 @@ public class MainController {
                 taskRepository,
                 reminderRepository);
         reminderController = new ReminderController(taskRepository, reminderService);
-//        // 2. Gọi ReminderController quét danh sách task này (isAppOpen = true)
+        // 2. Gọi ReminderController quét danh sách task này (isAppOpen = true)
         reminderController.startCheckingReminders(mainFrame);
 
         openFocusView();
@@ -160,7 +160,7 @@ public class MainController {
         if (this.goalController != null && this.currentUser != null) {
             this.goalController.refreshView(this.currentUser);
         }
-        }
+    }
 
     public void openStatisticTrackingView() {
         // 1. Chuyển đổi giao diện trước

@@ -13,5 +13,6 @@ public interface ITaskRepository {
     public boolean update(Task updatedTask);
     public boolean delete(int taskId,int userId);
     public void refresh();
+    public boolean saveToFile();
 
 }

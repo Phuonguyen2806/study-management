@@ -23,7 +23,7 @@ public class TaskController {
         this.view = view;
         this.owner = owner;
         this.userRepository = userRepository;
-        repository.init(AppConstants.FILE_TASKS);
+//        repository.init(AppConstants.FILE_TASKS);
         taskManager = new TaskManager(repository, userRepository);
         initEvents();
         refreshView();
@@ -75,6 +75,7 @@ public class TaskController {
         try {
             taskManager.deleteTask(taskId);
             JOptionPane.showMessageDialog(owner, "Xóa công việc thành công!");
+            refreshView();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(owner, e.getMessage());
         }
@@ -116,6 +117,7 @@ public class TaskController {
                     form.getStatusInput()
             );
             form.dispose();
+            refreshView();
             JOptionPane.showMessageDialog(owner, "Cập nhật công việc thành công!");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(form, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
