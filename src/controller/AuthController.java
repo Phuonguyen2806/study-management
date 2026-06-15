@@ -13,7 +13,6 @@ public class AuthController {
     private MainController mainController;
     private IUserRepository iUserRepository;
 
-
     public AuthController(MainController mainController) {
         iUserRepository = new UserRepository();
         authManager = new AuthManager(iUserRepository);

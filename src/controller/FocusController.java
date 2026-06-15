@@ -1,12 +1,13 @@
 package controller;
 
-import config.AppConstants;
 import model.FocusSessionManager;
 import model.entity.FocusStatus;
 import model.entity.SessionType;
 import model.entity.Task;
 import model.entity.TaskStatus;
-import model.repository.*;
+import model.repository.IStudySessionRepository;
+import model.repository.ITaskRepository;
+import model.repository.IUserRepository;
 import service.ProgressTrackingService;
 import service.SessionFinishedNotificationService;
 import view.FocusPanel;
@@ -135,7 +136,9 @@ public class FocusController implements IFocusController {
     public void handleCompleteEarlyClick() {
         // Chặn không cho bấm hoàn thành nếu phiên học chưa chạy được 10 giây
         if (!sessionManager.isSessionValidForRecord()) {
+            sessionManager.pauseTimer();
             view.showWarningSessionTooShort();
+            sessionManager.resumeTimer();
             return;
         }
 
@@ -150,7 +153,7 @@ public class FocusController implements IFocusController {
                 currentTask.setStatus(TaskStatus.DONE);
 
                 // 2. Gọi repository lưu ngay trạng thái DONE xuống file data/tasks.txt
-                this.taskRepository.update(currentTask);
+//                this.taskRepository.update(currentTask);
             }
 
             sessionManager.stopSession(true);

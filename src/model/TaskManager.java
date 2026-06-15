@@ -100,10 +100,14 @@ public class TaskManager {
     }
 
     public void updateOverdueTasks() {
+        boolean changed = false;
         for (Task task : repository.getAllTasks()) {
             if (task.checkOverdue()) {
-                repository.update(task);
+                changed = true;
             }
+        }
+        if (changed) {
+            repository.saveToFile();
         }
     }
 
