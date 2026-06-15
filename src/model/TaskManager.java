@@ -65,6 +65,9 @@ public class TaskManager {
             throw new IllegalArgumentException("Tiêu đề không được để trống!");
         }
         Date deadline = parseDate(deadlineStr);
+        if (deadline.before(getToday())) {
+            throw new IllegalArgumentException("Không được chọn ngày trong quá khứ!");
+        }
         task.setTitle(title);
         task.setDescription(description);
         task.setDeadline(deadline);
